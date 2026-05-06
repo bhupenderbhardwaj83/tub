@@ -439,7 +439,7 @@
             <div class="main-header">
                 <h1 class="main-title">🤖 Model Context Protocol (MCP) & RAG</h1>
                 <p class="main-subtitle">The Complete Guide to Building Context-Aware AI Agents</p>
-                <p class="shortcuts-hint">⌨️ <code>cmd+k or /</code> Search · <code>Esc</code> Clear · <code>⌘B</code>
+                <p class="shortcuts-hint">⌨️ <code>cmd+k or /</code> Search · <code>Esc</code> Clear · <code>⌘⇧H</code>
                     Back to Hub</p>
             </div>
 
@@ -1054,8 +1054,8 @@ SAFE_ROOT = os.path.expanduser(<span class="str">"~/Desktop"</span>)
                     if (searchInput) searchInput.focus();
                 }
 
-                // Cmd+B / Ctrl+B -> Back to Hub
-                if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+                // Cmd+Shift+H / Ctrl+Shift+H -> Back to Hub
+                if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'H') {
                     e.preventDefault();
                     if (homeButton) homeButton.click();
                 }

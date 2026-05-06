@@ -33,25 +33,22 @@ Clone or download the repository, then run the installer from the project folder
 
 ```bash
 bash install.sh
+# or, if you've made it executable:
+./install.sh
 ```
+
+> Do **not** run with `sudo` — everything installs under your home directory (`~/.tub/`) and no elevated permissions are needed.
 
 The installer will:
-1. Detect your Python
-2. Copy the app to `~/.tub/`
-3. Create an isolated virtual environment and install Flask
-4. Generate a `tub` executable and link it into `~/.local/bin/`
-5. Add `~/.local/bin` to your shell PATH (`.zshrc` / `.bashrc`)
-6. Ask if you want to start TUB immediately
+1. Detect your Python 3.8+
+2. Copy the app to `~/.tub/app/`
+3. Create an isolated virtual environment at `~/.tub/venv/` and install Flask
+4. Generate a `tub` executable and symlink it into `~/.local/bin/`
+5. Add `~/.local/bin` to your shell PATH (`.zprofile` / `.zshrc` for zsh, `.bash_profile` / `.bashrc` for bash)
+6. Write a default `~/.tub/config.toml` on first install
+7. Ask if you want to start TUB immediately
 
-> **First-time install:** restart your terminal (or `source ~/.zshrc`) once after installing so the `tub` command is on your PATH.
-
-**System-wide install** (makes `tub` available to all users on the machine):
-
-```bash
-sudo bash install.sh
-```
-
-This installs to `/usr/local/bin/tub` — no PATH changes needed, works in every shell immediately.
+`tub` will be available in the **same terminal session** straight after install. New terminals pick it up automatically from the next login.
 
 ---
 
@@ -63,25 +60,30 @@ Open PowerShell and run:
 powershell -ExecutionPolicy Bypass -File install.ps1
 ```
 
-**System-wide install** (run PowerShell as Administrator):
-
-```powershell
-powershell -ExecutionPolicy Bypass -File install.ps1 -System
-```
-
 ---
 
 ## Usage
 
 ```
-tub start      Start the server and open in browser
-tub stop       Stop the server
-tub restart    Restart the server
-tub status     Show running status, PID, and URL
-tub open       Open browser (server must already be running)
+tub start        Start the server in the background and open in browser
+tub stop         Stop the server
+tub restart      Restart the server (apply config changes)
+tub status       Show running status, PID, host, and URL
+tub open         Open browser (server must already be running)
+tub config       Show config file location and current settings
+tub uninstall    Remove TUB from your system
+tub --help       Full command reference
 ```
 
-TUB runs at **http://127.0.0.1:8787** and is restricted to localhost only — it never accepts connections from other machines on your network.
+TUB runs at **http://127.0.0.1:8787** and is restricted to localhost by default — it never accepts connections from other machines on your network unless you explicitly change the `host` setting.
+
+### Keyboard shortcuts (inside the browser)
+
+| Shortcut | Action |
+|---|---|
+| `Cmd+K` / `Ctrl+K` | Focus the search bar |
+| `Esc` | Clear search |
+| `Cmd+Shift+H` / `Ctrl+Shift+H` | Go back to Hub |
 
 ---
 
@@ -93,6 +95,8 @@ The portal is protected by basic authentication.
 |---|---|
 | Username | `bhupender` |
 | Password | `secret` |
+
+Change these in `~/.tub/config.toml` and run `tub restart`.
 
 ---
 
@@ -108,7 +112,7 @@ TUB reads settings from three places. Higher entries win:
 
 ### config.toml (recommended)
 
-The installer creates `~/.tub/config.toml` automatically on first install:
+The installer creates `~/.tub/config.toml` automatically on first install. Edit it, then run `tub restart`:
 
 ```toml
 # TUB — Tutorial Hub configuration
@@ -118,31 +122,38 @@ The installer creates `~/.tub/config.toml` automatically on first install:
 user     = "bhupender"
 password = "secret"
 port     = 8787
+
+# host controls who can reach TUB:
+#   127.0.0.1  — localhost only, secure (default)
+#   0.0.0.0    — all interfaces, reachable from your network
+host = "127.0.0.1"
 ```
 
-Edit this file, then run `tub restart` — done.
+Run `tub config` at any time to see the current config file path and all effective values.
 
 ### .env file (alternative)
 
-If you prefer a flat dotenv format, create `~/.tub/.env`:
+Create `~/.tub/.env` if you prefer a flat key=value format:
 
 ```env
 TUB_USER=alice
 TUB_PASS=mypassword
 TUB_PORT=9000
+TUB_HOST=127.0.0.1
 ```
 
 ### Environment variables (one-off overrides)
 
 ```bash
-TUB_USER=alice TUB_PASS=mypassword tub start
+TUB_PORT=9000 tub start
 ```
 
-| Variable | config.toml key | Default | Description |
+| Variable | `config.toml` key | Default | Description |
 |---|---|---|---|
 | `TUB_USER` | `user` | `bhupender` | Login username |
 | `TUB_PASS` | `password` | `secret` | Login password |
 | `TUB_PORT` | `port` | `8787` | Port the server listens on |
+| `TUB_HOST` | `host` | `127.0.0.1` | Bind address (`0.0.0.0` for network access) |
 
 ---
 
@@ -150,6 +161,7 @@ TUB_USER=alice TUB_PASS=mypassword tub start
 
 | Path | Contents |
 |---|---|
+| `~/.tub/config.toml` | Your configuration (edit to change credentials, port, host) |
 | `~/.tub/tub.log` | Server stdout / stderr |
 | `~/.tub/tub.pid` | PID of the running server (managed automatically) |
 | `~/.tub/app/` | Installed app files |
@@ -159,11 +171,27 @@ TUB_USER=alice TUB_PASS=mypassword tub start
 
 ## Reinstall / update
 
-Pull the latest code and run the installer again — it stops any running instance, syncs the files, and re-links the binary.
+Pull the latest code and run the installer again — it stops any running instance, syncs the files, and re-links the binary. Your `config.toml` is never overwritten.
 
 ```bash
 bash install.sh
+# or
+./install.sh
 ```
+
+---
+
+## Uninstall
+
+```bash
+tub uninstall
+```
+
+This will:
+- Stop the running server
+- Offer to keep your `config.toml` for a future reinstall
+- Remove `~/.tub/` (app, venv, logs)
+- Remove the `tub` command from `~/.local/bin/`
 
 ---
 
@@ -173,11 +201,12 @@ bash install.sh
 tub/
 ├── tub/
 │   ├── app.py          Flask application
-│   └── cli.py          tub CLI (start / stop / restart / status / open)
-├── templates/          HTML tutorial pages (23 topics)
+│   ├── cli.py          tub CLI (start/stop/restart/status/open/config/uninstall)
+│   └── config.py       Config loader (env vars > config.toml > .env > defaults)
+├── templates/          HTML tutorial pages (22 topics)
 ├── static/
 │   ├── default_css/    Stylesheet
-│   ├── default_js/     JavaScript
+│   ├── default_js/     JavaScript + keyboard shortcuts
 │   ├── default_img/    Icons and app images
 │   ├── mcp_img/        MCP architecture diagrams
 │   └── demos/          OpenCV visual demo screenshots
