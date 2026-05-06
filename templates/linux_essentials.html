@@ -2893,7 +2893,7 @@
                 <h1>🐧 Linux Essentials & Advanced</h1>
                 <p>Mastering the Core of Modern Computing and Red Teaming</p>
                 <div class="shortcuts-hint">
-                    ⌨️ <code>cmd+k</code> Search · <code>Esc</code> Clear · <code>⌘⇧H</code> Hub
+                    ⌨️ <code>cmd+k</code> Search · <code>Esc</code> Clear · <code>⌘B</code> Hub
                 </div>
             </div>
 
@@ -10698,6 +10698,12 @@ Host prod-server
                         const firstLink = Array.from(sidebarLinks).find(l => l.style.display !== 'none');
                         if (firstLink) firstLink.focus();
                     }
+                }
+
+                // Cmd+B (Mac) or Ctrl+B (Windows/Linux) — Back to Hub
+                if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+                    e.preventDefault();
+                    window.location.href = '/';
                 }
             });
 

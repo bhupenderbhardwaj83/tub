@@ -160,14 +160,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Cmd+Shift+H (Mac) or Ctrl+Shift+H (Windows/Linux) to go Back to Hub
-        // Note: Cmd+B is reserved by browsers (bookmarks bar) and cannot be overridden.
-        if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'H') {
-            const homeButton = document.querySelector('.home-button');
-            if (homeButton) {
-                e.preventDefault();
-                homeButton.click();
-            }
+        // Cmd+B (Mac) or Ctrl+B (Windows/Linux) — Back to Hub
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            window.location.href = '/';
         }
     });
 });

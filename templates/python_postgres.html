@@ -560,6 +560,14 @@
                 console.error('Failed to copy:', err);
             });
         }
-    </script>
+
+        document.addEventListener('keydown', function(e) {
+            // Cmd+B (Mac) or Ctrl+B (Windows/Linux) — Back to Hub
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+                e.preventDefault();
+                window.location.href = '/';
+            }
+        });
+        </script>
 </body>
 </html>

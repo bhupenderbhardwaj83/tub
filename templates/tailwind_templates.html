@@ -120,7 +120,7 @@
                     <a href="python_hub.html"
                         class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium">
                         <i class="ph ph-arrow-left"></i> Back to Hub <span
-                            class="ml-auto text-xs text-slate-600 font-mono">⌘⇧H</span>
+                            class="ml-auto text-xs text-slate-600 font-mono">⌘B</span>
                     </a>
                 </div>
 
@@ -10215,10 +10215,10 @@ microphone&amp;quot;&amp;gt;&amp;lt;/i&amp;gt;
                     }
                 }
             }
-            // Cmd+Shift+H to go back to hub
-            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'H') {
+            // Cmd+B (Mac) or Ctrl+B (Windows/Linux) — Back to Hub
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
                 e.preventDefault();
-                window.location.href = 'python_hub.html';
+                window.location.href = '/';
             }
             // Arrow Navigation for Sidebar
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {

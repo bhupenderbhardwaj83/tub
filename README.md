@@ -6,12 +6,15 @@ A self-hosted, offline-first learning portal that serves interactive tutorials d
 
 ## What's inside
 
+![TUB Main Page](static/default_img/tub_main_page.png)
+
 | Category | Tutorials |
 |---|---|
 | **Python** | Basics · OOP · Decorators · Iterators · Functional Programming · File I/O · Modules & Packages |
 | **Python — Data** | Advanced Python · Pandas (Advanced) · Plotly · PostgreSQL |
 | **Computer Vision** | OpenCV (with visual demos) |
 | **DevOps** | Docker · Docker Compose · Traefik Proxy · Linux Essentials |
+| **Linux** | Linux Essentials |
 | **Web & Mobile** | Next.js · React Native · Tailwind CSS · Tailwind Templates |
 | **AI / Protocols** | MCP (Model Context Protocol) + RAG systems |
 
@@ -83,7 +86,7 @@ TUB runs at **http://127.0.0.1:8787** and is restricted to localhost by default 
 |---|---|
 | `Cmd+K` / `Ctrl+K` | Focus the search bar |
 | `Esc` | Clear search |
-| `Cmd+Shift+H` / `Ctrl+Shift+H` | Go back to Hub |
+| `⌘B` / `Ctrl+B` | Go back to Hub |
 
 ---
 

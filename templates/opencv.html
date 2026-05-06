@@ -151,7 +151,7 @@
               class="bg-white/10 px-2 py-1 rounded-md text-white border-b-2 border-white/20">Esc</kbd> Clear</span>
           <span class="hidden md:block w-1 h-1 bg-white/40 rounded-full"></span>
           <span class="flex items-center gap-2"><kbd
-              class="bg-white/10 px-2 py-1 rounded-md text-white border-b-2 border-white/20">Cmd+Shift+H</kbd> Hub</span>
+              class="bg-white/10 px-2 py-1 rounded-md text-white border-b-2 border-white/20">⌘B</kbd> Hub</span>
         </div>
       </div>
 
@@ -4828,6 +4828,11 @@ cv2.waitKey(0)</code></pre>
         e.preventDefault();
         const searchBox = document.getElementById("search");
         if (searchBox) searchBox.focus();
+      }
+      // Option+H (Mac) / Ctrl+B (Win/Linux) — Back to Hub
+      if (e.altKey && e.key === 'h') {
+        e.preventDefault();
+        window.location.href = '/';
       }
     });
 

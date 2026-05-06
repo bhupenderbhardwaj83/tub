@@ -795,6 +795,11 @@ const { data } = useQuery({
         sidebarSearch.addEventListener('focus', openSearch);
         document.addEventListener('keydown', (e) => {
             if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+        // Cmd+B (Mac) or Ctrl+B (Windows/Linux) — Back to Hub
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+            e.preventDefault();
+            window.location.href = '/';
+        }
             if (e.key === 'Escape') closeSearchModal();
         });
         closeSearch.addEventListener('click', closeSearchModal);

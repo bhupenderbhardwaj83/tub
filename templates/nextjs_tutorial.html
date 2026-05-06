@@ -1746,6 +1746,12 @@ packages/
                     }
                 }
             }
+
+            // Cmd+B (Mac) or Ctrl+B (Windows/Linux) — Back to Hub
+            if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+                e.preventDefault();
+                window.location.href = '/';
+            }
         });
 
     </script>
