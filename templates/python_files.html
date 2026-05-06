@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python File Handling - Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .home-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .home-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .home-button::before {
+            content: '🏠';
+            font-size: 1.2em;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #0f172a;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            border: 1px solid #1e293b;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #06b6d4 0%, #22d3ee 100%);
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-links {
+            background: #1e293b;
+            padding: 15px 30px;
+            border-bottom: 2px solid #334155;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            background: #334155;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: #06b6d4;
+            color: white;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 45px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 600;
+            color: #22d3ee;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #1e293b;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 6px;
+            height: 32px;
+            background: #06b6d4;
+            margin-right: 15px;
+            border-radius: 3px;
+        }
+
+        .concept-box {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        .concept-box:hover {
+            border-color: #06b6d4;
+            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.15);
+        }
+
+        .concept-header {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: #67e8f9;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .concept-header::before {
+            content: '▸';
+            color: #06b6d4;
+            font-size: 1.2em;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .label-what {
+            background: #06b6d4;
+            color: white;
+        }
+
+        .label-example {
+            background: #10b981;
+            color: white;
+        }
+
+        .description {
+            color: #cbd5e1;
+            font-size: 1.05em;
+            margin-bottom: 18px;
+            line-height: 1.7;
+        }
+
+        .code-block {
+            background: #020817;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'PYTHON';
+            position: absolute;
+            top: 8px;
+            right: 80px;
+            font-size: 0.7em;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 15px;
+            background: #06b6d4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #22d3ee;
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .code-block pre {
+            margin: 0;
+            line-height: 1.8;
+            white-space: pre;
+            color: #e2e8f0;
+        }
+
+        .kw {
+            color: #f472b6;
+            font-weight: 600;
+        }
+
+        .fn {
+            color: #60a5fa;
+        }
+
+        .str {
+            color: #34d399;
+        }
+
+        .num {
+            color: #fbbf24;
+        }
+
+        .cmt {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .var {
+            color: #e2e8f0;
+        }
+
+        .back-to-top {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #06b6d4;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top:hover {
+            background: #22d3ee;
+            transform: translateY(-2px);
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e3a4f 100%);
+            border-left: 4px solid #06b6d4;
+            padding: 18px 22px;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #67e8f9;
+        }
+
+        .real-world {
+            background: linear-gradient(135deg, #2e1f3a 0%, #3a1f2e 100%);
+            border: 2px solid #06b6d4;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+        }
+
+        .real-world-title {
+            color: #67e8f9;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+        }
+
+        .real-world-title::before {
+            content: '💡 ';
+        }
+    </style>
+</head>
+
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <div class="container">
+        <div class="header">
+            <h1>📁 File Handling</h1>
+            <p>Master reading, writing, and processing files in Python</p>
+            <p class="shortcuts-hint">⌨️ <code>cmd+k or /</code> Search · <code>Esc</code> Clear · <code>⌘B</code> Back
+                to Hub</p>
+        </div>
+        <div class="nav-links">
+            <a href="#basics" class="nav-link">Basic Operations</a>
+            <a href="#context" class="nav-link">Context Managers</a>
+            <a href="#csv" class="nav-link">CSV Files</a>
+            <a href="#json" class="nav-link">JSON Files</a>
+            <a href="#paths" class="nav-link">pathlib</a>
+        </div>
+        <div class="content">
+            <div id="basics" class="section">
+                <h2 class="section-title">Basic File Operations</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Reading Files</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Open and read file contents using open() function with 'r' mode (read).
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Read entire file</span>
+<span class="var">file</span> = <span class="fn">open</span>(<span class="str">'data.txt'</span>, <span class="str">'r'</span>)
+<span class="var">content</span> = <span class="var">file</span>.<span class="fn">read</span>()
+<span class="fn">print</span>(<span class="var">content</span>)
+<span class="var">file</span>.<span class="fn">close</span>()
+
+<span class="cmt"># Read line by line</span>
+<span class="var">file</span> = <span class="fn">open</span>(<span class="str">'data.txt'</span>, <span class="str">'r'</span>)
+<span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="var">file</span>:
+    <span class="fn">print</span>(<span class="var">line</span>.<span class="fn">strip</span>())
+<span class="var">file</span>.<span class="fn">close</span>()
+
+<span class="cmt"># Read all lines into list</span>
+<span class="var">file</span> = <span class="fn">open</span>(<span class="str">'data.txt'</span>, <span class="str">'r'</span>)
+<span class="var">lines</span> = <span class="var">file</span>.<span class="fn">readlines</span>()
+<span class="var">file</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Writing Files</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Write (overwrites existing file)</span>
+<span class="var">file</span> = <span class="fn">open</span>(<span class="str">'output.txt'</span>, <span class="str">'w'</span>)
+<span class="var">file</span>.<span class="fn">write</span>(<span class="str">"Hello, World!
+"</span>)
+<span class="var">file</span>.<span class="fn">write</span>(<span class="str">"Second line
+"</span>)
+<span class="var">file</span>.<span class="fn">close</span>()
+
+<span class="cmt"># Append (adds to existing file)</span>
+<span class="var">file</span> = <span class="fn">open</span>(<span class="str">'output.txt'</span>, <span class="str">'a'</span>)
+<span class="var">file</span>.<span class="fn">write</span>(<span class="str">"Appended line
+"</span>)
+<span class="var">file</span>.<span class="fn">close</span>()
+
+<span class="cmt"># Write multiple lines</span>
+<span class="var">lines</span> = [<span class="str">"Line 1
+"</span>, <span class="str">"Line 2
+"</span>, <span class="str">"Line 3
+"</span>]
+<span class="var">file</span> = <span class="fn">open</span>(<span class="str">'output.txt'</span>, <span class="str">'w'</span>)
+<span class="var">file</span>.<span class="fn">writelines</span>(<span class="var">lines</span>)
+<span class="var">file</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">File Modes</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Different modes for opening files: 'r' (read), 'w' (write), 'a' (append), 'r+' (read+write), 'b'
+                        (binary).
+                    </p>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Common modes</span>
+<span class="str">'r'</span>   <span class="cmt"># Read only (default)</span>
+<span class="str">'w'</span>   <span class="cmt"># Write (creates new file or truncates existing)</span>
+<span class="str">'a'</span>   <span class="cmt"># Append (adds to end of file)</span>
+<span class="str">'r+'</span>  <span class="cmt"># Read and write</span>
+<span class="str">'rb'</span>  <span class="cmt"># Read binary</span>
+<span class="str">'wb'</span>  <span class="cmt"># Write binary</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="context" class="section">
+                <h2 class="section-title">Context Managers (with statement)</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Using 'with' Statement</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        The 'with' statement automatically closes files, even if an error occurs. Best practice for file
+                        handling.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Automatically closes file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'data.txt'</span>, <span class="str">'r'</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">content</span> = <span class="var">file</span>.<span class="fn">read</span>()
+    <span class="fn">print</span>(<span class="var">content</span>)
+<span class="cmt"># File automatically closed here</span>
+
+<span class="cmt"># Write with context manager</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'output.txt'</span>, <span class="str">'w'</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">file</span>.<span class="fn">write</span>(<span class="str">"Hello, World!"</span>)
+
+<span class="cmt"># Multiple files at once</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'input.txt'</span>) <span class="kw">as</span> <span class="var">infile</span>, <span class="fn">open</span>(<span class="str">'output.txt'</span>, <span class="str">'w'</span>) <span class="kw">as</span> <span class="var">outfile</span>:
+    <span class="var">content</span> = <span class="var">infile</span>.<span class="fn">read</span>()
+    <span class="var">outfile</span>.<span class="fn">write</span>(<span class="var">content</span>.<span class="fn">upper</span>())</pre>
+                    </div>
+                </div>
+
+                <div class="real-world">
+                    <div class="real-world-title">Real-World Example: Log File Processing</div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">filter_errors</span>(<span class="var">input_file</span>, <span class="var">output_file</span>):
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="var">input_file</span>) <span class="kw">as</span> <span class="var">infile</span>, <span class="fn">open</span>(<span class="var">output_file</span>, <span class="str">'w'</span>) <span class="kw">as</span> <span class="var">outfile</span>:
+        <span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="var">infile</span>:
+            <span class="kw">if</span> <span class="str">'ERROR'</span> <span class="kw">in</span> <span class="var">line</span>:
+                <span class="var">outfile</span>.<span class="fn">write</span>(<span class="var">line</span>)
+
+<span class="fn">filter_errors</span>(<span class="str">'app.log'</span>, <span class="str">'errors.log'</span>)</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="csv" class="section">
+                <h2 class="section-title">Working with CSV Files</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Reading CSV Files</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">csv</span>
+
+<span class="cmt"># Read CSV file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'data.csv'</span>, <span class="str">'r'</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">reader</span> = <span class="var">csv</span>.<span class="fn">reader</span>(<span class="var">file</span>)
+    <span class="kw">for</span> <span class="var">row</span> <span class="kw">in</span> <span class="var">reader</span>:
+        <span class="fn">print</span>(<span class="var">row</span>)  <span class="cmt"># Each row is a list</span>
+
+<span class="cmt"># Read as dictionary</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'data.csv'</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">reader</span> = <span class="var">csv</span>.<span class="fn">DictReader</span>(<span class="var">file</span>)
+    <span class="kw">for</span> <span class="var">row</span> <span class="kw">in</span> <span class="var">reader</span>:
+        <span class="fn">print</span>(<span class="var">row</span>[<span class="str">'name'</span>], <span class="var">row</span>[<span class="str">'age'</span>])  <span class="cmt"># Access by column name</span></pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Writing CSV Files</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">csv</span>
+
+<span class="cmt"># Write CSV file</span>
+<span class="var">data</span> = [
+    [<span class="str">'Name'</span>, <span class="str">'Age'</span>, <span class="str">'City'</span>],
+    [<span class="str">'Alice'</span>, <span class="num">25</span>, <span class="str">'NYC'</span>],
+    [<span class="str">'Bob'</span>, <span class="num">30</span>, <span class="str">'LA'</span>]
+]
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'output.csv'</span>, <span class="str">'w'</span>, <span class="var">newline</span>=<span class="str">''</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">writer</span> = <span class="var">csv</span>.<span class="fn">writer</span>(<span class="var">file</span>)
+    <span class="var">writer</span>.<span class="fn">writerows</span>(<span class="var">data</span>)
+
+<span class="cmt"># Write dictionary to CSV</span>
+<span class="var">data</span> = [
+    {<span class="str">'name'</span>: <span class="str">'Alice'</span>, <span class="str">'age'</span>: <span class="num">25</span>, <span class="str">'city'</span>: <span class="str">'NYC'</span>},
+    {<span class="str">'name'</span>: <span class="str">'Bob'</span>, <span class="str">'age'</span>: <span class="num">30</span>, <span class="str">'city'</span>: <span class="str">'LA'</span>}
+]
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'output.csv'</span>, <span class="str">'w'</span>, <span class="var">newline</span>=<span class="str">''</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">fieldnames</span> = [<span class="str">'name'</span>, <span class="str">'age'</span>, <span class="str">'city'</span>]
+    <span class="var">writer</span> = <span class="var">csv</span>.<span class="fn">DictWriter</span>(<span class="var">file</span>, <span class="var">fieldnames</span>=<span class="var">fieldnames</span>)
+    <span class="var">writer</span>.<span class="fn">writeheader</span>()
+    <span class="var">writer</span>.<span class="fn">writerows</span>(<span class="var">data</span>)</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="json" class="section">
+                <h2 class="section-title">Working with JSON Files</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Reading & Writing JSON</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">json</span>
+
+<span class="cmt"># Read JSON file</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'data.json'</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">data</span> = <span class="var">json</span>.<span class="fn">load</span>(<span class="var">file</span>)
+    <span class="fn">print</span>(<span class="var">data</span>)
+
+<span class="cmt"># Write JSON file</span>
+<span class="var">data</span> = {
+    <span class="str">'name'</span>: <span class="str">'Alice'</span>,
+    <span class="str">'age'</span>: <span class="num">25</span>,
+    <span class="str">'hobbies'</span>: [<span class="str">'reading'</span>, <span class="str">'coding'</span>]
+}
+
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'output.json'</span>, <span class="str">'w'</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">json</span>.<span class="fn">dump</span>(<span class="var">data</span>, <span class="var">file</span>, <span class="var">indent</span>=<span class="num">4</span>)
+
+<span class="cmt"># Pretty print JSON</span>
+<span class="kw">with</span> <span class="fn">open</span>(<span class="str">'output.json'</span>, <span class="str">'w'</span>) <span class="kw">as</span> <span class="var">file</span>:
+    <span class="var">json</span>.<span class="fn">dump</span>(<span class="var">data</span>, <span class="var">file</span>, <span class="var">indent</span>=<span class="num">4</span>, <span class="var">sort_keys</span>=<span class="kw">True</span>)</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">JSON String Conversions</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">json</span>
+
+<span class="cmt"># Python to JSON string</span>
+<span class="var">data</span> = {<span class="str">'name'</span>: <span class="str">'Alice'</span>, <span class="str">'age'</span>: <span class="num">25</span>}
+<span class="var">json_string</span> = <span class="var">json</span>.<span class="fn">dumps</span>(<span class="var">data</span>)
+<span class="fn">print</span>(<span class="var">json_string</span>)  <span class="cmt"># '{"name": "Alice", "age": 25}'</span>
+
+<span class="cmt"># JSON string to Python</span>
+<span class="var">json_string</span> = <span class="str">'{"name": "Bob", "age": 30}'</span>
+<span class="var">data</span> = <span class="var">json</span>.<span class="fn">loads</span>(<span class="var">json_string</span>)
+<span class="fn">print</span>(<span class="var">data</span>[<span class="str">'name'</span>])  <span class="cmt"># Bob</span></pre>
+                    </div>
+                </div>
+
+                <div class="real-world">
+                    <div class="real-world-title">Real-World Example: Config File Handler</div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">json</span>
+
+<span class="kw">class</span> <span class="fn">ConfigManager</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">config_file</span>):
+        <span class="var">self</span>.<span class="var">config_file</span> = <span class="var">config_file</span>
+        <span class="var">self</span>.<span class="var">config</span> = <span class="var">self</span>.<span class="fn">load</span>()
+    
+    <span class="kw">def</span> <span class="fn">load</span>(<span class="var">self</span>):
+        <span class="kw">try</span>:
+            <span class="kw">with</span> <span class="fn">open</span>(<span class="var">self</span>.<span class="var">config_file</span>) <span class="kw">as</span> <span class="var">f</span>:
+                <span class="kw">return</span> <span class="var">json</span>.<span class="fn">load</span>(<span class="var">f</span>)
+        <span class="kw">except</span> <span class="fn">FileNotFoundError</span>:
+            <span class="kw">return</span> {}
+    
+    <span class="kw">def</span> <span class="fn">save</span>(<span class="var">self</span>):
+        <span class="kw">with</span> <span class="fn">open</span>(<span class="var">self</span>.<span class="var">config_file</span>, <span class="str">'w'</span>) <span class="kw">as</span> <span class="var">f</span>:
+            <span class="var">json</span>.<span class="fn">dump</span>(<span class="var">self</span>.<span class="var">config</span>, <span class="var">f</span>, <span class="var">indent</span>=<span class="num">4</span>)
+    
+    <span class="kw">def</span> <span class="fn">get</span>(<span class="var">self</span>, <span class="var">key</span>, <span class="var">default</span>=<span class="kw">None</span>):
+        <span class="kw">return</span> <span class="var">self</span>.<span class="var">config</span>.<span class="fn">get</span>(<span class="var">key</span>, <span class="var">default</span>)
+    
+    <span class="kw">def</span> <span class="fn">set</span>(<span class="var">self</span>, <span class="var">key</span>, <span class="var">value</span>):
+        <span class="var">self</span>.<span class="var">config</span>[<span class="var">key</span>] = <span class="var">value</span>
+        <span class="var">self</span>.<span class="fn">save</span>()
+
+<span class="cmt"># Usage</span>
+<span class="var">config</span> = <span class="fn">ConfigManager</span>(<span class="str">'config.json'</span>)
+<span class="var">config</span>.<span class="fn">set</span>(<span class="str">'api_key'</span>, <span class="str">'abc123'</span>)
+<span class="fn">print</span>(<span class="var">config</span>.<span class="fn">get</span>(<span class="str">'api_key'</span>))</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="paths" class="section">
+                <h2 class="section-title">pathlib - Modern Path Handling</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Working with Paths</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        pathlib provides object-oriented filesystem paths. Works across platforms (Windows, Linux, Mac).
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">pathlib</span> <span class="kw">import</span> <span class="var">Path</span>
+
+<span class="cmt"># Create path object</span>
+<span class="var">path</span> = <span class="fn">Path</span>(<span class="str">'data/files/document.txt'</span>)
+
+<span class="cmt"># Path properties</span>
+<span class="fn">print</span>(<span class="var">path</span>.<span class="var">name</span>)        <span class="cmt"># document.txt</span>
+<span class="fn">print</span>(<span class="var">path</span>.<span class="var">stem</span>)        <span class="cmt"># document</span>
+<span class="fn">print</span>(<span class="var">path</span>.<span class="var">suffix</span>)      <span class="cmt"># .txt</span>
+<span class="fn">print</span>(<span class="var">path</span>.<span class="var">parent</span>)      <span class="cmt"># data/files</span>
+
+<span class="cmt"># Check if exists</span>
+<span class="fn">print</span>(<span class="var">path</span>.<span class="fn">exists</span>())      <span class="cmt"># True/False</span>
+<span class="fn">print</span>(<span class="var">path</span>.<span class="fn">is_file</span>())     <span class="cmt"># True/False</span>
+<span class="fn">print</span>(<span class="var">path</span>.<span class="fn">is_dir</span>())      <span class="cmt"># True/False</span></pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">File Operations with pathlib</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">pathlib</span> <span class="kw">import</span> <span class="var">Path</span>
+
+<span class="var">path</span> = <span class="fn">Path</span>(<span class="str">'data.txt'</span>)
+
+<span class="cmt"># Read file</span>
+<span class="var">content</span> = <span class="var">path</span>.<span class="fn">read_text</span>()
+<span class="fn">print</span>(<span class="var">content</span>)
+
+<span class="cmt"># Write file</span>
+<span class="var">path</span>.<span class="fn">write_text</span>(<span class="str">"Hello, World!"</span>)
+
+<span class="cmt"># List directory</span>
+<span class="var">directory</span> = <span class="fn">Path</span>(<span class="str">'.'</span>)
+<span class="kw">for</span> <span class="var">file</span> <span class="kw">in</span> <span class="var">directory</span>.<span class="fn">iterdir</span>():
+    <span class="fn">print</span>(<span class="var">file</span>.<span class="var">name</span>)
+
+<span class="cmt"># Find all Python files</span>
+<span class="kw">for</span> <span class="var">py_file</span> <span class="kw">in</span> <span class="fn">Path</span>(<span class="str">'.'</span>).<span class="fn">glob</span>(<span class="str">'*.py'</span>):
+    <span class="fn">print</span>(<span class="var">py_file</span>)
+
+<span class="cmt"># Recursive search</span>
+<span class="kw">for</span> <span class="var">py_file</span> <span class="kw">in</span> <span class="fn">Path</span>(<span class="str">'.'</span>).<span class="fn">rglob</span>(<span class="str">'*.py'</span>):
+    <span class="fn">print</span>(<span class="var">py_file</span>)</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Creating Directories</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">pathlib</span> <span class="kw">import</span> <span class="var">Path</span>
+
+<span class="cmt"># Create single directory</span>
+<span class="var">path</span> = <span class="fn">Path</span>(<span class="str">'new_folder'</span>)
+<span class="var">path</span>.<span class="fn">mkdir</span>(<span class="var">exist_ok</span>=<span class="kw">True</span>)  <span class="cmt"># Won't error if exists</span>
+
+<span class="cmt"># Create nested directories</span>
+<span class="var">path</span> = <span class="fn">Path</span>(<span class="str">'data/logs/2024'</span>)
+<span class="var">path</span>.<span class="fn">mkdir</span>(<span class="var">parents</span>=<span class="kw">True</span>, <span class="var">exist_ok</span>=<span class="kw">True</span>)
+
+<span class="cmt"># Join paths (cross-platform)</span>
+<span class="var">base</span> = <span class="fn">Path</span>(<span class="str">'data'</span>)
+<span class="var">full_path</span> = <span class="var">base</span> / <span class="str">'logs'</span> / <span class="str">'app.log'</span>
+<span class="fn">print</span>(<span class="var">full_path</span>)  <span class="cmt"># data/logs/app.log</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div class="tip-box">
+                <strong>Next Steps:</strong> Explore Modern Modules (SQLAlchemy, Pydantic, FastAPI) for building robust
+                applications!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+
+</html>

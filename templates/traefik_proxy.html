@@ -1,0 +1,1501 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traefik Proxy - From Zero to Production Mastery</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#1e293b',
+                            900: '#0f172a',
+                            950: '#020617',
+                        },
+                        traefik: {
+                            blue: '#24a1c1',
+                            dark: '#1a1f3c',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* CustomScrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Syntax Highlighting Base */
+        .token.comment {
+            color: #6b7280;
+            font-style: italic;
+        }
+
+        .token.property {
+            color: #7dd3fc;
+        }
+
+        .token.string {
+            color: #86efac;
+        }
+
+        .token.number {
+            color: #fca5a5;
+        }
+
+        .token.boolean {
+            color: #bae6fd;
+            font-weight: bold;
+        }
+
+        .nav-active {
+            background: rgba(36, 161, 193, 0.15);
+            border-left: 3px solid #24a1c1;
+            color: #38bdf8 !important;
+        }
+
+        .diagram-box {
+            font-family: 'JetBrains Mono', monospace;
+            line-height: 1.2;
+            white-space: pre;
+        }
+    </style>
+</head>
+
+<body class="bg-slate-950 text-slate-200 antialiased selection:bg-traefik-blue selection:text-white relative">
+
+    <!-- Mobile Menu Button -->
+    <button id="mobile-menu-toggle"
+        class="fixed top-4 right-4 z-50 p-2 rounded-lg bg-slate-800 text-slate-200 md:hidden border border-slate-700">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 w-72 bg-slate-900 border-r border-slate-800 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out z-40 flex flex-col">
+        <div class="p-6 border-b border-slate-800 space-y-4">
+            <a href="python_hub.html"
+                class="flex items-center justify-center w-full gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg font-semibold transition-all shadow-lg shadow-indigo-500/20 group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 group-hover:-translate-x-1 transition-transform"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Hub
+                <span
+                    class="text-indigo-300 text-xs ml-auto border border-indigo-400/30 rounded px-1.5 hidden md:inline-block">⌘B</span>
+            </a>
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl flex items-center justify-content-center flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-500/20">
+                    T</div>
+                <div>
+                    <h1 class="font-bold text-xl tracking-tight text-white">Traefik<span
+                            class="text-blue-400">Hub</span></h1>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Mastery Guide</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-4 border-b border-slate-800">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
+                <input type="text" id="sidebarSearch"
+                    class="w-full bg-slate-950/50 text-sm text-slate-200 rounded-lg pl-10 pr-3 py-2 border border-slate-700 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all placeholder-slate-600"
+                    placeholder="Jump to section... (Cmd+K)">
+            </div>
+        </div>
+
+        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+            <a href="#intro"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                1. What is Traefik?
+            </a>
+            <a href="#architecture"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                2. Core Architecture
+            </a>
+            <a href="#installation"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                3. Installation Methods
+            </a>
+            <a href="#routing"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                4. Routing Deep Dive
+            </a>
+            <a href="#tls"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                5. TLS & HTTPS
+            </a>
+            <a href="#docker"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                6. Docker Labels
+            </a>
+            <a href="#middleware"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                7. Middlewares
+            </a>
+            <a href="#dashboard"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                8. Dashboard
+            </a>
+            <a href="#advanced"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                9. Advanced Use Cases
+            </a>
+            <a href="#multi-compose"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent ml-4 border-l-slate-700">
+                ↳ Multi-Compose Setup
+            </a>
+            <a href="#security"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                10. Security Best Practices
+            </a>
+            <a href="#architecture-real"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                11. Real-World Architectures
+            </a>
+            <a href="#comparison"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                12. Comparisons
+            </a>
+            <a href="#troubleshooting"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                13. Troubleshooting
+            </a>
+            <a href="#summary"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                14. Summary & Mental Models
+            </a>
+            <a href="#cheat-sheet"
+                class="nav-link block px-3 py-2 rounded-md text-sm font-medium text-slate-400 hover:bg-slate-800 hover:text-white transition-colors border-l-4 border-transparent">
+                ★ Reference Cheat Sheet
+            </a>
+        </nav>
+
+        <div class="p-4 border-t border-slate-800 text-xs text-slate-500 flex justify-between items-center">
+            <span>v3.0 Compatible</span>
+            <a href="python_hub.html" class="hover:text-blue-400 transition-colors">← Back to Hub</a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="md:ml-72 min-h-screen">
+
+        <!-- Hero Section -->
+        <header
+            class="bg-gradient-to-b from-slate-900 to-slate-950 border-b border-slate-800 px-8 py-16 relative overflow-hidden">
+            <div
+                class="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2">
+            </div>
+
+            <div class="max-w-5xl mx-auto relative z-10">
+                <div
+                    class="inline-flex items-center space-x-2 bg-blue-500/10 text-blue-300 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide mb-6 border border-blue-500/20">
+                    <span class="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></span>
+                    <span>The Modern Edge Router</span>
+                </div>
+                <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-6 tracking-tight">
+                    Traefik <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-300">Reverse
+                        Proxy</span>
+                </h1>
+                <p class="text-xl text-slate-400 max-w-2xl leading-relaxed">
+                    The Cloud Native Application Proxy. Stop managing messy Nginx configs and start routing with
+                    automatic discovery, dynamic configuration, and production-grade reliability.
+                </p>
+            </div>
+        </header>
+
+        <div class="max-w-5xl mx-auto px-6 py-12 space-y-24">
+
+            <!-- 1. What is Traefik? -->
+            <section id="intro" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-blue-600 transition-all duration-300 shadow-lg">
+                        🤔</div>
+                    <h2 class="text-3xl font-bold text-white">What is Traefik?</h2>
+                </div>
+
+                <div class="prose prose-invert prose-lg max-w-none text-slate-300">
+                    <p class="lead">
+                        Traefik (pronounced <em>traffic</em>) is a modern HTTP reverse proxy and load balancer that
+                        makes deploying microservices easy. It integrates with your existing infrastructure components
+                        (Docker, Swarm, Kubernetes, AWS, etc.) and configures itself automatically and dynamically.
+                    </p>
+
+                    <div class="grid md:grid-cols-2 gap-8 my-8">
+                        <div class="glass-panel p-6 rounded-xl border border-slate-800">
+                            <h3 class="text-lg font-semibold text-white mb-3">🔄 Reverse Proxy vs Forward Proxy</h3>
+                            <ul class="space-y-3 text-sm">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-green-400 mt-1">✓</span>
+                                    <span><strong>Forward Proxy:</strong> Sits in front of a client (you). Example: A
+                                        corporate VPN that hides your IP from the internet.</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-blue-400 mt-1">✓</span>
+                                    <span><strong>Reverse Proxy (Traefik):</strong> Sits in front of servers. It takes
+                                        incoming requests from the internet and routes them to the correct internal
+                                        service (container, VM, function).</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="glass-panel p-6 rounded-xl border border-slate-800">
+                            <h3 class="text-lg font-semibold text-white mb-3">🚀 Why Traefik Exists?</h3>
+                            <p class="text-sm leading-relaxed mb-4">
+                                Traditional proxies (Nginx, HAProxy) usually require a static config file reload every
+                                time you add a service. In the age of containers where services spin up/down in seconds,
+                                this doesn't scale.
+                            </p>
+                            <p class="text-sm font-semibold text-blue-300">
+                                Traefik listens to your container orchestrator (like Docker) and updates its routing
+                                rules in real-time, instantly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Core Architecture -->
+            <section id="architecture" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-8">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-purple-600 transition-all duration-300 shadow-lg">
+                        🏗️</div>
+                    <h2 class="text-3xl font-bold text-white">Core Architecture</h2>
+                </div>
+
+                <div class="bg-slate-900 rounded-xl p-8 border border-slate-800 overflow-x-auto mb-8">
+                    <pre class="text-sm text-cyan-300 diagram-box">
+    INTERNET
+       │
+       ▼
+┌────────────── EntryPoints (Ports) ──────────────┐
+│  :80 (HTTP)           :443 (HTTPS)              │
+└──────┬──────────────────────┬───────────────────┘
+       │                      │
+       ▼                      ▼
+┌──────────────── Routers (Rules) ────────────────┐
+│  Host(`api.io`)       Host(`web.io`)            │
+│  Path(`/v1`)          PathPrefix(`/app`)        │
+└──────┬──────────────────────┬───────────────────┘
+       │                      │
+       ▼                      ▼
+┌────────────── Middlewares (Tweaks) ─────────────┐
+│  BasicAuth            Compress                  │
+│  RateLimit            Headers                   │
+└──────┬──────────────────────┬───────────────────┘
+       │                      │
+       ▼                      ▼
+┌────────────── Services (Balancer) ──────────────┐
+│  Load Balancer (Round Robin, Weighted)          │
+└──────┬──────────────────────┬───────────────────┘
+       │                      │
+       ▼                      ▼
+┌────────────────── Providers ────────────────────┐
+│  Docker Container 1    Docker Container 2       │
+└─────────────────────────────────────────────────┘
+                    </pre>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div
+                        class="bg-slate-900/50 p-5 rounded-lg border border-slate-800 hover:border-blue-500/50 transition-colors">
+                        <h4 class="font-bold text-blue-400 mb-2">1. EntryPoints</h4>
+                        <p class="text-sm text-slate-400">The network ports Traefik listens on (usually 80 & 443). The
+                            doorways into your cluster.</p>
+                    </div>
+                    <div
+                        class="bg-slate-900/50 p-5 rounded-lg border border-slate-800 hover:border-green-500/50 transition-colors">
+                        <h4 class="font-bold text-green-400 mb-2">2. Routers</h4>
+                        <p class="text-sm text-slate-400">The logic. Analyzes incoming requests (Host, Path, Headers)
+                            and connects them to a service.</p>
+                    </div>
+                    <div
+                        class="bg-slate-900/50 p-5 rounded-lg border border-slate-800 hover:border-orange-500/50 transition-colors">
+                        <h4 class="font-bold text-orange-400 mb-2">3. Middlewares</h4>
+                        <p class="text-sm text-slate-400">The modifiers. Sit between Router and Service. Tweaks requests
+                            (Add headers, Auth, Compress).</p>
+                    </div>
+                    <div
+                        class="bg-slate-900/50 p-5 rounded-lg border border-slate-800 hover:border-purple-500/50 transition-colors">
+                        <h4 class="font-bold text-purple-400 mb-2">4. Services</h4>
+                        <p class="text-sm text-slate-400">The abstract destination. Configures how to reach the actual
+                            backend (Load balancing).</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Installation Methods -->
+            <section id="installation" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-blue-600 transition-all duration-300 shadow-lg">
+                        💾</div>
+                    <h2 class="text-3xl font-bold text-white">Installation Methods</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-slate-900 rounded-lg border border-slate-700">
+                        <div
+                            class="flex items-center justify-between px-4 py-2 border-b border-slate-700 bg-slate-800/50 rounded-t-lg">
+                            <span class="text-xs font-mono text-slate-400">docker-compose.yml (Recommended)</span>
+                            <button class="text-slate-400 hover:text-white transition-colors" onclick="copyCode(this)">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono leading-relaxed"><code class="language-yaml"><span class="token key">version:</span> <span class="token string">"3.8"</span>
+
+<span class="token key">services:</span>
+  <span class="token key">traefik:</span>
+    <span class="token key">image:</span> <span class="token string">traefik:v3.0</span>
+    <span class="token key">container_name:</span> <span class="token string">traefik</span>
+    <span class="token key">command:</span>
+      <span class="token comment"># Enable Docker Provider (read labels)</span>
+      <span class="token string">- --providers.docker=true</span>
+      <span class="token comment"># Do not expose containers by default</span>
+      <span class="token string">- --providers.docker.exposedbydefault=false</span>
+      <span class="token comment"># Define EntryPoints</span>
+      <span class="token string">- --entrypoints.web.address=:80</span>
+      <span class="token string">- --entrypoints.websecure.address=:443</span>
+    <span class="token key">ports:</span>
+      <span class="token string">- "80:80"</span>
+      <span class="token string">- "443:443"</span>
+      <span class="token comment"># Dashboard port (only valid if api.insecure=true, not recommended for prod)</span>
+      <span class="token string">- "8080:8080"</span>
+    <span class="token key">volumes:</span>
+      <span class="token comment"># Traefik needs to talk to the Docker Socket</span>
+      <span class="token string">- /var/run/docker.sock:/var/run/docker.sock:ro</span>
+      <span class="token comment"># Store Certificates persistently</span>
+      <span class="token string">- ./letsencrypt:/letsencrypt</span>
+    <span class="token key">networks:</span>
+      <span class="token string">- proxy</span>
+
+<span class="token key">networks:</span>
+  <span class="token key">proxy:</span>
+    <span class="token key">external:</span> <span class="token boolean">true</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                        <h5 class="text-blue-200 font-bold text-sm mb-1">PRO TIP: Network Isolation</h5>
+                        <p class="text-slate-300 text-sm">Always create an external Docker network (e.g., `proxy`) and
+                            connect only the containers that need public access to it.
+                            <br class="mb-2">Run: <code
+                                class="bg-slate-800 px-1 rounded text-cyan-300">docker network create proxy</code>
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Routing Deep Dive -->
+            <section id="routing" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-green-600 transition-all duration-300 shadow-lg">
+                        🛣️</div>
+                    <h2 class="text-3xl font-bold text-white">Routing Deep Dive</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="p-5 border border-slate-700 rounded-lg hover:bg-slate-900/50 transition">
+                        <h3 class="text-xl font-bold text-white mb-2">Host Based Routing</h3>
+                        <p class="text-slate-400 text-sm mb-3">Route based on the domain name.</p>
+                        <code class="block bg-slate-950 p-2 rounded text-xs text-green-300 border border-slate-800">
+                            Host(`example.com`) || Host(`www.example.com`)
+                        </code>
+                    </div>
+
+                    <div class="p-5 border border-slate-700 rounded-lg hover:bg-slate-900/50 transition">
+                        <h3 class="text-xl font-bold text-white mb-2">Path Based Routing</h3>
+                        <p class="text-slate-400 text-sm mb-3">Route based on URL path prefix.</p>
+                        <code class="block bg-slate-950 p-2 rounded text-xs text-green-300 border border-slate-800">
+                            PathPrefix(`/api`)
+                        </code>
+                    </div>
+
+                    <div class="p-5 border border-slate-700 rounded-lg hover:bg-slate-900/50 transition">
+                        <h3 class="text-xl font-bold text-white mb-2">Priority Rules</h3>
+                        <p class="text-slate-400 text-sm mb-3">Traefik calculates route length. Longer = Higher
+                            Priority.</p>
+                        <code class="block bg-slate-950 p-2 rounded text-xs text-orange-300 border border-slate-800">
+                            Path(`/api/v2`) > Path(`/api`)
+                        </code>
+                        <div class="mt-2 text-xs text-slate-500">You can manually set specific priority in labels if
+                            needed.</div>
+                    </div>
+
+                    <div class="p-5 border border-slate-700 rounded-lg hover:bg-slate-900/50 transition">
+                        <h3 class="text-xl font-bold text-white mb-2">Header Based</h3>
+                        <p class="text-slate-400 text-sm mb-3">Route based on custom headers (great for A/B testing).
+                        </p>
+                        <code class="block bg-slate-950 p-2 rounded text-xs text-purple-300 border border-slate-800">
+                            Headers(`X-Beta-User`, `true`)
+                        </code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. TLS & HTTPS -->
+            <section id="tls" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-yellow-500 transition-all duration-300 shadow-lg">
+                        🔒</div>
+                    <h2 class="text-3xl font-bold text-white">TLS & HTTPS (ACME)</h2>
+                </div>
+
+                <div class="prose prose-invert max-w-none text-slate-300 space-y-4">
+                    <p>Traefik can automatically generate and renew SSL certificates via Let's Encrypt using the ACME
+                        protocol. No more cron jobs or certbot scripts.</p>
+
+                    <h3 class="text-xl font-bold text-white mt-8">Configuration in `traefik.yml` or `command`</h3>
+
+                    <div class="overflow-hidden rounded-lg border border-slate-700 bg-slate-900">
+                        <div class="p-4 overflow-x-auto">
+                            <pre class="text-sm font-mono"><code class="language-yaml"><span class="token comment"># 1. Define the Resolver</span>
+<span class="token key">certificatesResolvers:</span>
+  <span class="token key">myresolver:</span>
+    <span class="token key">acme:</span>
+      <span class="token key">email:</span> <span class="token string">you@example.com</span>
+      <span class="token key">storage:</span> <span class="token string">/letsencrypt/acme.json</span>
+      <span class="token comment"># Challenge Type: HTTP-01 (Easiest, requires port 80 open)</span>
+      <span class="token key">httpChallenge:</span>
+        <span class="token key">entryPoint:</span> <span class="token string">web</span>
+
+<span class="token comment"># 2. Force HTTPS Redirect (Global)</span>
+<span class="token key">entryPoints:</span>
+  <span class="token key">web:</span>
+    <span class="token key">address:</span> <span class="token string">":80"</span>
+    <span class="token key">http:</span>
+      <span class="token key">redirections:</span>
+        <span class="token key">entryPoint:</span>
+          <span class="token key">to:</span> <span class="token string">websecure</span>
+          <span class="token key">scheme:</span> <span class="token string">https</span></code></pre>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-8 mt-6">
+                        <div>
+                            <h4 class="font-bold text-white mb-2">HTTP-01 Challenge</h4>
+                            <p class="text-sm text-slate-400 mb-2">Traefik puts a file on a specific route. Let's
+                                Encrypt calls your domain on Port 80 to verify.</p>
+                            <span class="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded">Best for simple
+                                setups</span>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white mb-2">DNS-01 Challenge</h4>
+                            <p class="text-sm text-slate-400 mb-2">Traefik adds a TXT record to your DNS provider API.
+                                Confirms ownership without port 80/443 pointing to this server.</p>
+                            <span class="text-xs bg-purple-900/30 text-purple-400 px-2 py-1 rounded">Required for
+                                Wildcards (*.domain.com)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Docker Labels -->
+            <section id="docker" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-indigo-500 transition-all duration-300 shadow-lg">
+                        🏷️</div>
+                    <h2 class="text-3xl font-bold text-white">Traefik with Docker Labels</h2>
+                </div>
+
+                <p class="text-slate-300 mb-6">
+                    This is where the magic happens. You don't touch Traefik config to add a service. You just label the
+                    service container.
+                </p>
+
+                <div class="bg-slate-900 rounded-lg border border-slate-700 shadow-xl overflow-hidden">
+                    <div class="bg-slate-800 px-4 py-2 flex items-center gap-2 border-b border-slate-700">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                        <span class="ml-2 text-sm text-slate-400 font-mono">whoami-service.yml</span>
+                    </div>
+                    <div class="p-4 overflow-x-auto">
+                        <pre class="text-sm font-mono leading-relaxed text-blue-100"><code><span class="text-pink-400">services:</span>
+  <span class="text-pink-400">whoami:</span>
+    <span class="text-pink-400">image:</span> traefik/whoami
+    <span class="text-pink-400">labels:</span>
+      <span class="text-slate-500"># 1. Enable Traefik for this container</span>
+      - <span class="text-green-300">"traefik.enable=true"</span>
+      
+      <span class="text-slate-500"># 2. Define the Router Rule (Domain)</span>
+      - <span class="text-green-300">"traefik.http.routers.whoami.rule=Host(`whoami.localhost`)"</span>
+      
+      <span class="text-slate-500"># 3. Use the HTTPS EntryPoint</span>
+      - <span class="text-green-300">"traefik.http.routers.whoami.entrypoints=websecure"</span>
+      
+      <span class="text-slate-500"># 4. Use the Cert Resolver named 'myresolver'</span>
+      - <span class="text-green-300">"traefik.http.routers.whoami.tls.certresolver=myresolver"</span>
+      
+      <span class="text-slate-500"># 5. Connect to middleware (e.g., BasicAuth)</span>
+      - <span class="text-green-300">"traefik.http.routers.whoami.middlewares=my-auth"</span></code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Middlewares -->
+            <section id="middleware" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-red-500 transition-all duration-300 shadow-lg">
+                        🛡️</div>
+                    <h2 class="text-3xl font-bold text-white">Middlewares Deep Dive</h2>
+                </div>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <!-- Auth -->
+                    <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
+                        <h3 class="text-xl font-bold text-white mb-3">Authentication</h3>
+                        <p class="text-sm text-slate-400 mb-4">Protect any route with Basic Auth easily.</p>
+                        <pre class="bg-slate-950 p-4 rounded text-xs overflow-x-auto border border-slate-800"><code># Define Middleware
+labels:
+  - "traefik.http.middlewares.my-auth.basicauth.users=admin:$$apr1$$KEY...Hash"
+  
+# Attach to Router
+  - "traefik.http.routers.my-app.middlewares=my-auth"</code></pre>
+                    </div>
+
+                    <!-- StripPrefix -->
+                    <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
+                        <h3 class="text-xl font-bold text-white mb-3">StripPrefix</h3>
+                        <p class="text-sm text-slate-400 mb-4">Route /api/v1/users -> backend /users</p>
+                        <pre class="bg-slate-950 p-4 rounded text-xs overflow-x-auto border border-slate-800"><code>labels:
+  - "traefik.http.middlewares.my-strip.stripprefix.prefixes=/api/v1"</code></pre>
+                    </div>
+
+                    <!-- Rate Limit -->
+                    <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
+                        <h3 class="text-xl font-bold text-white mb-3">Rate Limiting</h3>
+                        <p class="text-sm text-slate-400 mb-4">Prevent DoS attacks.</p>
+                        <pre class="bg-slate-950 p-4 rounded text-xs overflow-x-auto border border-slate-800"><code>labels:
+  - "traefik.http.middlewares.limit.ratelimit.average=100"
+  - "traefik.http.middlewares.limit.ratelimit.burst=50"</code></pre>
+                    </div>
+
+                    <!-- Chaining -->
+                    <div class="bg-slate-900/50 rounded-xl p-6 border border-slate-800">
+                        <h3 class="text-xl font-bold text-white mb-3">⛓️ Chaining Middlewares</h3>
+                        <p class="text-sm text-slate-400 mb-4">Combine multiple middlewares into a chain.</p>
+                        <pre class="bg-slate-950 p-4 rounded text-xs overflow-x-auto border border-slate-800"><code>labels:
+  - "traefik.http.middlewares.secured.chain.middlewares=my-auth,limit"</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Dashboard -->
+            <section id="dashboard" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-orange-500 transition-all duration-300 shadow-lg">
+                        📊</div>
+                    <h2 class="text-3xl font-bold text-white">Traefik Dashboard</h2>
+                </div>
+                <div class="prose prose-invert text-slate-300">
+                    <p>Traefik comes with a built-in dashboard to visualize the state of your routes. By default in dev
+                        mode it's on port 8080. In production, <strong>always</strong> secure it.</p>
+                </div>
+
+                <div class="mt-6 bg-slate-900 border border-red-900/50 rounded-lg p-6 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 p-4 opacity-10 text-9xl">⚠️</div>
+                    <h4 class="text-red-400 font-bold mb-2">Security Warning</h4>
+                    <p class="text-slate-400 text-sm mb-4">NEVER expose the dashboard insecurely to the public internet.
+                        It exposes infrastructure details.</p>
+
+                    <strong class="text-white text-sm block mb-2">Secure Method:</strong>
+                    <pre class="text-xs bg-slate-950 p-3 rounded text-green-300"><code>labels:
+  - "traefik.enable=true"
+  - "traefik.http.routers.dashboard.rule=Host(`traefik.example.com`)"
+  - "traefik.http.routers.dashboard.service=api@internal"
+  - "traefik.http.routers.dashboard.middlewares=auth" # MANDATORY</code></pre>
+                </div>
+            </section>
+
+            <!-- 9. Advanced Use Cases -->
+            <section id="advanced" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-cyan-500 transition-all duration-300 shadow-lg">
+                        🧠</div>
+                    <h2 class="text-3xl font-bold text-white">Advanced Use Cases</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Canary -->
+                    <div class="border-l-4 border-cyan-500 pl-6 py-2">
+                        <h3 class="text-2xl font-bold text-white mb-2">Canary Releases</h3>
+                        <p class="text-slate-400 mb-4">Gradually shift traffic from v1 to v2.</p>
+                        <div class="bg-slate-900 p-4 rounded border border-slate-800">
+                            <pre class="text-xs font-mono text-blue-200"># Weighted Load Balancing (Traefik Service Config)
+traefik.http.services.app-v1.loadbalancer.server.port=80
+traefik.http.services.app-v2.loadbalancer.server.port=80
+
+# The Weighted Service
+traefik.http.services.app-canary.weighted.services.app-v1.weight=80
+traefik.http.services.app-canary.weighted.services.app-v2.weight=20</pre>
+                        </div>
+                    </div>
+
+                    <!-- Internal Routing -->
+                    <div class="border-l-4 border-purple-500 pl-6 py-2">
+                        <h3 class="text-2xl font-bold text-white mb-2">Internal Tools (VPN Mode)</h3>
+                        <p class="text-slate-400 mb-4">Use Middleware IPAllowList to restrict access to internal tools
+                            (like Grafana, Portainer) only to your VPN IP.</p>
+                        <code
+                            class="bg-slate-900 text-purple-300 p-1 rounded text-sm">"traefik.http.middlewares.vpn-only.ipallowlist.sourcerange=10.0.0.0/24, 192.168.1.1"</code>
+                    </div>
+
+                    <!-- Multi-Compose Master Scenario -->
+                    <div id="multi-compose"
+                        class="bg-slate-900/40 rounded-xl p-8 border border-slate-700 relative overflow-hidden mt-12 scroll-mt-24">
+                        <div
+                            class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none">
+                        </div>
+                        <div
+                            class="inline-flex items-center space-x-2 bg-cyan-500/10 text-cyan-300 px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wide mb-6 border border-cyan-500/20">
+                            <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+                            <span>Master Class Scenario</span>
+                        </div>
+
+                        <h3 class="text-3xl font-extrabold text-white mb-4">Single Server, Multiple Apps, One Proxy</h3>
+                        <p class="text-slate-300 mb-8 max-w-3xl leading-relaxed">
+                            The "Holy Grail" of single-server orchestration. How to run a centralized Traefik instance
+                            that handles traffic for <strong>App A</strong> (e.g., WordPress) and <strong>App B</strong>
+                            (e.g., NodeJS API), where each app lives in its own isolated `docker-compose.yml` file.
+                        </p>
+
+                        <!-- Visual Diagram -->
+                        <div class="bg-slate-950/50 rounded-lg border border-slate-700 p-6 mb-10 overflow-x-auto">
+                            <pre class="text-sm font-mono leading-relaxed diagram-box text-cyan-200">
+                    INTERNET (Request)
+                            │
+                            ▼
+          ┌───────────────────────────────────┐
+          │      HOST: myserver.com           │
+          │                                   │
+          │  ┌─────────────────────────────┐  │    ┌ uses ┐
+          │  │      TRAEFIK PROXY          │◄─┼────┤ Docker │
+          │  │     (ports 80/443)          │  │    │ Socket │
+          │  └──────────────┬──────────────┘  │    └────────┘
+          │                 │                 │
+          │      [ Network: proxy-net ]       │◄───── BRIDGE
+          │        ▲                 ▲        │
+          │        │                 │        │
+          └────────┼─────────────────┼────────┘
+                   │                 │
+     ┌─────────────┴──┐           ┌──┴─────────────┐
+     │  APP A Compose │           │  APP B Compose │
+     │                │           │                │
+     │ ┌────────────┐ │           │ ┌────────────┐ │
+     │ │ WordPress  │ │           │ │  Node API  │ │
+     │ └─────┬──────┘ │           │ └────────────┘ │
+     │       │        │           │                │
+     │ [ internal-net]│           │                │
+     │       ▼        │           │                │
+     │ ┌────────────┐ │           │                │
+     │ │  MySQL DB  │ │           │                │
+     │ └────────────┘ │           │                │
+     └────────────────┘           └────────────────┘
+                            </pre>
+                            <div class="text-xs text-slate-500 mt-2 text-center">Traffic flows through the shared
+                                `proxy-net` while databases remain isolated in private networks.</div>
+                        </div>
+
+                        <div class="space-y-12">
+                            <!-- Step 1 -->
+                            <div class="relative pl-10">
+                                <span
+                                    class="absolute left-0 top-0 w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center font-bold text-slate-300 text-sm">1</span>
+                                <h4 class="text-xl font-bold text-white mb-2">Create Global Network</h4>
+                                <p class="text-sm text-slate-400 mb-3">This external network acts as the bridge. All
+                                    public containers must plugin to this switch.</p>
+                                <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 inline-block">
+                                    <code
+                                        class="text-green-400 font-mono text-sm">docker network create proxy-net</code>
+                                </div>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="relative pl-10">
+                                <span
+                                    class="absolute left-0 top-0 w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center font-bold text-slate-300 text-sm">2</span>
+                                <h4 class="text-xl font-bold text-white mb-2">Central Traefik Compose</h4>
+                                <p class="text-sm text-slate-400 mb-3">Does not know about apps yet. Just listens on the
+                                    network.</p>
+                                <div
+                                    class="mockup-code bg-slate-950 border border-slate-800 rounded-lg p-4 relative group">
+                                    <div
+                                        class="absolute top-2 right-2 text-xs text-slate-600 uppercase font-bold tracking-wider">
+                                        /opt/traefik/docker-compose.yml</div>
+                                    <pre class="text-sm font-mono text-cyan-100"><code class="language-yaml">services:
+  traefik:
+    image: traefik:v3.0
+    command:
+      - --providers.docker=true
+      # Watch containers on other networks too? No, usually not needed if they join this one.
+      - --providers.docker.exposedbydefault=false
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - proxy-net   # <--- Connects to the Bridge
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+
+networks:
+  proxy-net:
+    external: true  # <--- Use existing network</code></pre>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="relative pl-10">
+                                <span
+                                    class="absolute left-0 top-0 w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center font-bold text-slate-300 text-sm">3</span>
+                                <h4 class="text-xl font-bold text-white mb-2">Application A (e.g. Blog)</h4>
+                                <p class="text-sm text-slate-400 mb-3">Connects to `proxy-net` ONLY for routing. Uses
+                                    `internal-net` for DB.</p>
+                                <div
+                                    class="mockup-code bg-slate-950 border border-slate-800 rounded-lg p-4 relative group">
+                                    <div
+                                        class="absolute top-2 right-2 text-xs text-slate-600 uppercase font-bold tracking-wider">
+                                        /home/user/blog/docker-compose.yml</div>
+                                    <pre class="text-sm font-mono text-pink-100"><code class="language-yaml">services:
+  wordpress:
+    image: wordpress
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.blog.rule=Host(`blog.example.com`)"
+      - "traefik.docker.network=proxy-net"  # <--- CRITICAL: Tell Traefik which IP to use
+    networks:
+      - proxy-net  # Public side
+      - default    # Private side (Talks to DB)
+
+  db:
+    image: mysql
+    networks:
+      - default    # Private only. Traefik can't reach this.
+
+networks:
+  proxy-net:
+    external: true</code></pre>
+                                </div>
+                            </div>
+
+                            <!-- Step 4 -->
+                            <div class="relative pl-10">
+                                <span
+                                    class="absolute left-0 top-0 w-8 h-8 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center font-bold text-slate-300 text-sm">4</span>
+                                <h4 class="text-xl font-bold text-white mb-2">Application B (e.g. API)</h4>
+                                <p class="text-sm text-slate-400 mb-3">Completely separate folder/project. Same logic.
+                                </p>
+                                <div
+                                    class="mockup-code bg-slate-950 border border-slate-800 rounded-lg p-4 relative group">
+                                    <div
+                                        class="absolute top-2 right-2 text-xs text-slate-600 uppercase font-bold tracking-wider">
+                                        /home/user/api/docker-compose.yml</div>
+                                    <pre class="text-sm font-mono text-green-100"><code class="language-yaml">services:
+  api:
+    image: my-node-app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api.rule=Host(`api.example.com`)"
+      - "traefik.docker.network=proxy-net"
+    networks:
+      - proxy-net
+
+networks:
+  proxy-net:
+    external: true</code></pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8 bg-amber-500/10 border border-amber-500/20 rounded-lg p-4 flex gap-4">
+                            <span class="text-2xl">💡</span>
+                            <div>
+                                <h5 class="text-amber-400 font-bold mb-1">Common Pitfall: Gateway Timeout?</h5>
+                                <p class="text-sm text-slate-400">If you get a 504 Gateway Timeout, it often means
+                                    Traefik CANNOT reach the container. <br>Ensure you set
+                                    <code>traefik.docker.network=proxy-net</code> label on the app container if it is
+                                    attached to multiple networks.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. Security Best Practices -->
+            <section id="security" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-red-600 transition-all duration-300 shadow-lg">
+                        👮</div>
+                    <h2 class="text-3xl font-bold text-white">Security Best Practices</h2>
+                </div>
+
+                <ul class="grid md:grid-cols-2 gap-4">
+                    <li class="bg-slate-900 p-4 rounded-lg border border-slate-800 flex items-start gap-3">
+                        <span class="text-green-500 font-bold">✓</span>
+                        <div class="text-sm text-slate-300"><strong>Use Strict TLS:</strong> Set minimum TLS version to
+                            v1.2 or v1.3 in Traefik static config.</div>
+                    </li>
+                    <li class="bg-slate-900 p-4 rounded-lg border border-slate-800 flex items-start gap-3">
+                        <span class="text-green-500 font-bold">✓</span>
+                        <div class="text-sm text-slate-300"><strong>Secure Headers:</strong> Use `headers` middleware to
+                            add HSTS, X-Frame-Options, and CSP.</div>
+                    </li>
+                    <li class="bg-slate-900 p-4 rounded-lg border border-slate-800 flex items-start gap-3">
+                        <span class="text-green-500 font-bold">✓</span>
+                        <div class="text-sm text-slate-300"><strong>Socket Security:</strong> Never expose `docker.sock`
+                            to the internet. If you can, use a socket proxy or run Traefik as non-root (more complex).
+                        </div>
+                    </li>
+                    <li class="bg-slate-900 p-4 rounded-lg border border-slate-800 flex items-start gap-3">
+                        <span class="text-green-500 font-bold">✓</span>
+                        <div class="text-sm text-slate-300"><strong>Fail2Ban:</strong> Integrate with Fail2Ban by
+                            parsing Traefik access logs to ban bad actors.</div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- 11. Real World Architectures -->
+            <section id="architecture-real" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-teal-500 transition-all duration-300 shadow-lg">
+                        🌍</div>
+                    <h2 class="text-3xl font-bold text-white">Real-World Architectures</h2>
+                </div>
+
+                <div class="space-y-8">
+                    <!-- Homelab -->
+                    <div class="relative pl-8 border-l border-slate-700">
+                        <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-slate-500"></div>
+                        <h3 class="text-xl font-bold text-white mb-2">HOME LAB (Pi / Single Server)</h3>
+                        <p class="text-slate-400 text-sm mb-2">Single Node Docker Compose.</p>
+                        <p class="text-slate-500 text-xs">Traefik on ports 80/443. All apps (Plex, HomeAssistant,
+                            Nextcloud) in same network. DNS Challenge for wildcard certs so internal IPs have HTTPS.</p>
+                    </div>
+
+                    <!-- SaaS -->
+                    <div class="relative pl-8 border-l border-slate-700">
+                        <div class="absolute -left-1.5 top-0 w-3 h-3 rounded-full bg-blue-500"></div>
+                        <h3 class="text-xl font-bold text-white mb-2">PRODUCTION SAAS (Kubernetes)</h3>
+                        <p class="text-slate-400 text-sm mb-2">IngressController.</p>
+                        <p class="text-slate-500 text-xs">Traefik installed via Helm as IngressClass. Handles massive
+                            traffic. Uses Middleware for CRD-based configuration. Prometheus metrics enabled for
+                            autoscaling.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 12. Comparisons -->
+            <section id="comparison" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-pink-500 transition-all duration-300 shadow-lg">
+                        🆚</div>
+                    <h2 class="text-3xl font-bold text-white">Feature Comparison</h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-slate-700 text-slate-400 text-xs uppercase tracking-wider">
+                                <th class="py-4 px-2">Feature</th>
+                                <th class="py-4 px-2 text-blue-400 font-bold">Traefik</th>
+                                <th class="py-4 px-2">Nginx</th>
+                                <th class="py-4 px-2">Caddy</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm divide-y divide-slate-800">
+                            <tr>
+                                <td class="py-4 px-2 font-semibold">Config Style</td>
+                                <td class="py-4 px-2 text-green-400">Dynamic (Labels)</td>
+                                <td class="py-4 px-2">Static File</td>
+                                <td class="py-4 px-2">Caddyfile (Simple)</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 px-2 font-semibold">Auto HTTPS</td>
+                                <td class="py-4 px-2 text-green-400">Excellent (ACME)</td>
+                                <td class="py-4 px-2">Manual / Certbot</td>
+                                <td class="py-4 px-2 text-green-400">Excellent (Default)</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 px-2 font-semibold">Observability</td>
+                                <td class="py-4 px-2 text-green-400">Built-in Dashboard</td>
+                                <td class="py-4 px-2">Paid (Plus)</td>
+                                <td class="py-4 px-2">API Only</td>
+                            </tr>
+                            <tr>
+                                <td class="py-4 px-2 font-semibold">Best For</td>
+                                <td class="py-4 px-2 text-white">Dynamic Containers</td>
+                                <td class="py-4 px-2">Static Content / High Perf</td>
+                                <td class="py-4 px-2">Simple Servers</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 13. Troubleshooting -->
+            <section id="troubleshooting" class="scroll-mt-24 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-red-500 transition-all duration-300 shadow-lg">
+                        🔧</div>
+                    <h2 class="text-3xl font-bold text-white">Troubleshooting</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="collapse-group bg-slate-900 rounded-lg border border-slate-800">
+                        <button
+                            class="w-full text-left px-6 py-4 font-semibold text-white flex justify-between items-center"
+                            onclick="toggleCollapse(this)">
+                            404 Not Found?
+                            <span class="transform transition-transform">▼</span>
+                        </button>
+                        <div class="hidden px-6 pb-4 text-slate-400 text-sm border-t border-slate-800 pt-4">
+                            Usually means the rule didn't match. Check:
+                            <ul class="list-disc ml-5 mt-2 space-y-1">
+                                <li>Is `exposedbydefault` set to false? Did you add `traefik.enable=true`?</li>
+                                <li>Is the Host header correct in your request?</li>
+                                <li>Check the Dashboard to see if the Router exists.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="collapse-group bg-slate-900 rounded-lg border border-slate-800">
+                        <button
+                            class="w-full text-left px-6 py-4 font-semibold text-white flex justify-between items-center"
+                            onclick="toggleCollapse(this)">
+                            Certificate Errors?
+                            <span class="transform transition-transform">▼</span>
+                        </button>
+                        <div class="hidden px-6 pb-4 text-slate-400 text-sm border-t border-slate-800 pt-4">
+                            <ul class="list-disc ml-5 mt-2 space-y-1">
+                                <li>Check logs! Traefik logs ACME errors clearly.</li>
+                                <li>"Casper" staging errors? You might have hit rate limits.</li>
+                                <li>Ensure Port 80 is open to the world for HTTP-01 challenge.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 14. Summary -->
+            <section id="summary" class="scroll-mt-24 mb-20 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-blue-600 transition-all duration-300 shadow-lg">
+                        🏁</div>
+                    <h2 class="text-3xl font-bold text-white">Summary</h2>
+                </div>
+
+                <div class="bg-gradient-to-r from-slate-900 to-blue-900/20 rounded-xl p-8 border border-slate-800">
+                    <h3 class="text-2xl font-bold text-white mb-4">The Mental Model</h3>
+                    <p class="text-lg text-slate-300 leading-relaxed mb-6">
+                        Traefik is not just a config file; it's a dynamic router. It asks Docker "Who are you?" and
+                        configures the path to them instantly.
+                        <br><br>
+                        <strong>EntryPoints</strong> open the door.<br>
+                        <strong>Routers</strong> decide where to go.<br>
+                        <strong>Middlewares</strong> dress up the request.<br>
+                        <strong>Services</strong> deliver the package.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+                            class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-semibold transition-colors shadow-lg shadow-blue-500/20">Back
+                            to Top</a>
+                        <a href="python_hub.html"
+                            class="px-6 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-semibold transition-colors border border-slate-700">Explore
+                            Other Tutorials</a>
+                    </div>
+                </div>
+            </section>
+
+
+
+            <!-- 15. Reference Cheat Sheet -->
+            <section id="cheat-sheet" class="scroll-mt-24 mb-20 group">
+                <div class="flex items-center gap-4 mb-6">
+                    <div
+                        class="w-12 h-12 rounded-xl bg-slate-800 flex items-center justify-center text-2xl group-hover:bg-yellow-500 transition-all duration-300 shadow-lg">
+                        📖</div>
+                    <h2 class="text-3xl font-bold text-white">Top 50 Reference Commands</h2>
+                </div>
+
+                <div class="prose prose-invert mb-8 text-slate-300">
+                    <p>A quick-reference guide to the most essential configuration keys, labels, and CLI arguments.
+                        Grouped
+                        by core concept.</p>
+                </div>
+
+                <!-- 1. Docker & Discovery -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-bold text-blue-400 mb-4 flex items-center gap-2">
+                        <span class="p-1 bg-blue-500/10 rounded">🐳</span> Docker & Discovery
+                    </h3>
+                    <div class="overflow-x-auto rounded-lg border border-slate-700 bg-slate-900/50">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-200">
+                                    <th class="p-3 w-1/3">Command / Label / Key</th>
+                                    <th class="p-3">Core Concept & Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+                                <tr>
+                                    <td class="p-3 text-cyan-300">--providers.docker=true</td>
+                                    <td class="p-3 font-sans">Enables the Docker provider. Tells Traefik to listen to
+                                        Docker
+                                        socket events.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-cyan-300">--providers.docker.exposedbydefault=false</td>
+                                    <td class="p-3 font-sans">Security best practice. Prevents exposing every container
+                                        automatically. (Configure in static file/CLI).</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.enable=true</td>
+                                    <td class="p-3 font-sans"><strong>Label:</strong> Explicitly tells Traefik to route
+                                        traffic to this container. Required if exposedbydefault=false.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.docker.network=name</td>
+                                    <td class="p-3 font-sans"><strong>Label:</strong> Specifies which Docker network IP
+                                        Traefik should use to reach the container. Crucial for multi-network setups.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-cyan-300">--api.insecure=true</td>
+                                    <td class="p-3 font-sans">Enables the dashboard on port 8080 without auth.
+                                        <strong>DEV
+                                            ONLY</strong>.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-cyan-300">--log.level=DEBUG</td>
+                                    <td class="p-3 font-sans">Sets logging verbosity. Essential for troubleshooting "Why
+                                        isn't my route working?".</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 2. Routers & Rules (The Logic) -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2">
+                        <span class="p-1 bg-green-500/10 rounded">🛣️</span> Routers & Rules
+                    </h3>
+                    <div class="overflow-x-auto rounded-lg border border-slate-700 bg-slate-900/50">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-200">
+                                    <th class="p-3 w-1/3">Label Key</th>
+                                    <th class="p-3">Core Concept & Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.http.routers.NAME.rule</td>
+                                    <td class="p-3 font-sans">The main entry point. Defines <em>WHEN</em> this router is
+                                        active.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-green-300">Host(`example.com`)</td>
+                                    <td class="p-3 font-sans">Matches the exact domain name in the request header.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-green-300">HostRegexp(`{sub}.domain.com`)</td>
+                                    <td class="p-3 font-sans">Matches domains using regex pattern matching.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-green-300">Path(`/api`)</td>
+                                    <td class="p-3 font-sans">Matches exact path. `example.com/api` matches,
+                                        `example.com/api/foo` does NOT.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-green-300">PathPrefix(`/api`)</td>
+                                    <td class="p-3 font-sans">Matches path start. `example.com/api/foo` matches. Most
+                                        common
+                                        for APIs.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-green-300">Headers(`Key`, `Value`)</td>
+                                    <td class="p-3 font-sans">Matches specific request headers. Great for API versioning
+                                        or
+                                        internal routing.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.http.routers.NAME.entrypoints</td>
+                                    <td class="p-3 font-sans">Assigns router to specific ports (e.g., `websecure` for
+                                        443).
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.http.routers.NAME.priority</td>
+                                    <td class="p-3 font-sans">Manual priority override (Integer). Higher number = Higher
+                                        priority.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 3. TLS & Certificates -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
+                        <span class="p-1 bg-yellow-500/10 rounded">🔒</span> TLS & Certificates
+                    </h3>
+                    <div class="overflow-x-auto rounded-lg border border-slate-700 bg-slate-900/50">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-200">
+                                    <th class="p-3 w-1/3">Command / Label</th>
+                                    <th class="p-3">Core Concept & Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.http.routers.NAME.tls=true</td>
+                                    <td class="p-3 font-sans">Enables TLS (HTTPS) on the router.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.http.routers.NAME.tls.certresolver=lev</td>
+                                    <td class="p-3 font-sans">Tells Traefik which resolver (defined in static config) to
+                                        use
+                                        for getting the cert.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-cyan-300">--certificatesresolvers.lev.acme.email</td>
+                                    <td class="p-3 font-sans">Configures the email for Let's Encrypt notifications
+                                        (Static
+                                        Config).</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-cyan-300">--certificatesresolvers.lev.acme.storage</td>
+                                    <td class="p-3 font-sans">Path to `acme.json` to store certificates. <strong>Must be
+                                            persisted via volume.</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-cyan-300">...acme.httpchallenge.entrypoint=web</td>
+                                    <td class="p-3 font-sans">Use HTTP-01 challenge. Must use port 80.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-cyan-300">...acme.dnschallenge.provider=cloudflare</td>
+                                    <td class="p-3 font-sans">Use DNS-01 challenge. Required for wildcard certs.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. Services & Load Balancing -->
+                <div class="mb-10">
+                    <h3 class="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
+                        <span class="p-1 bg-purple-500/10 rounded">⚖️</span> Services (Load Balancing)
+                    </h3>
+                    <div class="overflow-x-auto rounded-lg border border-slate-700 bg-slate-900/50">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-200">
+                                    <th class="p-3 w-1/3">Label Key</th>
+                                    <th class="p-3">Core Concept & Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.http.services.NAME.loadbalancer.server.port
+                                    </td>
+                                    <td class="p-3 font-sans">Tells Traefik which internal container port to send
+                                        traffic to
+                                        (e.g., 3000, 8080).</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">...loadbalancer.sticky.cookie=true</td>
+                                    <td class="p-3 font-sans">Enables Sticky Sessions. User stays on the same container.
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">...loadbalancer.passhostheader=true</td>
+                                    <td class="p-3 font-sans">Forwards the original `Host` header to the backend
+                                        application
+                                        (default true).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 5. Middlewares (The Tweaks) -->
+                <div>
+                    <h3 class="text-xl font-bold text-red-400 mb-4 flex items-center gap-2">
+                        <span class="p-1 bg-red-500/10 rounded">🔧</span> Middlewares
+                    </h3>
+                    <div class="overflow-x-auto rounded-lg border border-slate-700 bg-slate-900/50">
+                        <table class="w-full text-left border-collapse text-sm">
+                            <thead>
+                                <tr class="bg-slate-800 text-slate-200">
+                                    <th class="p-3 w-1/3">Label Key / Middleware Type</th>
+                                    <th class="p-3">Core Concept & Usage</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800 text-slate-300 font-mono">
+                                <tr>
+                                    <td class="p-3 text-pink-300">traefik.http.routers.NAME.middlewares=list</td>
+                                    <td class="p-3 font-sans">Attaches one or more middlewares (comma separated) to a
+                                        router.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">...middlewares.NAME.basicauth.users</td>
+                                    <td class="p-3 font-sans"><strong>BasicAuth:</strong> Protects route with
+                                        user/password
+                                        (htpasswd format).</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">...middlewares.NAME.stripprefix.prefixes</td>
+                                    <td class="p-3 font-sans"><strong>StripPrefix:</strong> Removes path prefix before
+                                        sending to backend (/api/v1/user -> /user).</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">...middlewares.NAME.redirectscheme.scheme</td>
+                                    <td class="p-3 font-sans"><strong>RedirectScheme:</strong> Force redirect from HTTP
+                                        ->
+                                        HTTPS.</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">...middlewares.NAME.headers.customrequestheaders</td>
+                                    <td class="p-3 font-sans"><strong>Headers:</strong> Inject custom headers into the
+                                        request (e.g., X-Forwarded-For).</td>
+                                </tr>
+                                <tr>
+                                    <td class="p-3 text-pink-300">...middlewares.NAME.compress=true</td>
+                                    <td class="p-3 font-sans"><strong>Compress:</strong> Gzip compresses the response
+                                        body.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+
+        <footer class="bg-slate-950 border-t border-slate-900 py-12 text-center text-slate-600 text-sm">
+            <p>&copy; 2024 Educational Hub. Built with Traefik Passion.</p>
+        </footer>
+    </main>
+
+    <script>
+        // --- Interactivity Scripts ---
+
+        // 1. Copy to Clipboard
+        function copyCode(button) {
+            const pre = button.closest('.bg-slate-900').querySelector('pre');
+            if (!pre) return;
+            const text = pre.innerText;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const originalContent = button.innerHTML;
+                button.innerHTML = '<span class="text-green-400 font-bold text-xs">Copied!</span>';
+                setTimeout(() => {
+                    button.innerHTML = originalContent;
+                }, 2000);
+            });
+        }
+
+        // 2. Mobile Menu Toggle
+        const menuBtn = document.getElementById('mobile-menu-toggle');
+        const sidebar = document.getElementById('sidebar');
+
+        menuBtn.addEventListener('click', () => {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
+        // Close sidebar on link click (mobile)
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', () => {
+                if (window.innerWidth < 768) {
+                    sidebar.classList.add('-translate-x-full');
+                }
+            });
+        });
+
+        // 3. Scroll Spy (Highlight active section)
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        function onScroll() {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('nav-active', 'text-blue-400');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('nav-active');
+                    link.classList.remove('text-slate-400');
+                } else {
+                    link.classList.add('text-slate-400');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', onScroll);
+
+        // 4. Accordion Toggle
+        function toggleCollapse(button) {
+            const content = button.nextElementSibling;
+            const icon = button.querySelector('span');
+
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                icon.style.transform = 'rotate(180deg)';
+            } else {
+                content.classList.add('hidden');
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // 5. Sidebar Search
+        const searchInput = document.getElementById('sidebarSearch');
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            navLinks.forEach(link => {
+                const text = link.innerText.toLowerCase();
+                if (text.includes(term)) {
+                    link.style.display = 'block';
+                } else {
+                    link.style.display = 'none';
+                }
+            });
+        });
+
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Cmd+K: Focus Search
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+
+            // Cmd+B: Back to Hub
+            if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+                e.preventDefault();
+                window.location.href = 'python_hub.html';
+            }
+
+            // Escape: Clear Search / Blur
+            if (e.key === 'Escape') {
+                if (document.activeElement === searchInput) {
+                    searchInput.value = '';
+                    searchInput.blur();
+                    // Trigger input event to reset list
+                    searchInput.dispatchEvent(new Event('input'));
+                }
+            }
+
+            // Arrow Navigation (Up/Down)
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                const visibleLinks = Array.from(navLinks).filter(link => link.style.display !== 'none');
+                const currentIndex = visibleLinks.indexOf(document.activeElement);
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (document.activeElement === searchInput && visibleLinks.length > 0) {
+                        visibleLinks[0].focus();
+                    } else if (currentIndex > -1 && currentIndex < visibleLinks.length - 1) {
+                        visibleLinks[currentIndex + 1].focus();
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (currentIndex === 0) {
+                        searchInput.focus();
+                    } else if (currentIndex > 0) {
+                        visibleLinks[currentIndex - 1].focus();
+                    }
+                }
+            }
+        });
+
+        // Initial check
+        onScroll();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Modern Modules - Tutorial</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .home-button { position: fixed; top: 20px; left: 20px; z-index: 1000; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.95em; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .home-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .home-button::before { content: '🏠'; font-size: 1.2em; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; padding: 30px 20px; line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; background: #0f172a; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid #1e293b; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 50px 40px; text-align: center; }
+        .header h1 { font-size: 3em; font-weight: 700; color: white; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; color: rgba(255,255,255,0.95); }
+        .nav-links { background: #1e293b; padding: 15px 30px; border-bottom: 2px solid #334155; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        .nav-link { padding: 8px 16px; background: #334155; color: #94a3b8; text-decoration: none; border-radius: 8px; font-size: 0.9em; transition: all 0.3s ease; font-weight: 500; }
+        .nav-link:hover { background: #dc2626; color: white; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 45px; }
+        .section-title { font-size: 2em; font-weight: 600; color: #f87171; margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid #1e293b; display: flex; align-items: center; }
+        .section-title::before { content: ''; width: 6px; height: 32px; background: #dc2626; margin-right: 15px; border-radius: 3px; }
+        .concept-box { background: #1e293b; border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid #334155; transition: all 0.3s ease; }
+        .concept-box:hover { border-color: #dc2626; box-shadow: 0 8px 20px rgba(220, 38, 38, 0.15); }
+        .concept-header { font-size: 1.25em; font-weight: 600; color: #fca5a5; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .concept-header::before { content: '▸'; color: #dc2626; font-size: 1.2em; }
+        .label { display: inline-block; padding: 5px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; }
+        .label-what { background: #dc2626; color: white; }
+        .label-example { background: #10b981; color: white; }
+        .label-structure { background: #7c3aed; color: white; }
+        .description { color: #cbd5e1; font-size: 1.05em; margin-bottom: 18px; line-height: 1.7; }
+        .code-block { background: #020817; border: 1px solid #1e293b; border-radius: 10px; padding: 20px; margin: 15px 0; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.95em; position: relative; }
+        .code-block::before { content: 'PYTHON'; position: absolute; top: 8px; right: 80px; font-size: 0.7em; color: #475569; font-weight: 600; }
+        .copy-btn { position: absolute; top: 8px; right: 15px; background: #dc2626; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75em; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .copy-btn:hover { background: #ef4444; }
+        .copy-btn.copied { background: #10b981; }
+        .code-block pre { margin: 0; line-height: 1.8; white-space: pre; color: #e2e8f0; }
+        .kw { color: #f472b6; font-weight: 600; }
+        .fn { color: #60a5fa; }
+        .str { color: #34d399; }
+        .num { color: #fbbf24; }
+        .cmt { color: #64748b; font-style: italic; }
+        .var { color: #e2e8f0; }
+        .back-to-top { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #dc2626; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .back-to-top:hover { background: #ef4444; transform: translateY(-2px); }
+        .tip-box { background: linear-gradient(135deg, #1e3a5f 0%, #1e3a4f 100%); border-left: 4px solid #dc2626; padding: 18px 22px; margin: 20px 0; border-radius: 8px; color: #fca5a5; }
+        .real-world { background: linear-gradient(135deg, #2e1f3a 0%, #3a1f2e 100%); border: 2px solid #dc2626; padding: 20px; margin: 20px 0; border-radius: 12px; }
+        .real-world-title { color: #fca5a5; font-weight: 600; font-size: 1.1em; margin-bottom: 12px; }
+        .real-world-title::before { content: '💡 '; }
+        .tree { font-family: 'Consolas', 'Monaco', monospace; font-size: 0.9em; color: #94a3b8; line-height: 1.8; }
+    </style>
+</head>
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Modern Python Modules</h1>
+            <p>SQLAlchemy 2.0, Pydantic, FastAPI, Pandas & Alembic</p>
+        </div>
+        <div class="nav-links">
+            <a href="#sqlalchemy" class="nav-link">SQLAlchemy 2.0</a>
+            <a href="#pydantic" class="nav-link">Pydantic</a>
+            <a href="#fastapi" class="nav-link">FastAPI Structure</a>
+            <a href="#pandas" class="nav-link">Pandas</a>
+            <a href="#alembic" class="nav-link">Alembic</a>
+        </div>
+        <div class="content">
+            <div id="sqlalchemy" class="section">
+                <h2 class="section-title">SQLAlchemy 2.0 - Modern ORM</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Database Setup (SQLAlchemy 2.0 Style)</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        SQLAlchemy 2.0 introduces type-hinted, declarative models with Mapped[] for better IDE support and type safety.
+                    </p>
+                    <span class="label label-example">EXAMPLE - app/database.py</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="str">"""SQLAlchemy 2.0 database configuration with session management."""</span>
+<span class="kw">from</span> <span class="var">__future__</span> <span class="kw">import</span> <span class="var">annotations</span>
+<span class="kw">from</span> <span class="var">typing</span> <span class="kw">import</span> <span class="var">Generator</span>
+<span class="kw">from</span> <span class="var">sqlalchemy</span> <span class="kw">import</span> <span class="var">create_engine</span>
+<span class="kw">from</span> <span class="var">sqlalchemy</span>.<span class="var">orm</span> <span class="kw">import</span> <span class="var">DeclarativeBase</span>, <span class="var">Session</span>, <span class="var">sessionmaker</span>
+<span class="kw">from</span> <span class="var">app</span>.<span class="var">config</span> <span class="kw">import</span> <span class="var">settings</span>
+
+<span class="kw">class</span> <span class="fn">Base</span>(<span class="var">DeclarativeBase</span>):
+    <span class="str">"""Declarative base for ORM models."""</span>
+    <span class="kw">pass</span>
+
+<span class="cmt"># Engine with connection pooling</span>
+<span class="var">engine</span> = <span class="fn">create_engine</span>(
+    <span class="var">settings</span>.<span class="var">DATABASE_URL</span>,
+    <span class="var">pool_pre_ping</span>=<span class="kw">True</span>,  <span class="cmt"># Test connections before use</span>
+    <span class="var">echo</span>=<span class="kw">False</span>,  <span class="cmt"># Set True for SQL logging</span>
+)
+
+<span class="cmt"># Session factory</span>
+<span class="var">SessionLocal</span> = <span class="fn">sessionmaker</span>(
+    <span class="var">bind</span>=<span class="var">engine</span>,
+    <span class="var">autoflush</span>=<span class="kw">False</span>,
+    <span class="var">autocommit</span>=<span class="kw">False</span>,
+    <span class="var">expire_on_commit</span>=<span class="kw">False</span>,  <span class="cmt"># Keep attrs after commit</span>
+)
+
+<span class="kw">def</span> <span class="fn">get_db</span>() -> <span class="var">Generator</span>[<span class="var">Session</span>, <span class="kw">None</span>, <span class="kw">None</span>]:
+    <span class="str">"""FastAPI dependency: provide DB session per request."""</span>
+    <span class="var">db</span> = <span class="fn">SessionLocal</span>()
+    <span class="kw">try</span>:
+        <span class="kw">yield</span> <span class="var">db</span>
+    <span class="kw">finally</span>:
+        <span class="var">db</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Modern User Model (Type-Hinted)</div>
+                    <span class="label label-example">EXAMPLE - app/models/user.py</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="str">"""SQLAlchemy 2.0 ORM models with full type hints."""</span>
+<span class="kw">from</span> <span class="var">__future__</span> <span class="kw">import</span> <span class="var">annotations</span>
+<span class="kw">from</span> <span class="var">datetime</span> <span class="kw">import</span> <span class="var">datetime</span>
+<span class="kw">from</span> <span class="var">typing</span> <span class="kw">import</span> <span class="var">Optional</span>
+<span class="kw">from</span> <span class="var">sqlalchemy</span> <span class="kw">import</span> <span class="var">Boolean</span>, <span class="var">DateTime</span>, <span class="var">String</span>
+<span class="kw">from</span> <span class="var">sqlalchemy</span>.<span class="var">sql</span> <span class="kw">import</span> <span class="var">func</span>
+<span class="kw">from</span> <span class="var">sqlalchemy</span>.<span class="var">orm</span> <span class="kw">import</span> <span class="var">Mapped</span>, <span class="var">mapped_column</span>
+<span class="kw">from</span> <span class="var">app</span>.<span class="var">database</span> <span class="kw">import</span> <span class="var">Base</span>
+
+<span class="kw">class</span> <span class="fn">User</span>(<span class="var">Base</span>):
+    <span class="str">"""User model with RBAC and timestamps."""</span>
+    <span class="var">__tablename__</span> = <span class="str">"users"</span>
+    
+    <span class="cmt"># Primary key</span>
+    <span class="var">id</span>: <span class="var">Mapped</span>[<span class="var">int</span>] = <span class="fn">mapped_column</span>(<span class="var">primary_key</span>=<span class="kw">True</span>, <span class="var">index</span>=<span class="kw">True</span>)
+    
+    <span class="cmt"># Credentials</span>
+    <span class="var">email</span>: <span class="var">Mapped</span>[<span class="var">str</span>] = <span class="fn">mapped_column</span>(
+        <span class="fn">String</span>(<span class="num">255</span>), <span class="var">unique</span>=<span class="kw">True</span>, <span class="var">index</span>=<span class="kw">True</span>, <span class="var">nullable</span>=<span class="kw">False</span>
+    )
+    <span class="var">username</span>: <span class="var">Mapped</span>[<span class="var">str</span>] = <span class="fn">mapped_column</span>(
+        <span class="fn">String</span>(<span class="num">64</span>), <span class="var">unique</span>=<span class="kw">True</span>, <span class="var">index</span>=<span class="kw">True</span>
+    )
+    <span class="var">hashed_password</span>: <span class="var">Mapped</span>[<span class="var">str</span>] = <span class="fn">mapped_column</span>(<span class="fn">String</span>(<span class="num">255</span>))
+    
+    <span class="cmt"># Profile</span>
+    <span class="var">full_name</span>: <span class="var">Mapped</span>[<span class="var">Optional</span>[<span class="var">str</span>]] = <span class="fn">mapped_column</span>(<span class="fn">String</span>(<span class="num">255</span>), <span class="var">default</span>=<span class="kw">None</span>)
+    
+    <span class="cmt"># RBAC</span>
+    <span class="var">role</span>: <span class="var">Mapped</span>[<span class="var">str</span>] = <span class="fn">mapped_column</span>(<span class="fn">String</span>(<span class="num">32</span>), <span class="var">default</span>=<span class="str">"user"</span>)
+    
+    <span class="cmt"># Status</span>
+    <span class="var">is_active</span>: <span class="var">Mapped</span>[<span class="var">bool</span>] = <span class="fn">mapped_column</span>(<span class="var">Boolean</span>, <span class="var">default</span>=<span class="kw">True</span>)
+    <span class="var">is_verified</span>: <span class="var">Mapped</span>[<span class="var">bool</span>] = <span class="fn">mapped_column</span>(<span class="var">Boolean</span>, <span class="var">default</span>=<span class="kw">False</span>)
+    
+    <span class="cmt"># Timestamps</span>
+    <span class="var">created_at</span>: <span class="var">Mapped</span>[<span class="var">datetime</span>] = <span class="fn">mapped_column</span>(
+        <span class="fn">DateTime</span>(<span class="var">timezone</span>=<span class="kw">True</span>), <span class="var">server_default</span>=<span class="var">func</span>.<span class="fn">now</span>()
+    )
+    <span class="var">updated_at</span>: <span class="var">Mapped</span>[<span class="var">Optional</span>[<span class="var">datetime</span>]] = <span class="fn">mapped_column</span>(
+        <span class="fn">DateTime</span>(<span class="var">timezone</span>=<span class="kw">True</span>), 
+        <span class="var">server_default</span>=<span class="var">func</span>.<span class="fn">now</span>(),
+        <span class="var">onupdate</span>=<span class="var">func</span>.<span class="fn">now</span>()
+    )
+    
+    <span class="kw">def</span> <span class="fn">__repr__</span>(<span class="var">self</span>) -> <span class="var">str</span>:
+        <span class="kw">return</span> <span class="str">f"User(id=<span class="var">{self.id!r}</span>, username=<span class="var">{self.username!r}</span>)"</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">CRUD Operations (SQLAlchemy 2.0)</div>
+                    <span class="label label-example">EXAMPLE - app/crud/user.py</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="str">"""CRUD operations with password hashing."""</span>
+<span class="kw">from</span> <span class="var">sqlalchemy</span>.<span class="var">orm</span> <span class="kw">import</span> <span class="var">Session</span>
+<span class="kw">from</span> <span class="var">sqlalchemy</span> <span class="kw">import</span> <span class="var">select</span>
+<span class="kw">from</span> <span class="var">passlib</span>.<span class="var">context</span> <span class="kw">import</span> <span class="var">CryptContext</span>
+<span class="kw">from</span> <span class="var">app</span>.<span class="var">models</span>.<span class="var">user</span> <span class="kw">import</span> <span class="var">User</span>
+<span class="kw">from</span> <span class="var">app</span>.<span class="var">schemas</span>.<span class="var">user</span> <span class="kw">import</span> <span class="var">UserCreate</span>
+
+<span class="var">pwd_context</span> = <span class="fn">CryptContext</span>(<span class="var">schemes</span>=[<span class="str">"bcrypt"</span>], <span class="var">deprecated</span>=<span class="str">"auto"</span>)
+
+<span class="kw">def</span> <span class="fn">get_user_by_id</span>(<span class="var">db</span>: <span class="var">Session</span>, <span class="var">user_id</span>: <span class="var">int</span>) -> <span class="var">User</span> | <span class="kw">None</span>:
+    <span class="str">"""Fetch user by ID."""</span>
+    <span class="kw">return</span> <span class="var">db</span>.<span class="fn">scalar</span>(<span class="fn">select</span>(<span class="var">User</span>).<span class="fn">where</span>(<span class="var">User</span>.<span class="var">id</span> == <span class="var">user_id</span>))
+
+<span class="kw">def</span> <span class="fn">get_user_by_email</span>(<span class="var">db</span>: <span class="var">Session</span>, <span class="var">email</span>: <span class="var">str</span>) -> <span class="var">User</span> | <span class="kw">None</span>:
+    <span class="str">"""Fetch user by email."""</span>
+    <span class="kw">return</span> <span class="var">db</span>.<span class="fn">scalar</span>(<span class="fn">select</span>(<span class="var">User</span>).<span class="fn">where</span>(<span class="var">User</span>.<span class="var">email</span> == <span class="var">email</span>))
+
+<span class="kw">def</span> <span class="fn">create_user</span>(<span class="var">db</span>: <span class="var">Session</span>, <span class="var">user</span>: <span class="var">UserCreate</span>) -> <span class="var">User</span>:
+    <span class="str">"""Create new user with hashed password."""</span>
+    <span class="var">hashed_pwd</span> = <span class="var">pwd_context</span>.<span class="fn">hash</span>(<span class="var">user</span>.<span class="var">password</span>)
+    <span class="var">db_user</span> = <span class="fn">User</span>(
+        <span class="var">email</span>=<span class="var">user</span>.<span class="var">email</span>,
+        <span class="var">username</span>=<span class="var">user</span>.<span class="var">username</span>,
+        <span class="var">hashed_password</span>=<span class="var">hashed_pwd</span>,
+        <span class="var">full_name</span>=<span class="var">user</span>.<span class="var">full_name</span>
+    )
+    <span class="var">db</span>.<span class="fn">add</span>(<span class="var">db_user</span>)
+    <span class="var">db</span>.<span class="fn">commit</span>()
+    <span class="var">db</span>.<span class="fn">refresh</span>(<span class="var">db_user</span>)
+    <span class="kw">return</span> <span class="var">db_user</span>
+
+<span class="kw">def</span> <span class="fn">verify_password</span>(<span class="var">plain</span>: <span class="var">str</span>, <span class="var">hashed</span>: <span class="var">str</span>) -> <span class="var">bool</span>:
+    <span class="str">"""Verify password against hash."""</span>
+    <span class="kw">return</span> <span class="var">pwd_context</span>.<span class="fn">verify</span>(<span class="var">plain</span>, <span class="var">hashed</span>)</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="pydantic" class="section">
+                <h2 class="section-title">Pydantic - Data Validation</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Pydantic Schemas</div>
+                    <span class="label label-example">EXAMPLE - app/schemas/user.py</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="str">"""Pydantic validation schemas for User."""</span>
+<span class="kw">from</span> <span class="var">datetime</span> <span class="kw">import</span> <span class="var">datetime</span>
+<span class="kw">from</span> <span class="var">typing</span> <span class="kw">import</span> <span class="var">Optional</span>
+<span class="kw">from</span> <span class="var">pydantic</span> <span class="kw">import</span> <span class="var">BaseModel</span>, <span class="var">EmailStr</span>, <span class="var">Field</span>, <span class="var">ConfigDict</span>
+
+<span class="kw">class</span> <span class="fn">UserBase</span>(<span class="var">BaseModel</span>):
+    <span class="str">"""Base user schema."""</span>
+    <span class="var">email</span>: <span class="var">EmailStr</span>
+    <span class="var">username</span>: <span class="var">str</span> = <span class="fn">Field</span>(<span class="var">min_length</span>=<span class="num">3</span>, <span class="var">max_length</span>=<span class="num">64</span>)
+    <span class="var">full_name</span>: <span class="var">Optional</span>[<span class="var">str</span>] = <span class="kw">None</span>
+
+<span class="kw">class</span> <span class="fn">UserCreate</span>(<span class="var">UserBase</span>):
+    <span class="str">"""Schema for user creation."""</span>
+    <span class="var">password</span>: <span class="var">str</span> = <span class="fn">Field</span>(<span class="var">min_length</span>=<span class="num">8</span>)
+
+<span class="kw">class</span> <span class="fn">UserResponse</span>(<span class="var">UserBase</span>):
+    <span class="str">"""Schema for user response."""</span>
+    <span class="var">id</span>: <span class="var">int</span>
+    <span class="var">role</span>: <span class="var">str</span>
+    <span class="var">is_active</span>: <span class="var">bool</span>
+    <span class="var">is_verified</span>: <span class="var">bool</span>
+    <span class="var">created_at</span>: <span class="var">datetime</span>
+    
+    <span class="var">model_config</span> = <span class="fn">ConfigDict</span>(<span class="var">from_attributes</span>=<span class="kw">True</span>)  <span class="cmt"># ORM mode</span>
+
+<span class="kw">class</span> <span class="fn">UserUpdate</span>(<span class="var">BaseModel</span>):
+    <span class="str">"""Schema for user update."""</span>
+    <span class="var">full_name</span>: <span class="var">Optional</span>[<span class="var">str</span>] = <span class="kw">None</span>
+    <span class="var">email</span>: <span class="var">Optional</span>[<span class="var">EmailStr</span>] = <span class="kw">None</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Pydantic Settings</div>
+                    <span class="label label-example">EXAMPLE - app/config.py</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="str">"""Pydantic settings with environment variables."""</span>
+<span class="kw">from</span> <span class="var">pydantic_settings</span> <span class="kw">import</span> <span class="var">BaseSettings</span>, <span class="var">SettingsConfigDict</span>
+
+<span class="kw">class</span> <span class="fn">Settings</span>(<span class="var">BaseSettings</span>):
+    <span class="str">"""Application settings from .env file."""</span>
+    <span class="var">DATABASE_URL</span>: <span class="var">str</span>
+    <span class="var">SECRET_KEY</span>: <span class="var">str</span>
+    <span class="var">ALGORITHM</span>: <span class="var">str</span> = <span class="str">"HS256"</span>
+    <span class="var">ACCESS_TOKEN_EXPIRE_MINUTES</span>: <span class="var">int</span> = <span class="num">30</span>
+    
+    <span class="var">model_config</span> = <span class="fn">SettingsConfigDict</span>(<span class="var">env_file</span>=<span class="str">".env"</span>)
+
+<span class="var">settings</span> = <span class="fn">Settings</span>()</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="fastapi" class="section">
+                <h2 class="section-title">FastAPI - Modern Backend Structure</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Project Structure</div>
+                    <span class="label label-structure">BACKEND STRUCTURE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre class="tree">backend/
+├── app/
+│   ├── main.py              <span class="cmt"># FastAPI entry with CORS</span>
+│   ├── config.py            <span class="cmt"># Pydantic settings</span>
+│   ├── database.py          <span class="cmt"># SQLAlchemy + session management</span>
+│   ├── dependencies.py      <span class="cmt"># JWT auth + RBAC</span>
+│   ├── models/
+│   │   ├── __init__.py
+│   │   └── user.py          <span class="cmt"># User model with timestamps</span>
+│   ├── schemas/
+│   │   ├── __init__.py
+│   │   └── user.py          <span class="cmt"># Pydantic validation schemas</span>
+│   ├── crud/
+│   │   ├── __init__.py
+│   │   └── user.py          <span class="cmt"># CRUD + password hashing</span>
+│   └── api/
+│       └── v1/
+│           ├── __init__.py
+│           └── endpoints/
+│               ├── __init__.py
+│               └── users.py  <span class="cmt"># Auth & user routes</span>
+├── alembic/                 <span class="cmt"># Database migrations</span>
+├── .env                     <span class="cmt"># Environment variables</span>
+├── requirements.txt
+└── README.md</pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">FastAPI Main Application</div>
+                    <span class="label label-example">EXAMPLE - app/main.py</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="str">"""FastAPI application entry point."""</span>
+<span class="kw">from</span> <span class="var">fastapi</span> <span class="kw">import</span> <span class="var">FastAPI</span>
+<span class="kw">from</span> <span class="var">fastapi</span>.<span class="var">middleware</span>.<span class="var">cors</span> <span class="kw">import</span> <span class="var">CORSMiddleware</span>
+<span class="kw">from</span> <span class="var">app</span>.<span class="var">api</span>.<span class="var">v1</span>.<span class="var">endpoints</span> <span class="kw">import</span> <span class="var">users</span>
+<span class="kw">from</span> <span class="var">app</span>.<span class="var">database</span> <span class="kw">import</span> <span class="var">engine</span>, <span class="var">Base</span>
+
+<span class="cmt"># Create tables</span>
+<span class="var">Base</span>.<span class="var">metadata</span>.<span class="fn">create_all</span>(<span class="var">bind</span>=<span class="var">engine</span>)
+
+<span class="var">app</span> = <span class="fn">FastAPI</span>(
+    <span class="var">title</span>=<span class="str">"Modern FastAPI Backend"</span>,
+    <span class="var">version</span>=<span class="str">"1.0.0"</span>,
+    <span class="var">docs_url</span>=<span class="str">"/api/docs"</span>,
+    <span class="var">redoc_url</span>=<span class="str">"/api/redoc"</span>
+)
+
+<span class="cmt"># CORS middleware</span>
+<span class="var">app</span>.<span class="fn">add_middleware</span>(
+    <span class="var">CORSMiddleware</span>,
+    <span class="var">allow_origins</span>=[<span class="str">"*"</span>],  <span class="cmt"># Configure for production</span>
+    <span class="var">allow_credentials</span>=<span class="kw">True</span>,
+    <span class="var">allow_methods</span>=[<span class="str">"*"</span>],
+    <span class="var">allow_headers</span>=[<span class="str">"*"</span>],
+)
+
+<span class="cmt"># Include routers</span>
+<span class="var">app</span>.<span class="fn">include_router</span>(<span class="var">users</span>.<span class="var">router</span>, <span class="var">prefix</span>=<span class="str">"/api/v1"</span>, <span class="var">tags</span>=[<span class="str">"users"</span>])
+
+<span class="kw">@app</span>.<span class="fn">get</span>(<span class="str">"/"</span>)
+<span class="kw">def</span> <span class="fn">root</span>():
+    <span class="kw">return</span> {<span class="str">"message"</span>: <span class="str">"FastAPI Backend Running"</span>}</pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">API Endpoints with Dependency Injection</div>
+                    <span class="label label-example">EXAMPLE - app/api/v1/endpoints/users.py</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="str">"""User API endpoints with authentication."""</span>
+<span class="kw">from</span> <span class="var">fastapi</span> <span class="kw">import</span> <span class="var">APIRouter</span>, <span class="var">Depends</span>, <span class="var">HTTPException</span>, <span class="var">status</span>
+<span class="kw">from</span> <span class="var">sqlalchemy</span>.<span class="var">orm</span> <span class="kw">import</span> <span class="var">Session</span>
+<span class="kw">from</span> <span class="var">app</span>.<span class="var">database</span> <span class="kw">import</span> <span class="var">get_db</span>
+<span class="kw">from</span> <span class="var">app</span> <span class="kw">import</span> <span class="var">crud</span>, <span class="var">schemas</span>
+
+<span class="var">router</span> = <span class="fn">APIRouter</span>()
+
+<span class="kw">@router</span>.<span class="fn">post</span>(<span class="str">"/users"</span>, <span class="var">response_model</span>=<span class="var">schemas</span>.<span class="var">UserResponse</span>)
+<span class="kw">def</span> <span class="fn">create_user</span>(
+    <span class="var">user</span>: <span class="var">schemas</span>.<span class="var">UserCreate</span>,
+    <span class="var">db</span>: <span class="var">Session</span> = <span class="fn">Depends</span>(<span class="var">get_db</span>)
+):
+    <span class="str">"""Create new user account."""</span>
+    <span class="cmt"># Check if user exists</span>
+    <span class="var">db_user</span> = <span class="var">crud</span>.<span class="var">user</span>.<span class="fn">get_user_by_email</span>(<span class="var">db</span>, <span class="var">user</span>.<span class="var">email</span>)
+    <span class="kw">if</span> <span class="var">db_user</span>:
+        <span class="kw">raise</span> <span class="fn">HTTPException</span>(
+            <span class="var">status_code</span>=<span class="num">400</span>,
+            <span class="var">detail</span>=<span class="str">"Email already registered"</span>
+        )
+    <span class="kw">return</span> <span class="var">crud</span>.<span class="var">user</span>.<span class="fn">create_user</span>(<span class="var">db</span>, <span class="var">user</span>)
+
+<span class="kw">@router</span>.<span class="fn">get</span>(<span class="str">"/users/{user_id}"</span>, <span class="var">response_model</span>=<span class="var">schemas</span>.<span class="var">UserResponse</span>)
+<span class="kw">def</span> <span class="fn">read_user</span>(
+    <span class="var">user_id</span>: <span class="var">int</span>,
+    <span class="var">db</span>: <span class="var">Session</span> = <span class="fn">Depends</span>(<span class="var">get_db</span>)
+):
+    <span class="str">"""Fetch user by ID using dependency injection."""</span>
+    <span class="var">user</span> = <span class="var">crud</span>.<span class="var">user</span>.<span class="fn">get_user_by_id</span>(<span class="var">db</span>, <span class="var">user_id</span>)
+    <span class="kw">if</span> <span class="kw">not</span> <span class="var">user</span>:
+        <span class="kw">raise</span> <span class="fn">HTTPException</span>(<span class="var">status_code</span>=<span class="num">404</span>, <span class="var">detail</span>=<span class="str">"User not found"</span>)
+    <span class="kw">return</span> <span class="var">user</span>
+
+<span class="kw">@router</span>.<span class="fn">get</span>(<span class="str">"/users"</span>, <span class="var">response_model</span>=<span class="var">list</span>[<span class="var">schemas</span>.<span class="var">UserResponse</span>])
+<span class="kw">def</span> <span class="fn">list_users</span>(<span class="var">db</span>: <span class="var">Session</span> = <span class="fn">Depends</span>(<span class="var">get_db</span>)):
+    <span class="str">"""List all users."""</span>
+    <span class="kw">return</span> <span class="var">db</span>.<span class="fn">query</span>(<span class="var">User</span>).<span class="fn">all</span>()</pre>
+                    </div>
+                </div>
+                
+                <div class="real-world">
+                    <div class="real-world-title">Understanding get_db() Dependency</div>
+                    <p class="description">
+                        <strong>What is <code>db: Session = Depends(get_db)</code>?</strong><br><br>
+                        
+                        • <strong>Dependency Injection:</strong> FastAPI automatically calls get_db() before your route handler<br>
+                        • <strong>Session Management:</strong> Creates a new DB session per request<br>
+                        • <strong>Automatic Cleanup:</strong> Closes the session after the request completes<br>
+                        • <strong>Error Handling:</strong> Closes session even if an exception occurs<br><br>
+                        
+                        <strong>How it works:</strong><br>
+                        1. Request arrives → FastAPI calls get_db()<br>
+                        2. get_db() yields a fresh SQLAlchemy session<br>
+                        3. Session is injected into the db parameter<br>
+                        4. Your route handler uses the session<br>
+                        5. Request completes → FastAPI ensures session is closed<br><br>
+                        
+                        <strong>Benefits:</strong><br>
+                        • No connection leaks<br>
+                        • Clean, testable code<br>
+                        • Consistent session lifecycle<br>
+                        • Easy to mock for testing
+                    </p>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="pandas" class="section">
+                <h2 class="section-title">Pandas - Data Analysis</h2>
+                <div class="concept-box">
+                    <div class="concept-header">DataFrames & Series</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="var">pd</span>
+
+<span class="cmt"># Create DataFrame</span>
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">DataFrame</span>({
+    <span class="str">'name'</span>: [<span class="str">'Alice'</span>, <span class="str">'Bob'</span>, <span class="str">'Charlie'</span>],
+    <span class="str">'age'</span>: [<span class="num">25</span>, <span class="num">30</span>, <span class="num">35</span>],
+    <span class="str">'city'</span>: [<span class="str">'NYC'</span>, <span class="str">'LA'</span>, <span class="str">'Chicago'</span>]
+})
+
+<span class="cmt"># View data</span>
+<span class="fn">print</span>(<span class="var">df</span>.<span class="fn">head</span>())
+<span class="fn">print</span>(<span class="var">df</span>.<span class="fn">describe</span>())
+
+<span class="cmt"># Filter, group, sort</span>
+<span class="var">adults</span> = <span class="var">df</span>[<span class="var">df</span>[<span class="str">'age'</span>] >= <span class="num">30</span>]
+<span class="var">grouped</span> = <span class="var">df</span>.<span class="fn">groupby</span>(<span class="str">'city'</span>)[<span class="str">'age'</span>].<span class="fn">mean</span>()
+<span class="var">sorted_df</span> = <span class="var">df</span>.<span class="fn">sort_values</span>(<span class="str">'age'</span>, <span class="var">ascending</span>=<span class="kw">False</span>)
+
+<span class="cmt"># Read/Write files</span>
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">read_csv</span>(<span class="str">'data.csv'</span>)
+<span class="var">df</span>.<span class="fn">to_csv</span>(<span class="str">'output.csv'</span>, <span class="var">index</span>=<span class="kw">False</span>)</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="alembic" class="section">
+                <h2 class="section-title">Alembic - Database Migrations</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Setup & Migrations</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Install and initialize</span>
+<span class="cmt"># pip install alembic</span>
+<span class="cmt"># alembic init alembic</span>
+
+<span class="cmt"># Create migration</span>
+<span class="cmt"># alembic revision -m "create users table"</span>
+
+<span class="cmt"># Migration file example</span>
+<span class="kw">from</span> <span class="var">alembic</span> <span class="kw">import</span> <span class="var">op</span>
+<span class="kw">import</span> <span class="var">sqlalchemy</span> <span class="kw">as</span> <span class="var">sa</span>
+
+<span class="kw">def</span> <span class="fn">upgrade</span>():
+    <span class="var">op</span>.<span class="fn">create_table</span>(
+        <span class="str">'users'</span>,
+        <span class="var">sa</span>.<span class="fn">Column</span>(<span class="str">'id'</span>, <span class="var">sa</span>.<span class="var">Integer</span>, <span class="var">primary_key</span>=<span class="kw">True</span>),
+        <span class="var">sa</span>.<span class="fn">Column</span>(<span class="str">'email'</span>, <span class="var">sa</span>.<span class="fn">String</span>(<span class="num">255</span>))
+    )
+
+<span class="kw">def</span> <span class="fn">downgrade</span>():
+    <span class="var">op</span>.<span class="fn">drop_table</span>(<span class="str">'users'</span>)
+
+<span class="cmt"># Apply migrations</span>
+<span class="cmt"># alembic upgrade head</span>
+<span class="cmt"># alembic downgrade -1</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Next Steps:</strong> Explore Plotly for data visualization and PostgreSQL integration!
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+</html>

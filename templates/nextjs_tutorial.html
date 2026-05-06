@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next.js Enterprise Architect Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        next: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            500: '#000000', // Next.js brand is black/white
+                            600: '#000000',
+                            900: '#111111',
+                        },
+                        accent: {
+                            500: '#3b82f6', // Blue for highlights
+                            600: '#2563eb',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', "Segoe UI", 'Roboto', "Helvetica Neue", 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(30, 41, 59, 0.8);
+        }
+
+        .code-block {
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+
+        /* Sidebar active state */
+        .nav-link.active {
+            border-left: 3px solid #000;
+            background: rgba(0, 0, 0, 0.05);
+            color: #000;
+            font-weight: 600;
+        }
+
+        .dark .nav-link.active {
+            border-left: 3px solid #fff;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        /* Pro Tip Box */
+        .pro-tip {
+            border-left: 4px solid #3b82f6;
+            background: #eff6ff;
+            color: #1e3a8a;
+        }
+
+        .dark .pro-tip {
+            background: rgba(30, 58, 138, 0.2);
+            color: #bfdbfe;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100 antialiased transition-colors duration-300">
+
+    <!-- Mobile Header -->
+    <header
+        class="lg:hidden fixed top-0 w-full z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur border-b border-gray-200 dark:border-gray-800 p-4 flex justify-between items-center">
+        <div class="flex items-center gap-2 font-bold text-xl">
+            <svg class="w-8 h-8" viewBox="0 0 180 180" fill="currentColor">
+                <mask height="180" id="mask0" maskUnits="userSpaceOnUse" width="180" x="0" y="0">
+                    <circle cx="90" cy="90" fill="black" r="90"></circle>
+                </mask>
+                <g mask="url(#mask0)">
+                    <circle cx="90" cy="90" data-circle="true" fill="currentColor" r="90"></circle>
+                    <path
+                        d="M149.508 157.52L69.142 54H54V125.97H66.1136V69.3836L139.999 164.845C143.333 162.614 146.509 160.165 149.508 157.52Z"
+                        fill="white"></path>
+                    <rect fill="white" height="72" width="12" x="115" y="54"></rect>
+                </g>
+            </svg>
+            <span>Next.js Architect</span>
+        </div>
+        <button id="mobile-menu-btn" class="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-800">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+        </button>
+    </header>
+
+    <div class="flex min-h-screen">
+
+        <!-- Sidebar -->
+        <aside id="sidebar"
+            class="fixed inset-y-0 left-0 z-40 w-80 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-hidden flex flex-col">
+            <!-- Sidebar Header -->
+            <div class="p-6 bg-white dark:bg-gray-900 z-10 border-b border-gray-100 dark:border-gray-800 flex-shrink-0">
+                <div class="flex items-center gap-3 font-bold text-2xl tracking-tight">
+                    <svg class="w-8 h-8 text-black dark:text-white" viewBox="0 0 180 180" fill="currentColor">
+                        <mask height="180" id="mask0_sidebar" maskUnits="userSpaceOnUse" width="180" x="0" y="0">
+                            <circle cx="90" cy="90" fill="black" r="90"></circle>
+                        </mask>
+                        <g mask="url(#mask0_sidebar)">
+                            <circle cx="90" cy="90" data-circle="true" fill="currentColor" r="90"></circle>
+                            <path
+                                d="M149.508 157.52L69.142 54H54V125.97H66.1136V69.3836L139.999 164.845C143.333 162.614 146.509 160.165 149.508 157.52Z"
+                                fill="white"></path>
+                            <rect fill="white" height="72" width="12" x="115" y="54"></rect>
+                        </g>
+                    </svg>
+                    Next.js <span class="text-accent-600">Arch.</span>
+                </div>
+
+                <div class="mt-4 flex items-center justify-between">
+                    <span class="text-[10px] font-mono text-gray-400 uppercase tracking-widest">Enterprise Guide</span>
+                    <button id="theme-toggle"
+                        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <span class="dark:hidden">🌙</span><span class="hidden dark:inline">☀️</span>
+                    </button>
+                </div>
+
+                <!-- Sidebar Search -->
+                <div class="mt-4 relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="sidebar-search"
+                        class="block w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white focus:border-transparent transition-all"
+                        placeholder="Search... (Cmd+K)">
+                </div>
+            </div>
+
+            <!-- Scrollable Nav -->
+            <nav class="p-4 space-y-0.5 text-sm font-medium flex-1 overflow-y-auto">
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-2 px-3">History & Core
+                </div>
+                <a href="#history"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">1.
+                    History & Evolution</a>
+                <a href="#architecture"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">2.
+                    Architecture</a>
+                <a href="#structure"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">3.
+                    Project Structure</a>
+                <a href="#routing"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">4.
+                    Routing System</a>
+                <a href="#rendering"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">5.
+                    Rendering Models</a>
+
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6 px-3">Building Blocks
+                </div>
+                <a href="#components"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">6.
+                    Components Pattern</a>
+                <a href="#state"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">7.
+                    State Management</a>
+                <a href="#data-fetching"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">8.
+                    Data & Async</a>
+                <a href="#forms"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">9.
+                    Forms & Actions</a>
+
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6 px-3">Enterprise UI</div>
+                <a href="#tables"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">10.
+                    Data Tables</a>
+                <a href="#search"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">11.
+                    Advanced Search</a>
+                <a href="#dashboards"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">12.
+                    Dashboards (Graphs)</a>
+
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6 px-3">Security & Scale
+                </div>
+                <a href="#auth"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">13.
+                    Authentication</a>
+                <a href="#fastapi"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">14.
+                    Python/FastAPI Backend</a>
+                <a href="#middleware"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">15.
+                    Middleware Guards</a>
+                <a href="#enterprise-structure"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">16.
+                    The Enterprise Stack</a>
+                <a href="#env-vars"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">17.
+                    Environment Mgmt</a>
+                <a href="#performance"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">18.
+                    Performance</a>
+                <a href="#build-guide"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">19.
+                    Build Guide</a>
+                <a href="#mobile-strategy"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">20.
+                    Mobile Strategy</a>
+                <a href="#testing"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">21.
+                    Testing</a>
+
+                <div class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 mt-6 px-3">Ecosystem</div>
+                <a href="#libraries"
+                    class="nav-link block px-3 py-2 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-accent-600 dark:text-accent-400">📦
+                    Top 100 Libraries</a>
+            </nav>
+
+            <!-- Footer -->
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0">
+                <a href="python_hub.html"
+                    class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-black dark:hover:text-white font-semibold transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Hub
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="lg:ml-80 flex-1 p-6 lg:p-16 max-w-screen-2xl mx-auto space-y-24">
+
+            <!-- Hero -->
+            <section class="min-h-[40vh] flex flex-col justify-center">
+                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6">
+                    Next.js <span
+                        class="bg-gradient-to-r from-gray-900 to-gray-500 dark:from-white dark:to-gray-500 bg-clip-text text-transparent">Architecture</span>
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-4xl mb-8">
+                    The definitive playbook for Full-Stack Engineers. From core React philosophy to enterprise-scale
+                    SaaS architecture, integrated with Python FastAPI backends.
+                </p>
+
+                <!-- Featured Video: Crash Course -->
+                <div
+                    class="mb-10 w-full max-w-5xl aspect-video rounded-2xl overflow-hidden shadow-2xl border border-gray-200 dark:border-gray-800">
+                    <iframe class="w-full h-full" src="https://www.youtube.com/embed/NZU8U_5HOlQ"
+                        title="Next.js Crash Course" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen></iframe>
+                </div>
+
+                <div class="flex gap-4">
+                    <a href="#structure"
+                        class="px-6 py-3 bg-black dark:bg-white text-white dark:text-black rounded-lg font-bold hover:opacity-90 transition-opacity">
+                        Start Architecting
+                    </a>
+                    <a href="#video-path"
+                        class="px-6 py-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 font-medium transition-colors">
+                        View Video Path
+                    </a>
+                </div>
+            </section>
+
+            <!-- 1. History -->
+            <section id="history" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">01</span>
+                    <h2 class="text-3xl font-bold">History & Evolution</h2>
+                </div>
+                <div class="prose dark:prose-invert max-w-none">
+                    <p>React started as a purely client-side library. This led to the "loading spinner hell" and poor
+                        SEO. Vercel (then Zeit) created Next.js to solve <strong>Server-Side Rendering (SSR)</strong>
+                        easily.</p>
+                    <div class="grid md:grid-cols-3 gap-6 my-8">
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h3 class="font-bold mb-2">Classic SPA</h3>
+                            <p class="text-sm text-gray-500">Empty HTML shell, JS loads, then fetches data. Slow initial
+                                paint. Bad for SEO.</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-xl">
+                            <h3 class="font-bold mb-2">Pages Router (Next 12)</h3>
+                            <p class="text-sm text-gray-500">Introduced `getServerSideProps` & `getStaticProps`. Route
+                                based on file system.</p>
+                        </div>
+                        <div class="glass-panel p-6 rounded-xl border-accent-500 dark:border-accent-600 border-2">
+                            <h3 class="font-bold mb-2">App Router (Modern)</h3>
+                            <p class="text-sm text-gray-500">React Server Components (RSC) default. Fetch inside
+                                components. Streaming. Suspense.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Architecture -->
+            <section id="architecture" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">02</span>
+                    <h2 class="text-3xl font-bold">Underlying Architecture</h2>
+                </div>
+                <div class="prose dark:prose-invert max-w-none">
+                    <p>Next.js is not just React; it's a full-stack framework with a <strong>hybrid rendering
+                            engine</strong>.</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>Server-First:</strong> By default, everything is a Server Component. It stays on the
+                            server, reducing bundle size.</li>
+                        <li><strong>Edge Runtime:</strong> Middleware acts as the gatekeeper, running on Vercel's Edge
+                            (a lightweight version of Node.js) for lowest latency.</li>
+                        <li><strong>Hydration:</strong> The "Dry HTML" is sent first, then "Hydrated" with interactivity
+                            (React events) only where needed (`'use client'`).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 3. Structure -->
+            <section id="structure" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">03</span>
+                    <h2 class="text-3xl font-bold">Installation & Project Structure</h2>
+                </div>
+
+                <div class="prose dark:prose-invert max-w-none">
+                    <h3 class="text-xl font-bold mb-4">1. Quick Installation</h3>
+                    <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative mb-8">
+                        <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                        <pre>npx create-next-app@latest my-app --typescript --tailwind --eslint</pre>
+                    </div>
+
+                    <h3 class="text-xl font-bold mb-4">2. File Structure</h3>
+                    <p class="text-lg">The <code>app/</code> directory revolutionized how we structure logic.
+                        Co-location is
+                        now the standard.</p>
+                </div>
+                now the standard.</p>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div
+                        class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono shadow-xl relative">
+                        <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                        <pre>
+├── app/
+│   ├── layout.tsx       # Root layout (HTML/Body)
+│   ├── page.tsx         # Home page
+│   ├── error.tsx        # Error boundary
+│   ├── loading.tsx      # Suspense fallback
+│   ├── not-found.tsx    # 404 handler
+│   │
+│   ├── dashboard/       # Route: /dashboard
+│   │   ├── page.tsx     
+│   │   └── layout.tsx   # Nested layout
+│   │
+│   └── api/             # Route Handlers
+├── public/              # Static assets
+├── middleware.ts        # Edge Middleware
+└── next.config.js
+</pre>
+                    </div>
+                    <div class="space-y-4">
+                        <div
+                            class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <h4 class="font-bold text-accent-600">layout.tsx</h4>
+                            <p class="text-sm mt-1">Wraps all child routes. Preserves state on navigation (e.g., Sidebar
+                                scroll position).</p>
+                        </div>
+                        <div
+                            class="p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <h4 class="font-bold text-accent-600">loading.tsx</h4>
+                            <p class="text-sm mt-1">Automatically wraps page in React Suspense. Shows skeleton while
+                                data fetches.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. Routing -->
+            <section id="routing" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">04</span>
+                    <h2 class="text-3xl font-bold">Routing System</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-6 rounded-lg">
+                        <h3 class="font-bold text-lg mb-2">Dynamic Routes</h3>
+                        <code
+                            class="block bg-gray-100 dark:bg-gray-800 p-2 rounded mb-2 font-mono text-sm">app/blog/[slug]/page.tsx</code>
+                        <p class="text-sm">Matches <code>/blog/a</code>, <code>/blog/b</code>. Access via
+                            <code>params.slug</code>.
+                        </p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-lg">
+                        <h3 class="font-bold text-lg mb-2">Catch-All Routes</h3>
+                        <code
+                            class="block bg-gray-100 dark:bg-gray-800 p-2 rounded mb-2 font-mono text-sm">app/docs/[...slug]/page.tsx</code>
+                        <p class="text-sm">Matches <code>/docs/a</code>, <code>/docs/a/b</code>. Array of segments.</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-lg">
+                        <h3 class="font-bold text-lg mb-2">Route Groups</h3>
+                        <code
+                            class="block bg-gray-100 dark:bg-gray-800 p-2 rounded mb-2 font-mono text-sm">app/(marketing)/page.tsx</code>
+                        <p class="text-sm">Organize code without affecting URL structure. useful for multiple root
+                            layouts.</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-lg">
+                        <h3 class="font-bold text-lg mb-2">Private Folders</h3>
+                        <code
+                            class="block bg-gray-100 dark:bg-gray-800 p-2 rounded mb-2 font-mono text-sm">app/_utils/helper.ts</code>
+                        <p class="text-sm">Folders starting with <code>_</code> are ignored by the router.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Rendering -->
+            <section id="rendering" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">05</span>
+                    <h2 class="text-3xl font-bold">Rendering Models (The Core Decision)</h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-700 text-sm uppercase text-gray-500">
+                                <th class="py-3 px-4">Pattern</th>
+                                <th class="py-3 px-4">Acronym</th>
+                                <th class="py-3 px-4">When to use</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tr>
+                                <td class="py-3 px-4 font-bold">Server Components</td>
+                                <td class="py-3 px-4"><span
+                                        class="px-2 py-1 rounded bg-blue-100 text-blue-800 text-xs">RSC</span></td>
+                                <td class="py-3 px-4">Default. Fetching data, accessing backend resources, sensitive
+                                    logic.</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-bold">Client Components</td>
+                                <td class="py-3 px-4"><span
+                                        class="px-2 py-1 rounded bg-green-100 text-green-800 text-xs">CSR</span></td>
+                                <td class="py-3 px-4">Interactivity, onClick, useState, browser APIs (localStorage).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-bold">Static Generation</td>
+                                <td class="py-3 px-4"><span
+                                        class="px-2 py-1 rounded bg-purple-100 text-purple-800 text-xs">SSG</span></td>
+                                <td class="py-3 px-4">Marketing pages, Blogs. content doesn't change often. Extremely
+                                    fast.</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-bold">Incremental Regen</td>
+                                <td class="py-3 px-4"><span
+                                        class="px-2 py-1 rounded bg-orange-100 text-orange-800 text-xs">ISR</span></td>
+                                <td class="py-3 px-4">E-commerce products. Update static pages after a timeout without
+                                    rebuilding app.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 6. Components -->
+            <section id="components" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">06</span>
+                    <h2 class="text-3xl font-bold">Component Patterns</h2>
+                </div>
+
+                <div class="pro-tip p-4 rounded-r-lg mb-6">
+                    <strong class="block mb-1">Architecture Golden Rule:</strong>
+                    Move Clients Components down the tree over "Leaf" nodes. Keep layout and data fetching in Server
+                    Components.
+                </div>
+
+                <div class="code-block bg-gray-900 rounded-lg p-6 text-sm text-gray-300 font-mono relative">
+                    <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                    <pre><span class="text-purple-400">// app/page.tsx (Server Component)</span>
+<span class="text-blue-400">import</span> ClientCounter <span class="text-blue-400">from</span> <span class="text-green-300">'./ClientCounter'</span>;
+
+<span class="text-blue-400">export default async function</span> <span class="text-yellow-300">Page</span>() {
+  <span class="text-gray-500">// Fetch happens on server</span>
+  <span class="text-blue-400">const</span> data = <span class="text-blue-400">await</span> <span class="text-yellow-300">db.getStuff</span>();
+
+  <span class="text-blue-400">return</span> (
+    &lt;<span class="text-red-300">div</span>&gt;
+      &lt;<span class="text-red-300">h1</span>&gt;{data.title}&lt;/<span class="text-red-300">h1</span>&gt;
+      {<span class="text-gray-500">/* Interactivity isolated here */</span>}
+      &lt;<span class="text-yellow-300">ClientCounter</span> initialCount={data.count} /&gt;
+    &lt;/<span class="text-red-300">div</span>&gt;
+  );
+}</pre>
+                </div>
+            </section>
+
+            <!-- 7. State -->
+            <section id="state" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">07</span>
+                    <h2 class="text-3xl font-bold">State Management</h2>
+                </div>
+                <div class="grid lg:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-bold text-xl mb-3">URL as State</h3>
+                        <p class="mb-4 text-gray-600 dark:text-gray-400">In Next.js, the <strong>URL is the ultimate
+                                source of truth</strong>. Search queries, filters, and pagination should be URL params,
+                            not React state. This makes pages shareable.</p>
+                        <ul class="list-disc pl-5 text-sm space-y-2">
+                            <li>Avoid `useState` for filters.</li>
+                            <li>Use `useSearchParams` and `useRouter`.</li>
+                            <li>Enable bookmarking of deep application states.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-xl mb-3">Server State</h3>
+                        <p class="mb-4 text-gray-600 dark:text-gray-400">Don't use Redux/Zustand for server data. Use
+                            <strong>React Query (TanStack Query)</strong> or simply rely on Next.js Cache +
+                            Revalidation.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8. Data Fetching -->
+            <section id="data-fetching" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">08</span>
+                    <h2 class="text-3xl font-bold">Data Fetching & Async</h2>
+                </div>
+                <p>Next.js extends the native `fetch` API to allow granular caching and revalidation.</p>
+
+                <div class="grid lg:grid-cols-2 gap-8">
+                    <div class="code-block bg-gray-900 rounded-lg p-6 text-sm text-gray-300 font-mono relative h-full">
+                        <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                        <pre><span class="text-gray-500">// Cached (Static - like getStaticProps)</span>
+fetch(<span class="text-green-300">'...'</span>, { force_cache: <span class="text-green-300">'force-cache'</span> });
+
+<span class="text-gray-500">// Dynamic (SSR - like getServerSideProps)</span>
+fetch(<span class="text-green-300">'...'</span>, { cache: <span class="text-green-300">'no-store'</span> });
+
+<span class="text-gray-500">// ISR (Revalidate every hour)</span>
+fetch(<span class="text-green-300">'...'</span>, { next: { revalidate: <span class="text-purple-300">3600</span> } });</pre>
+                    </div>
+                    <div class="flex flex-col justify-center">
+                        <h3 class="font-bold text-lg mb-2">Request Memoization</h3>
+                        <p class="text-sm">If you call the same fetch in Layout, Page, and a Component, Next.js
+                            automatically dedupes it. You don't need to pass props down 10 levels.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Forms -->
+            <section id="forms" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">09</span>
+                    <h2 class="text-3xl font-bold">Forms & Server Actions</h2>
+                </div>
+                <p><strong>Server Actions</strong> allow you to write functions that execute on the server but are
+                    called from the client forms. No API routes needed.</p>
+
+                <div class="code-block bg-gray-900 rounded-lg p-6 text-sm text-gray-300 font-mono relative">
+                    <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                    <pre><span class="text-gray-500">// actions.ts</span>
+<span class="text-blue-400">'use server'</span>
+
+<span class="text-blue-400">export async function</span> <span class="text-yellow-300">createUser</span>(formData: <span class="text-green-300">FormData</span>) {
+    <span class="text-blue-400">const</span> rawData = Object.fromEntries(formData);
+    <span class="text-blue-400">await</span> db.user.create(rawData);
+    revalidatePath(<span class="text-green-300">'/users'</span>);
+    redirect(<span class="text-green-300">'/users'</span>);
+}
+
+<span class="text-gray-500">// component.tsx</span>
+<span class="text-blue-400">return</span> (
+    &lt;form action={createUser}&gt;
+       &lt;input name="username" /&gt;
+       &lt;button type="submit"&gt;Save&lt;/button&gt;
+    &lt;/form&gt;
+)</pre>
+                </div>
+            </section>
+
+            <!-- 10. Tables -->
+            <section id="tables" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">10</span>
+                    <h2 class="text-3xl font-bold">Enterprise Tables</h2>
+                </div>
+                <p>Handling large datasets requires a <strong>Server-Driven</strong> approach.</p>
+
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+                    <div
+                        class="flex flex-col md:flex-row gap-4 mb-4 border-b border-gray-100 dark:border-gray-700 pb-4">
+                        <div class="flex-1 font-bold">Pattern</div>
+                        <div class="flex-[3]">Implementation Code</div>
+                    </div>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-semibold text-accent-600">Pagination</h4>
+                            <p class="text-sm mb-2">Use URL params (`?page=2`). Fetch only limit + offset.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-semibold text-accent-600">Search</h4>
+                            <p class="text-sm mb-2">Debounce input (300ms) on client → Update URL `?q=search` → Server
+                                Component re-renders with new query.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. Search -->
+            <section id="search" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">11</span>
+                    <h2 class="text-3xl font-bold">Search & Indexing</h2>
+                </div>
+                <p>Implementing a global search (Cmd+K) involves:</p>
+                <ol class="list-decimal pl-5 space-y-2 text-gray-700 dark:text-gray-300">
+                    <li><strong>Indexing:</strong> On build time (SSG) or periodic jobs, scan your content.</li>
+                    <li><strong>Storage:</strong> Store simplified JSON index or use Algolia/Elasticsearch.</li>
+                    <li><strong>UI:</strong> A Dialog modal (accessible) that fetches results on input.</li>
+                </ol>
+            </section>
+
+            <!-- 12. Dashboards -->
+            <section id="dashboards" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">12</span>
+                    <h2 class="text-3xl font-bold">Dashboards & Graphs</h2>
+                </div>
+                <p>Libraries like Recharts or Victory are heavy. Render the shell on Server, and lazy-load the heavy
+                    Chart components.</p>
+                <div class="code-block bg-gray-900 rounded-lg p-6 text-sm text-gray-300 font-mono relative">
+                    <pre><span class="text-blue-400">import</span> dynamic <span class="text-blue-400">from</span> <span class="text-green-300">'next/dynamic'</span>;
+
+<span class="text-blue-400">const</span> HeavyChart = dynamic(() => <span class="text-blue-400">import</span>(<span class="text-green-300">'./HeavyChart'</span>), {
+  loading: () => &lt;p&gt;Loading Graph...&lt;/p&gt;,
+  ssr: <span class="text-blue-400">false</span> <span class="text-gray-500">// Often charts need window object</span>
+});</pre>
+                </div>
+            </section>
+
+            <!-- 13. Auth -->
+            <section id="auth" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">13</span>
+                    <h2 class="text-3xl font-bold">Authentication Architecture</h2>
+                </div>
+                <p>For Enterprise apps, <strong>Auth logic belongs in the Backend (FastAPI)</strong>, not the Frontend.
+                </p>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="glass-panel p-6 rounded-lg">
+                        <h3 class="font-bold mb-2">The Pattern</h3>
+                        <p class="text-sm">Next.js acts as a proxy. It receives credentials, sends them to FastAPI.
+                            FastAPI returns an <strong>HttpOnly, Secure Cookie</strong>. Next.js forwards this cookie on
+                            every subsequent request.</p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-lg">
+                        <h3 class="font-bold mb-2">NextAuth.js (Auth.js)</h3>
+                        <p class="text-sm">Great for side-projects or simple social login. For hard enterprise
+                            requirements (RBAC, MFA, Custom Logic), custom backend integration is preferred.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 14. FastAPI -->
+            <section id="fastapi" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">14</span>
+                    <h2 class="text-3xl font-bold">FastAPI Integration (Python Backend)</h2>
+                </div>
+                <p>The perfect stack: <strong>Next.js (Frontend) + FastAPI (Backend)</strong>.</p>
+
+                <h3 class="text-xl font-bold mt-4">API Route Wrapper Pattern</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Don't expose FastAPI directly to the browser. Use
+                    Next.js API Routes (Route Handlers) as a secure gateway.</p>
+
+                <div class="code-block bg-gray-900 rounded-lg p-6 text-sm text-gray-300 font-mono relative">
+                    <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                    <pre><span class="text-gray-500">// app/api/login/route.ts</span>
+<span class="text-blue-400">import</span> { cookies } <span class="text-blue-400">from</span> <span class="text-green-300">'next/headers'</span>;
+
+<span class="text-blue-400">export async function</span> <span class="text-yellow-300">POST</span>(request: <span class="text-green-300">Request</span>) {
+  <span class="text-blue-400">const</span> body = <span class="text-blue-400">await</span> request.json();
+  
+  <span class="text-gray-500">// Call FastAPI</span>
+  <span class="text-blue-400">const</span> res = <span class="text-blue-400">await</span> fetch(<span class="text-green-300">'http://backend:8000/token'</span>, {
+      method: <span class="text-green-300">'POST'</span>,
+      body: JSON.stringify(body)
+  });
+  
+  <span class="text-blue-400">const</span> data = <span class="text-blue-400">await</span> res.json();
+  
+  <span class="text-gray-500">// Set backend cookie on Next.js/Browser</span>
+  cookies().set(<span class="text-green-300">'session'</span>, data.access_token, { httpOnly: <span class="text-blue-400">true</span> });
+  
+  <span class="text-blue-400">return</span> Response.json({ success: <span class="text-blue-400">true</span> });
+} </pre>
+                </div>
+            </section>
+
+            <!-- 15. Middleware -->
+            <section id="middleware" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">15</span>
+                    <h2 class="text-3xl font-bold">Middleware Guards</h2>
+                </div>
+                <p><code>middleware.ts</code> runs before a request is completed. It is the best place to check for auth
+                    tokens and redirect if missing. It happens at the generic Edge level.</p>
+            </section>
+
+            <!-- 16. Enterprise Structure -->
+            <section id="enterprise-structure" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">16</span>
+                    <h2 class="text-3xl font-bold">The Enterprise Stack Overview</h2>
+                </div>
+                <div
+                    class="bg-gray-100 dark:bg-gray-800 p-8 rounded-xl flex flex-col md:flex-row items-center gap-8 justify-center border border-gray-200 dark:border-gray-700">
+                    <div class="text-center">
+                        <div class="font-bold text-2xl mb-2">Next.js</div>
+                        <div class="text-sm text-gray-500">Frontend / BFF</div>
+                        <div class="text-xs bg-black text-white px-2 py-1 rounded inline-block mt-2">Server Components
+                        </div>
+                    </div>
+                    <div class="text-2xl text-gray-400">⟺</div>
+                    <div class="text-center">
+                        <div class="font-bold text-2xl mb-2">FastAPI</div>
+                        <div class="text-sm text-gray-500">Core Logic / AI</div>
+                        <div class="text-xs bg-blue-600 text-white px-2 py-1 rounded inline-block mt-2">REST / GraphQL
+                        </div>
+                    </div>
+                    <div class="text-2xl text-gray-400">⟺</div>
+                    <div class="text-center">
+                        <div class="font-bold text-2xl mb-2">Postgres</div>
+                        <div class="text-sm text-gray-500">Persistence</div>
+                        <div class="text-xs bg-green-600 text-white px-2 py-1 rounded inline-block mt-2">SQLAlchemy /
+                            Prisma</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 17 & 18 Vars & Perf -->
+            <section id="env-vars" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">17-18</span>
+                    <h2 class="text-3xl font-bold">Environment & Performance</h2>
+                </div>
+                <p class="text-sm"><strong>Env:</strong> Use <code>NEXT_PUBLIC_</code> prefix only for browser
+                    variables. Secrets must stay in `.env.local` and never be prefixed.</p>
+                <p class="text-sm"><strong>Images:</strong> `next/image` is mandatory for LCP optimization. It handles
+                    lazy loading and resizing automatically.</p>
+            </section>
+
+            <!-- 19. Build Guide -->
+            <section id="build-guide" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">19</span>
+                    <h2 class="text-3xl font-bold">Zero to Hero: Build Guide</h2>
+                </div>
+                <div class="prose dark:prose-invert max-w-none">
+                    <p>Start your enterprise journey here. Follow these exact steps to initialize a scalable repository.
+                    </p>
+
+                    <h3 class="font-bold text-xl mt-6 mb-2">1. Initialization</h3>
+                    <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                        <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                        <pre>npx create-next-app@latest my-saas --typescript --tailwind --eslint
+# Select options:
+# √ src directory? ... Yes
+# √ App Router? ... Yes
+# √ Customize import alias? ... Yes (@/*)</pre>
+                    </div>
+
+                    <h3 class="font-bold text-xl mt-6 mb-2">2. Folder Architecture</h3>
+                    <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                        <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                        <pre>mkdir -p src/components/{ui,features,layout}
+mkdir -p src/lib/{db,utils,hooks}
+mkdir -p src/types
+mkdir -p src/server/{actions,db}</pre>
+                    </div>
+
+                    <h3 class="font-bold text-xl mt-6 mb-2">3. Shadcn UI Setup</h3>
+                    <p>Don't build components from scratch. Use the enterprise standard.</p>
+                    <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                        <button class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded">Copy</button>
+                        <pre>npx shadcn-ui@latest init
+npx shadcn-ui@latest add button card dialog dropdown-menu input</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 20. Mobile Strategy -->
+            <section id="mobile-strategy" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">20</span>
+                    <h2 class="text-3xl font-bold">Mobile Strategy: React Native</h2>
+                </div>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <div>
+                        <h3 class="font-bold text-xl mb-3">The "Solito" Pattern</h3>
+                        <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                            You can share up to 90% of code between Next.js (Web) and React Native (Mobile).
+                            <strong>Solito</strong> is the missing piece that unifies navigation.
+                        </p>
+                        <ul class="list-disc pl-5 text-sm space-y-2">
+                            <li><strong>Shared:</strong> UI Components, Business Logic, API Hooks (TanStack Query), Zod
+                                Schemas.</li>
+                            <li><strong>Web only:</strong> Next.js Pages, SEO tags.</li>
+                            <li><strong>Mobile only:</strong> Expo Router, Native Modules (Camera, Gyroscope).</li>
+                        </ul>
+                    </div>
+                    <div
+                        class="bg-gray-100 dark:bg-gray-800 p-6 rounded-xl border border-gray-200 dark:border-gray-700">
+                        <div class="font-mono text-xs text-blue-600 mb-2">folder structure</div>
+                        <pre class="text-sm">
+apps/
+  next/     # Next.js app
+  expo/     # React Native app
+packages/
+  ui/       # Shared UI (Tamagui/NativeWind)
+  app/      # Shared Screens & Logic
+</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 21. Testing -->
+            <section id="testing" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">21</span>
+                    <h2 class="text-3xl font-bold">Testing Strategy</h2>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-gray-200 dark:border-gray-700 text-sm uppercase text-gray-500">
+                                <th class="py-3 px-4">Level</th>
+                                <th class="py-3 px-4">Tool</th>
+                                <th class="py-3 px-4">What to test</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <tr>
+                                <td class="py-3 px-4 font-bold">Unit</td>
+                                <td class="py-3 px-4 text-sm font-mono">Jest + RTL</td>
+                                <td class="py-3 px-4">Utility functions, Hooks, Individual Components (Button, Input).
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-bold">Integration</td>
+                                <td class="py-3 px-4 text-sm font-mono">Vitest</td>
+                                <td class="py-3 px-4">API Route Handlers, Database queries, Server Actions.</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3 px-4 font-bold">E2E</td>
+                                <td class="py-3 px-4 text-sm font-mono">Playwright</td>
+                                <td class="py-3 px-4">Critical User Flows: Signup, Checkout, Dashboard loading.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Video Learning Path -->
+            <section id="video-path" class="scroll-mt-24 space-y-8">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-red-600">▶️</span>
+                    <h2 class="text-3xl font-bold">Curated Video Learning Path</h2>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400">
+                    Supplement your reading with these high-quality video playlists. Hand-picked to match the flow of
+                    this guide.
+                </p>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Playlist 1: Fundamentals -->
+                    <div
+                        class="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 flex flex-col">
+                        <div class="aspect-video relative">
+                            <iframe class="absolute inset-0 w-full h-full"
+                                src="https://www.youtube.com/embed/videoseries?list=PL8p2I9GklV44sj_Ikp8jQSvwD-m9htnHT"
+                                title="Next.js 14 Complete" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div class="p-4 flex-1">
+                            <h3 class="font-bold text-lg mb-2">1. The Fundamentals</h3>
+                            <p class="text-sm text-gray-500">A complete soup-to-nuts course covering App Router, Server
+                                Actions, and Auth.</p>
+                        </div>
+                    </div>
+
+                    <!-- Playlist 2: Modern Auth -->
+                    <div
+                        class="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 flex flex-col">
+                        <div class="aspect-video relative">
+                            <iframe class="absolute inset-0 w-full h-full"
+                                src="https://www.youtube.com/embed/videoseries?list=PLXQpH_kZIxTW2Bm3JVZV_MssdScWoLQTq"
+                                title="Advanced Patterns" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div class="p-4 flex-1">
+                            <h3 class="font-bold text-lg mb-2">2. Advanced Patterns</h3>
+                            <p class="text-sm text-gray-500">Deep dives into modern authentication, middleware, and
+                                secure routing patterns.</p>
+                        </div>
+                    </div>
+
+                    <!-- Playlist 3: Project Build -->
+                    <div
+                        class="bg-white dark:bg-gray-900 rounded-xl overflow-hidden shadow-lg border border-gray-100 dark:border-gray-800 flex flex-col">
+                        <div class="aspect-video relative">
+                            <iframe class="absolute inset-0 w-full h-full"
+                                src="https://www.youtube.com/embed/videoseries?list=PLu71SKxNbfoDWGIwaEwhTUR40AbH8qsTo"
+                                title="Project Build" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                        <div class="p-4 flex-1">
+                            <h3 class="font-bold text-lg mb-2">3. Build a Product</h3>
+                            <p class="text-sm text-gray-500">Follow along to build a real-world SaaS application
+                                applying all the concepts.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Top 100 Libraries -->
+            <section id="libraries" class="scroll-mt-24 space-y-8">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-accent-500">📦</span>
+                    <h2 class="text-3xl font-bold">Top 100 Next.js / React Libraries</h2>
+                </div>
+                <p class="mb-4 text-gray-600 dark:text-gray-400">A curated list of battle-tested libraries for
+                    enterprise applications.</p>
+
+                <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table class="w-full text-left bg-white dark:bg-gray-900 text-sm">
+                        <thead
+                            class="bg-gray-50 dark:bg-gray-800 font-bold uppercase text-xs text-violet-600 dark:text-violet-400">
+                            <tr>
+                                <th class="p-4">Library</th>
+                                <th class="p-4">Category</th>
+                                <th class="p-4">Use Case</th>
+                                <th class="p-4">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
+
+                            <!-- STATE MANAGEMENT -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-gray-500 uppercase tracking-widest">State
+                                    Management</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Zustand</td>
+                                <td class="p-4">Global State</td>
+                                <td class="p-4">Minimalist, hook-based state mgmt</td>
+                                <td class="p-4 text-green-600">Top Choice</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">TanStack Query</td>
+                                <td class="p-4">Server State</td>
+                                <td class="p-4">Async state, caching, revalidation</td>
+                                <td class="p-4 text-blue-500">Essential</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Redux Toolkit</td>
+                                <td class="p-4">Global State</td>
+                                <td class="p-4">Complex enterprise state logic</td>
+                                <td class="p-4">Industry Std</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Jotai</td>
+                                <td class="p-4">Atomic State</td>
+                                <td class="p-4">Fine-grained updates (signals-like)</td>
+                                <td class="p-4">Great perf</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Recoil</td>
+                                <td class="p-4">Atomic State</td>
+                                <td class="p-4">Facebook's state library</td>
+                                <td class="p-4">React-ish</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">XState</td>
+                                <td class="p-4">State Machines</td>
+                                <td class="p-4">Complex finite state machines</td>
+                                <td class="p-4">Robust logic</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Valtio</td>
+                                <td class="p-4">Proxy State</td>
+                                <td class="p-4">Mutation-style syntax (proxy)</td>
+                                <td class="p-4">Simple</td>
+                            </tr>
+
+                            <!-- UI & STYLING -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-gray-500 uppercase tracking-widest">UI &
+                                    Styling</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Tailwind CSS</td>
+                                <td class="p-4">CSS Framework</td>
+                                <td class="p-4">Utility-first CSS</td>
+                                <td class="p-4 text-blue-500">Essential</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Shadcn/ui</td>
+                                <td class="p-4">Component Kit</td>
+                                <td class="p-4">Copy-paste Radix+Tailwind components</td>
+                                <td class="p-4 text-purple-500">Trending</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Radix UI</td>
+                                <td class="p-4">Headless UI</td>
+                                <td class="p-4">Unstyled, accessible primitives</td>
+                                <td class="p-4">Accessibility King</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Headless UI</td>
+                                <td class="p-4">Headless UI</td>
+                                <td class="p-4">Unstyled components by Tailwind Labs</td>
+                                <td class="p-4">Simple</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Framer Motion</td>
+                                <td class="p-4">Animation</td>
+                                <td class="p-4">Production-ready animations</td>
+                                <td class="p-4 text-pink-500">Best DX</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Lucide React</td>
+                                <td class="p-4">Icons</td>
+                                <td class="p-4">Beautiful, consistent SVG icons</td>
+                                <td class="p-4">Clean</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Icons</td>
+                                <td class="p-4">Icons</td>
+                                <td class="p-4">All icon sets in one package</td>
+                                <td class="p-4">Huge collection</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">CVA (Class Variance)</td>
+                                <td class="p-4">Styling Util</td>
+                                <td class="p-4">Type-safe CSS variant composition</td>
+                                <td class="p-4">For UI Libs</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Clsx / Tailwind-Merge</td>
+                                <td class="p-4">Styling Util</td>
+                                <td class="p-4">Conditional classes & conflict resolution</td>
+                                <td class="p-4">Essential</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Mantine</td>
+                                <td class="p-4">UI Framework</td>
+                                <td class="p-4">Fully featured component library</td>
+                                <td class="p-4">Rich features</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Chakra UI</td>
+                                <td class="p-4">UI Framework</td>
+                                <td class="p-4">Accessible, themeable component lib</td>
+                                <td class="p-4">Easy start</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Emotion / Styled-Comp</td>
+                                <td class="p-4">CSS-in-JS</td>
+                                <td class="p-4">Dynamic styling (runtime overhead)</td>
+                                <td class="p-4">Legacy/Specific</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Pandacss</td>
+                                <td class="p-4">Styling</td>
+                                <td class="p-4">Zero-runtime, type-safe CSS-in-JS</td>
+                                <td class="p-4">Modern</td>
+                            </tr>
+
+                            <!-- FORMS & VALIDATION -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Forms &
+                                    Validation</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Hook Form</td>
+                                <td class="p-4">Forms</td>
+                                <td class="p-4">Performant, unchecked forms</td>
+                                <td class="p-4 text-green-600">Best Perf</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Zod</td>
+                                <td class="p-4">Validation</td>
+                                <td class="p-4">TypeScript-first schema validation</td>
+                                <td class="p-4 text-blue-500">Must Have</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Formik</td>
+                                <td class="p-4">Forms</td>
+                                <td class="p-4">Traditional form management</td>
+                                <td class="p-4">Legacy</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Yup</td>
+                                <td class="p-4">Validation</td>
+                                <td class="p-4">Object schema validation</td>
+                                <td class="p-4">Classic</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Select</td>
+                                <td class="p-4">Form Component</td>
+                                <td class="p-4">Feature-rich select input</td>
+                                <td class="p-4">Heavy but good</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Downshift</td>
+                                <td class="p-4">Form Primitive</td>
+                                <td class="p-4">Build accessible comboboxes</td>
+                                <td class="p-4">Flexible</td>
+                            </tr>
+
+                            <!-- DATA & TABLES -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Data &
+                                    Visualization</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">TanStack Table</td>
+                                <td class="p-4">Table Logic</td>
+                                <td class="p-4">Headless table UI management</td>
+                                <td class="p-4">Industry Std</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Recharts</td>
+                                <td class="p-4">Charts</td>
+                                <td class="p-4">Composable chart components</td>
+                                <td class="p-4">Widely used</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Tremor</td>
+                                <td class="p-4">Dashboard UI</td>
+                                <td class="p-4">React components for dashboards</td>
+                                <td class="p-4">Fast dev</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Visx</td>
+                                <td class="p-4">Visualization</td>
+                                <td class="p-4">Low-level D3 primitives for React</td>
+                                <td class="p-4">Airbnb made</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Nivo</td>
+                                <td class="p-4">Charts</td>
+                                <td class="p-4">Rich charts built on D3</td>
+                                <td class="p-4">Beautiful</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Ag Grid</td>
+                                <td class="p-4">Data Grid</td>
+                                <td class="p-4">High-performance enterprise grid</td>
+                                <td class="p-4">Complex Apps</td>
+                            </tr>
+
+                            <!-- BACKEND & AUTH -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Backend &
+                                    Auth</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">NextAuth.js (Auth.js)</td>
+                                <td class="p-4">Auth</td>
+                                <td class="p-4">Complete auth solution for Next.js</td>
+                                <td class="p-4 text-green-600">Standard</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Clerk</td>
+                                <td class="p-4">Auth Service</td>
+                                <td class="p-4">Hosted User Management</td>
+                                <td class="p-4">Easiest DX</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Supabase</td>
+                                <td class="p-4">BaaS</td>
+                                <td class="p-4">Firebase alternative (Postgres)</td>
+                                <td class="p-4">Full Stack</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Firebase</td>
+                                <td class="p-4">BaaS</td>
+                                <td class="p-4">Google's backend platform</td>
+                                <td class="p-4">Realtime DB</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Prisma</td>
+                                <td class="p-4">ORM</td>
+                                <td class="p-4">Type-safe DB client</td>
+                                <td class="p-4">Best DX</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Drizzle ORM</td>
+                                <td class="p-4">ORM</td>
+                                <td class="p-4">Lightweight, SQL-like ORM</td>
+                                <td class="p-4 text-orange-500">Fast Growing</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">tRPC</td>
+                                <td class="p-4">API</td>
+                                <td class="p-4">End-to-end typesafe APIs</td>
+                                <td class="p-4 text-blue-500">No Rest/GQL</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Apollo Client</td>
+                                <td class="p-4">GraphQL</td>
+                                <td class="p-4">State mgmt for GraphQL</td>
+                                <td class="p-4">Complex Data</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Axios</td>
+                                <td class="p-4">HTTP Client</td>
+                                <td class="p-4">Promise based HTTP client</td>
+                                <td class="p-4">Classic</td>
+                            </tr>
+
+                            <!-- TESTING -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Testing
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Jest</td>
+                                <td class="p-4">Unit Test</td>
+                                <td class="p-4">Testing Framework</td>
+                                <td class="p-4">Standard</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Vitest</td>
+                                <td class="p-4">Unit Test</td>
+                                <td class="p-4">Vite-native testing framework</td>
+                                <td class="p-4 text-yellow-500">Fast</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Testing Lib</td>
+                                <td class="p-4">Component Test</td>
+                                <td class="p-4">Test components like users</td>
+                                <td class="p-4">Essential</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Playwright</td>
+                                <td class="p-4">E2E</td>
+                                <td class="p-4">Reliable end-to-end testing</td>
+                                <td class="p-4 text-green-600">Best Choice</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Cypress</td>
+                                <td class="p-4">E2E</td>
+                                <td class="p-4">Browser-based testing</td>
+                                <td class="p-4">User Friendly</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">MSW (Mock Service Worker)</td>
+                                <td class="p-4">Mocking</td>
+                                <td class="p-4">API mocking for browser/node</td>
+                                <td class="p-4">Network Layer</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Storybook</td>
+                                <td class="p-4">Development</td>
+                                <td class="p-4">UI component explorer</td>
+                                <td class="p-4">Documentation</td>
+                            </tr>
+
+                            <!-- UTILITIES & HELPERS -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-gray-500 uppercase tracking-widest">Utilities
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Date-fns</td>
+                                <td class="p-4">Date</td>
+                                <td class="p-4">Modern date utility library</td>
+                                <td class="p-4">Lightweight</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Day.js</td>
+                                <td class="p-4">Date</td>
+                                <td class="p-4">2kB alternative to Moment.js</td>
+                                <td class="p-4">Tiny</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Lodash</td>
+                                <td class="p-4">Utils</td>
+                                <td class="p-4">Utility library (use singular imports!)</td>
+                                <td class="p-4">Classic</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Use</td>
+                                <td class="p-4">Hooks</td>
+                                <td class="p-4">Collection of essential hooks</td>
+                                <td class="p-4">Handy</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Usehooks-ts</td>
+                                <td class="p-4">Hooks</td>
+                                <td class="p-4">TypeScript ready hooks</td>
+                                <td class="p-4">TypeSafe</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Nuqs</td>
+                                <td class="p-4">URL History</td>
+                                <td class="p-4">Type-safe search params state</td>
+                                <td class="p-4">New Standard</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Sonner</td>
+                                <td class="p-4">Toast</td>
+                                <td class="p-4">Opinionated toast component</td>
+                                <td class="p-4">Beautiful</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Hot Toast</td>
+                                <td class="p-4">Toast</td>
+                                <td class="p-4">Simple toast notifications</td>
+                                <td class="p-4">Popular</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Dropzone</td>
+                                <td class="p-4">File Upload</td>
+                                <td class="p-4">Drag and drop file uploads</td>
+                                <td class="p-4">Files</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Markdown</td>
+                                <td class="p-4">Content</td>
+                                <td class="p-4">Render Markdown as React</td>
+                                <td class="p-4">Content</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">SWR</td>
+                                <td class="p-4">Data Fetching</td>
+                                <td class="p-4">Vercel's stale-while-revalidate</td>
+                                <td class="p-4">Simple</td>
+                            </tr>
+
+                            <!-- I18N & OTHERS -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-gray-500 uppercase tracking-widest">
+                                    Internationalization & Misc</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">next-intl</td>
+                                <td class="p-4">i18n</td>
+                                <td class="p-4">Internationalization for Next.js</td>
+                                <td class="p-4">App Router Ready</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">react-i18next</td>
+                                <td class="p-4">i18n</td>
+                                <td class="p-4">Standard i18n framework</td>
+                                <td class="p-4">Robust</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Email</td>
+                                <td class="p-4">Email</td>
+                                <td class="p-4">Build emails with React</td>
+                                <td class="p-4">Modern Email</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Resend</td>
+                                <td class="p-4">Email API</td>
+                                <td class="p-4">Email API for developers</td>
+                                <td class="p-4">Great DX</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Uploadthing</td>
+                                <td class="p-4">Storage</td>
+                                <td class="p-4">File uploads for Next.js</td>
+                                <td class="p-4">Easy specific</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Stripe JS</td>
+                                <td class="p-4">Payments</td>
+                                <td class="p-4">Stripe elements for React</td>
+                                <td class="p-4">Payments</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Player</td>
+                                <td class="p-4">Media</td>
+                                <td class="p-4">Play video URLs (YouTube, etc)</td>
+                                <td class="p-4">Video</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Pdf</td>
+                                <td class="p-4">Media</td>
+                                <td class="p-4">Display PDFs in React app</td>
+                                <td class="p-4">Documents</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Big Calendar</td>
+                                <td class="p-4">Calendar</td>
+                                <td class="p-4">Calendar component</td>
+                                <td class="p-4">Scheduling</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Dnd Kit</td>
+                                <td class="p-4">Drag & Drop</td>
+                                <td class="p-4">Modern drag and drop toolkit</td>
+                                <td class="p-4 text-blue-500">Recommended</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Beautiful Dnd</td>
+                                <td class="p-4">Drag & Drop</td>
+                                <td class="p-4">Classic drag and drop</td>
+                                <td class="p-4">Atlassian</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Flow</td>
+                                <td class="p-4">Diagrams</td>
+                                <td class="p-4">Node-based graph editors</td>
+                                <td class="p-4">Visual node</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Three.js / R3F</td>
+                                <td class="p-4">3D</td>
+                                <td class="p-4">3D scenes in React</td>
+                                <td class="p-4">WebGL</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Lottie React</td>
+                                <td class="p-4">Animation</td>
+                                <td class="p-4">Render After Effects animations</td>
+                                <td class="p-4">JSON anims</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Syntax Highlighter</td>
+                                <td class="p-4">Code</td>
+                                <td class="p-4">Syntax highlighting component</td>
+                                <td class="p-4">Code Blocks</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Sentry</td>
+                                <td class="p-4">Monitoring</td>
+                                <td class="p-4">Error tracking & performance</td>
+                                <td class="p-4">Production</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Posthog</td>
+                                <td class="p-4">Analytics</td>
+                                <td class="p-4">Product analytics & feature flags</td>
+                                <td class="p-4">All-in-one</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Vercel Analytics</td>
+                                <td class="p-4">Analytics</td>
+                                <td class="p-4">Web vitals & visitors</td>
+                                <td class="p-4">Zero Config</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="h-40"></div>
+        </main>
+    </div>
+
+    <!-- Search Modal (Hidden) -->
+    <div id="search-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="search-backdrop"></div>
+        <div class="relative w-full max-w-2xl mx-auto mt-32 p-4">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center border-b border-gray-100 dark:border-gray-700 p-4 gap-3">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input id="modal-search-input" type="text"
+                        class="flex-1 bg-transparent border-none outline-none text-lg text-gray-800 dark:text-gray-100 placeholder-gray-400"
+                        placeholder="Search topics...">
+                    <button id="close-search"
+                        class="text-xs border border-gray-200 dark:border-gray-700 px-2 py-1 rounded text-gray-500">ESC</button>
+                </div>
+                <div id="search-results" class="max-h-[60vh] overflow-y-auto p-2">
+                    <!-- Results -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Theme Toggle ---
+        const themeBtn = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        // Initialize Dark Mode by default
+        if (!('theme' in localStorage) || localStorage.theme === 'dark') {
+            html.classList.add('dark');
+        } else {
+            html.classList.remove('dark');
+        }
+
+        themeBtn.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // --- Mobile Menu ---
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('-translate-x-full');
+        });
+
+        // --- Copy to Clipboard ---
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const code = btn.nextElementSibling.innerText;
+                navigator.clipboard.writeText(code);
+                const original = btn.innerText;
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = original, 2000);
+            });
+        });
+
+        // --- Sidebar Active State (ScrollSpy) ---
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (pageYOffset >= sectionTop - 150) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                    link.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            });
+        });
+
+        // --- Search Functionality ---
+        const sidebarSearch = document.getElementById('sidebar-search');
+        const searchModal = document.getElementById('search-modal');
+        const modalInput = document.getElementById('modal-search-input');
+        const searchResults = document.getElementById('search-results');
+        const closeSearch = document.getElementById('close-search');
+        const backdrop = document.getElementById('search-backdrop');
+
+        // Build Index
+        let index = [];
+        document.querySelectorAll('section').forEach(section => {
+            const h2 = section.querySelector('h2');
+            if (h2) {
+                const title = h2.innerText;
+                const id = section.id;
+                index.push({ id, title, type: 'Section', el: section });
+            }
+        });
+        document.querySelectorAll('h3').forEach(h3 => {
+            const title = h3.innerText;
+            const section = h3.closest('section');
+            if (section) index.push({ id: section.id, title, type: 'Topic', el: h3 });
+        });
+
+        function openSearch() {
+            searchModal.classList.remove('hidden');
+            modalInput.focus();
+            if (sidebarSearch.value) {
+                modalInput.value = sidebarSearch.value;
+                handleSearch(sidebarSearch.value);
+            }
+        }
+        function closeSearchModal() {
+            searchModal.classList.add('hidden');
+            modalInput.value = '';
+            sidebarSearch.value = '';
+            searchResults.innerHTML = '';
+        }
+
+        // Listeners for Open
+        sidebarSearch.addEventListener('focus', openSearch);
+        sidebarSearch.addEventListener('input', (e) => {
+            openSearch();
+            modalInput.value = e.target.value;
+            handleSearch(e.target.value);
+        });
+
+
+        // Listeners for Close
+        closeSearch.addEventListener('click', closeSearchModal);
+        backdrop.addEventListener('click', closeSearchModal);
+
+        // State for keyboard navigation
+        let selectedIndex = -1;
+        let resultElements = [];
+        let currentResults = []; // Store current filtered results for Enter key access
+
+        // Filter Logic
+        modalInput.addEventListener('input', (e) => handleSearch(e.target.value));
+
+        function handleSearch(query) {
+            query = query.toLowerCase();
+            currentResults = index.filter(item => item.title.toLowerCase().includes(query));
+            searchResults.innerHTML = '';
+            selectedIndex = -1; // Reset selection on new search
+
+            if (currentResults.length === 0) {
+                searchResults.innerHTML = `<div class="p-4 text-center text-gray-500">No results found</div>`;
+                resultElements = [];
+                return;
+            }
+
+            currentResults.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = 'search-result-item p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer flex justify-between items-center group transition-colors duration-200';
+                div.setAttribute('data-index', idx);
+                div.innerHTML = `
+                    <div>
+                        <div class="font-medium text-gray-800 dark:text-gray-200">${item.title}</div>
+                        <div class="text-xs text-gray-500 uppercase">${item.type}</div>
+                    </div>
+                    <span class="opacity-0 group-hover:opacity-100 text-xs text-blue-500">Jump ↵</span>
+                `;
+                div.addEventListener('click', () => {
+                    closeSearchModal();
+                    item.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+                searchResults.appendChild(div);
+            });
+            resultElements = searchResults.querySelectorAll('.search-result-item');
+        }
+
+        function updateSelection() {
+            if (resultElements.length === 0) return;
+
+            resultElements.forEach((el, idx) => {
+                if (idx === selectedIndex) {
+                    el.classList.add('bg-blue-50', 'dark:bg-gray-700', 'ring-1', 'ring-blue-500');
+                    el.scrollIntoView({ block: 'nearest' });
+                } else {
+                    el.classList.remove('bg-blue-50', 'dark:bg-gray-700', 'ring-1', 'ring-blue-500');
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            // Open Search
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                openSearch();
+            }
+
+            // Close Search
+            if (e.key === 'Escape') closeSearchModal();
+
+            // Navigation within search
+            if (!searchModal.classList.contains('hidden')) {
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    if (resultElements.length > 0) {
+                        selectedIndex = selectedIndex < resultElements.length - 1 ? selectedIndex + 1 : 0;
+                        updateSelection();
+                    }
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    if (resultElements.length > 0) {
+                        selectedIndex = selectedIndex > 0 ? selectedIndex - 1 : resultElements.length - 1;
+                        updateSelection();
+                    }
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedIndex >= 0 && currentResults[selectedIndex]) {
+                        closeSearchModal();
+                        currentResults[selectedIndex].el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }
+            }
+        });
+
+    </script>
+</body>
+
+</html>

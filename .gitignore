@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# TUB runtime (user-specific, never commit)
+tub.pid
+tub.log
+config.toml
+.env
+
+# macOS
+.DS_Store
+
+# editors
+.vscode/
+.idea/
+*.swp

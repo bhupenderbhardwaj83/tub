@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python PostgreSQL & pgAdmin - Tutorial</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .home-button { position: fixed; top: 20px; left: 20px; z-index: 1000; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.95em; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .home-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .home-button::before { content: '🏠'; font-size: 1.2em; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; padding: 30px 20px; line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; background: #0f172a; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid #1e293b; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%); padding: 50px 40px; text-align: center; }
+        .header h1 { font-size: 3em; font-weight: 700; color: white; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; color: rgba(255,255,255,0.95); }
+        .nav-links { background: #1e293b; padding: 15px 30px; border-bottom: 2px solid #334155; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        .nav-link { padding: 8px 16px; background: #334155; color: #94a3b8; text-decoration: none; border-radius: 8px; font-size: 0.9em; transition: all 0.3s ease; font-weight: 500; }
+        .nav-link:hover { background: #7c3aed; color: white; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 45px; }
+        .section-title { font-size: 2em; font-weight: 600; color: #c4b5fd; margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid #1e293b; display: flex; align-items: center; }
+        .section-title::before { content: ''; width: 6px; height: 32px; background: #7c3aed; margin-right: 15px; border-radius: 3px; }
+        .concept-box { background: #1e293b; border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid #334155; transition: all 0.3s ease; }
+        .concept-box:hover { border-color: #7c3aed; box-shadow: 0 8px 20px rgba(124, 58, 237, 0.15); }
+        .concept-header { font-size: 1.25em; font-weight: 600; color: #ddd6fe; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .concept-header::before { content: '▸'; color: #7c3aed; font-size: 1.2em; }
+        .label { display: inline-block; padding: 5px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; }
+        .label-what { background: #7c3aed; color: white; }
+        .label-example { background: #10b981; color: white; }
+        .description { color: #cbd5e1; font-size: 1.05em; margin-bottom: 18px; line-height: 1.7; }
+        .code-block { background: #020817; border: 1px solid #1e293b; border-radius: 10px; padding: 20px; margin: 15px 0; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.95em; position: relative; }
+        .code-block::before { content: 'PYTHON'; position: absolute; top: 8px; right: 80px; font-size: 0.7em; color: #475569; font-weight: 600; }
+        .copy-btn { position: absolute; top: 8px; right: 15px; background: #7c3aed; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75em; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .copy-btn:hover { background: #a78bfa; }
+        .copy-btn.copied { background: #10b981; }
+        .code-block pre { margin: 0; line-height: 1.8; white-space: pre; color: #e2e8f0; }
+        .kw { color: #f472b6; font-weight: 600; }
+        .fn { color: #60a5fa; }
+        .str { color: #34d399; }
+        .num { color: #fbbf24; }
+        .cmt { color: #64748b; font-style: italic; }
+        .var { color: #e2e8f0; }
+        .back-to-top { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #7c3aed; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .back-to-top:hover { background: #a78bfa; transform: translateY(-2px); }
+        .tip-box { background: linear-gradient(135deg, #1e3a5f 0%, #1e3a4f 100%); border-left: 4px solid #7c3aed; padding: 18px 22px; margin: 20px 0; border-radius: 8px; color: #ddd6fe; }
+        .real-world { background: linear-gradient(135deg, #2e1f3a 0%, #3a1f2e 100%); border: 2px solid #7c3aed; padding: 20px; margin: 20px 0; border-radius: 12px; }
+        .real-world-title { color: #ddd6fe; font-weight: 600; font-size: 1.1em; margin-bottom: 12px; }
+        .real-world-title::before { content: '💡 '; }
+    </style>
+</head>
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <div class="container">
+        <div class="header">
+            <h1>🗄️ PostgreSQL & pgAdmin</h1>
+            <p>Master database operations and administration</p>
+        </div>
+        <div class="nav-links">
+            <a href="#setup" class="nav-link">Setup & Connection</a>
+            <a href="#crud" class="nav-link">CRUD Operations</a>
+            <a href="#queries" class="nav-link">Advanced Queries</a>
+            <a href="#pgadmin" class="nav-link">pgAdmin</a>
+            <a href="#best" class="nav-link">Best Practices</a>
+        </div>
+        <div class="content">
+            <div id="setup" class="section">
+                <h2 class="section-title">Setup & Connection</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Installing psycopg2</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        psycopg2 is the most popular PostgreSQL adapter for Python. It allows you to connect and execute SQL queries.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Install psycopg2</span>
+<span class="cmt"># pip install psycopg2-binary</span>
+
+<span class="kw">import</span> <span class="var">psycopg2</span>
+
+<span class="cmt"># Connect to database</span>
+<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(
+    <span class="var">host</span>=<span class="str">"localhost"</span>,
+    <span class="var">database</span>=<span class="str">"mydb"</span>,
+    <span class="var">user</span>=<span class="str">"postgres"</span>,
+    <span class="var">password</span>=<span class="str">"yourpassword"</span>,
+    <span class="var">port</span>=<span class="num">5432</span>
+)
+
+<span class="cmt"># Create cursor</span>
+<span class="var">cursor</span> = <span class="var">conn</span>.<span class="fn">cursor</span>()
+
+<span class="fn">print</span>(<span class="str">"Connected to PostgreSQL!"</span>)</pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Using Context Manager</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">psycopg2</span>
+<span class="kw">from</span> <span class="var">psycopg2</span> <span class="kw">import</span> <span class="var">pool</span>
+
+<span class="cmt"># Context manager (auto-closes connection)</span>
+<span class="kw">with</span> <span class="var">psycopg2</span>.<span class="fn">connect</span>(
+    <span class="var">host</span>=<span class="str">"localhost"</span>,
+    <span class="var">database</span>=<span class="str">"mydb"</span>,
+    <span class="var">user</span>=<span class="str">"postgres"</span>,
+    <span class="var">password</span>=<span class="str">"yourpassword"</span>
+) <span class="kw">as</span> <span class="var">conn</span>:
+    <span class="kw">with</span> <span class="var">conn</span>.<span class="fn">cursor</span>() <span class="kw">as</span> <span class="var">cursor</span>:
+        <span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">"SELECT version();"</span>)
+        <span class="var">version</span> = <span class="var">cursor</span>.<span class="fn">fetchone</span>()
+        <span class="fn">print</span>(<span class="var">version</span>)</pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Connection Pooling</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">psycopg2</span> <span class="kw">import</span> <span class="var">pool</span>
+
+<span class="cmt"># Create connection pool</span>
+<span class="var">connection_pool</span> = <span class="var">pool</span>.<span class="fn">SimpleConnectionPool</span>(
+    <span class="num">1</span>, <span class="num">20</span>,  <span class="cmt"># Min and max connections</span>
+    <span class="var">host</span>=<span class="str">"localhost"</span>,
+    <span class="var">database</span>=<span class="str">"mydb"</span>,
+    <span class="var">user</span>=<span class="str">"postgres"</span>,
+    <span class="var">password</span>=<span class="str">"yourpassword"</span>
+)
+
+<span class="cmt"># Get connection from pool</span>
+<span class="var">conn</span> = <span class="var">connection_pool</span>.<span class="fn">getconn</span>()
+
+<span class="cmt"># Return connection to pool</span>
+<span class="var">connection_pool</span>.<span class="fn">putconn</span>(<span class="var">conn</span>)
+
+<span class="cmt"># Close all connections</span>
+<span class="var">connection_pool</span>.<span class="fn">closeall</span>()</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="crud" class="section">
+                <h2 class="section-title">CRUD Operations</h2>
+                <div class="concept-box">
+                    <div class="concept-header">CREATE - Insert Data</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">psycopg2</span>
+
+<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(<span class="var">host</span>=<span class="str">"localhost"</span>, <span class="var">database</span>=<span class="str">"mydb"</span>, 
+                        <span class="var">user</span>=<span class="str">"postgres"</span>, <span class="var">password</span>=<span class="str">"pass"</span>)
+<span class="var">cursor</span> = <span class="var">conn</span>.<span class="fn">cursor</span>()
+
+<span class="cmt"># Create table</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">"""
+    CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        email VARCHAR(100) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+"""</span>)
+
+<span class="cmt"># Insert single row</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(
+    <span class="str">"INSERT INTO users (username, email) VALUES (%s, %s)"</span>,
+    (<span class="str">"alice"</span>, <span class="str">"alice@email.com"</span>)
+)
+
+<span class="cmt"># Insert multiple rows</span>
+<span class="var">users</span> = [
+    (<span class="str">"bob"</span>, <span class="str">"bob@email.com"</span>),
+    (<span class="str">"charlie"</span>, <span class="str">"charlie@email.com"</span>)
+]
+<span class="var">cursor</span>.<span class="fn">executemany</span>(
+    <span class="str">"INSERT INTO users (username, email) VALUES (%s, %s)"</span>,
+    <span class="var">users</span>
+)
+
+<span class="var">conn</span>.<span class="fn">commit</span>()  <span class="cmt"># Important!</span>
+<span class="var">cursor</span>.<span class="fn">close</span>()
+<span class="var">conn</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">READ - Query Data</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">psycopg2</span>
+
+<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(<span class="var">host</span>=<span class="str">"localhost"</span>, <span class="var">database</span>=<span class="str">"mydb"</span>,
+                        <span class="var">user</span>=<span class="str">"postgres"</span>, <span class="var">password</span>=<span class="str">"pass"</span>)
+<span class="var">cursor</span> = <span class="var">conn</span>.<span class="fn">cursor</span>()
+
+<span class="cmt"># Fetch all rows</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">"SELECT * FROM users"</span>)
+<span class="var">rows</span> = <span class="var">cursor</span>.<span class="fn">fetchall</span>()
+<span class="kw">for</span> <span class="var">row</span> <span class="kw">in</span> <span class="var">rows</span>:
+    <span class="fn">print</span>(<span class="var">row</span>)
+
+<span class="cmt"># Fetch one row</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">"SELECT * FROM users WHERE username = %s"</span>, (<span class="str">"alice"</span>,))
+<span class="var">user</span> = <span class="var">cursor</span>.<span class="fn">fetchone</span>()
+<span class="fn">print</span>(<span class="var">user</span>)
+
+<span class="cmt"># Fetch with column names</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">"SELECT * FROM users"</span>)
+<span class="var">columns</span> = [<span class="var">desc</span>[<span class="num">0</span>] <span class="kw">for</span> <span class="var">desc</span> <span class="kw">in</span> <span class="var">cursor</span>.<span class="var">description</span>]
+<span class="var">rows</span> = <span class="var">cursor</span>.<span class="fn">fetchall</span>()
+<span class="kw">for</span> <span class="var">row</span> <span class="kw">in</span> <span class="var">rows</span>:
+    <span class="var">user_dict</span> = <span class="fn">dict</span>(<span class="fn">zip</span>(<span class="var">columns</span>, <span class="var">row</span>))
+    <span class="fn">print</span>(<span class="var">user_dict</span>)
+
+<span class="var">cursor</span>.<span class="fn">close</span>()
+<span class="var">conn</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">UPDATE & DELETE</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">psycopg2</span>
+
+<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(<span class="var">host</span>=<span class="str">"localhost"</span>, <span class="var">database</span>=<span class="str">"mydb"</span>,
+                        <span class="var">user</span>=<span class="str">"postgres"</span>, <span class="var">password</span>=<span class="str">"pass"</span>)
+<span class="var">cursor</span> = <span class="var">conn</span>.<span class="fn">cursor</span>()
+
+<span class="cmt"># UPDATE - Modify data</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(
+    <span class="str">"UPDATE users SET email = %s WHERE username = %s"</span>,
+    (<span class="str">"newemail@email.com"</span>, <span class="str">"alice"</span>)
+)
+<span class="fn">print</span>(<span class="str">f"Updated <span class="var">{cursor.rowcount}</span> rows"</span>)
+
+<span class="cmt"># DELETE - Remove data</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(
+    <span class="str">"DELETE FROM users WHERE username = %s"</span>,
+    (<span class="str">"bob"</span>,)
+)
+<span class="fn">print</span>(<span class="str">f"Deleted <span class="var">{cursor.rowcount}</span> rows"</span>)
+
+<span class="var">conn</span>.<span class="fn">commit</span>()
+<span class="var">cursor</span>.<span class="fn">close</span>()
+<span class="var">conn</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="queries" class="section">
+                <h2 class="section-title">Advanced Queries</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Joins & Aggregations</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">psycopg2</span>
+
+<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(<span class="var">host</span>=<span class="str">"localhost"</span>, <span class="var">database</span>=<span class="str">"mydb"</span>,
+                        <span class="var">user</span>=<span class="str">"postgres"</span>, <span class="var">password</span>=<span class="str">"pass"</span>)
+<span class="var">cursor</span> = <span class="var">conn</span>.<span class="fn">cursor</span>()
+
+<span class="cmt"># INNER JOIN</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">"""
+    SELECT users.username, posts.title, posts.created_at
+    FROM users
+    INNER JOIN posts ON users.id = posts.user_id
+    WHERE users.username = %s
+"""</span>, (<span class="str">"alice"</span>,))
+
+<span class="var">results</span> = <span class="var">cursor</span>.<span class="fn">fetchall</span>()
+<span class="kw">for</span> <span class="var">row</span> <span class="kw">in</span> <span class="var">results</span>:
+    <span class="fn">print</span>(<span class="var">row</span>)
+
+<span class="cmt"># Aggregation with GROUP BY</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">"""
+    SELECT users.username, COUNT(posts.id) as post_count
+    FROM users
+    LEFT JOIN posts ON users.id = posts.user_id
+    GROUP BY users.username
+    ORDER BY post_count DESC
+"""</span>)
+
+<span class="var">results</span> = <span class="var">cursor</span>.<span class="fn">fetchall</span>()
+<span class="kw">for</span> <span class="var">username</span>, <span class="var">count</span> <span class="kw">in</span> <span class="var">results</span>:
+    <span class="fn">print</span>(<span class="str">f"<span class="var">{username}</span>: <span class="var">{count}</span> posts"</span>)
+
+<span class="var">cursor</span>.<span class="fn">close</span>()
+<span class="var">conn</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Transactions</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">psycopg2</span>
+
+<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(<span class="var">host</span>=<span class="str">"localhost"</span>, <span class="var">database</span>=<span class="str">"mydb"</span>,
+                        <span class="var">user</span>=<span class="str">"postgres"</span>, <span class="var">password</span>=<span class="str">"pass"</span>)
+<span class="var">cursor</span> = <span class="var">conn</span>.<span class="fn">cursor</span>()
+
+<span class="kw">try</span>:
+    <span class="cmt"># Begin transaction (automatic)</span>
+    <span class="var">cursor</span>.<span class="fn">execute</span>(
+        <span class="str">"INSERT INTO users (username, email) VALUES (%s, %s)"</span>,
+        (<span class="str">"dave"</span>, <span class="str">"dave@email.com"</span>)
+    )
+    
+    <span class="var">cursor</span>.<span class="fn">execute</span>(
+        <span class="str">"UPDATE accounts SET balance = balance - 100 WHERE user_id = %s"</span>,
+        (<span class="num">1</span>,)
+    )
+    
+    <span class="cmt"># Commit transaction</span>
+    <span class="var">conn</span>.<span class="fn">commit</span>()
+    <span class="fn">print</span>(<span class="str">"Transaction successful"</span>)
+    
+<span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> <span class="var">e</span>:
+    <span class="cmt"># Rollback on error</span>
+    <span class="var">conn</span>.<span class="fn">rollback</span>()
+    <span class="fn">print</span>(<span class="str">f"Transaction failed: <span class="var">{e}</span>"</span>)
+    
+<span class="kw">finally</span>:
+    <span class="var">cursor</span>.<span class="fn">close</span>()
+    <span class="var">conn</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+                
+                <div class="real-world">
+                    <div class="real-world-title">Real-World Example: Database Helper Class</div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">psycopg2</span>
+<span class="kw">from</span> <span class="var">psycopg2</span>.<span class="var">extras</span> <span class="kw">import</span> <span class="var">RealDictCursor</span>
+
+<span class="kw">class</span> <span class="fn">Database</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">config</span>):
+        <span class="var">self</span>.<span class="var">config</span> = <span class="var">config</span>
+        <span class="var">self</span>.<span class="var">conn</span> = <span class="kw">None</span>
+    
+    <span class="kw">def</span> <span class="fn">connect</span>(<span class="var">self</span>):
+        <span class="var">self</span>.<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(**<span class="var">self</span>.<span class="var">config</span>)
+    
+    <span class="kw">def</span> <span class="fn">execute_query</span>(<span class="var">self</span>, <span class="var">query</span>, <span class="var">params</span>=<span class="kw">None</span>):
+        <span class="kw">with</span> <span class="var">self</span>.<span class="var">conn</span>.<span class="fn">cursor</span>(<span class="var">cursor_factory</span>=<span class="var">RealDictCursor</span>) <span class="kw">as</span> <span class="var">cursor</span>:
+            <span class="var">cursor</span>.<span class="fn">execute</span>(<span class="var">query</span>, <span class="var">params</span>)
+            <span class="kw">return</span> <span class="var">cursor</span>.<span class="fn">fetchall</span>()
+    
+    <span class="kw">def</span> <span class="fn">execute_update</span>(<span class="var">self</span>, <span class="var">query</span>, <span class="var">params</span>=<span class="kw">None</span>):
+        <span class="kw">with</span> <span class="var">self</span>.<span class="var">conn</span>.<span class="fn">cursor</span>() <span class="kw">as</span> <span class="var">cursor</span>:
+            <span class="var">cursor</span>.<span class="fn">execute</span>(<span class="var">query</span>, <span class="var">params</span>)
+            <span class="var">self</span>.<span class="var">conn</span>.<span class="fn">commit</span>()
+            <span class="kw">return</span> <span class="var">cursor</span>.<span class="var">rowcount</span>
+    
+    <span class="kw">def</span> <span class="fn">close</span>(<span class="var">self</span>):
+        <span class="kw">if</span> <span class="var">self</span>.<span class="var">conn</span>:
+            <span class="var">self</span>.<span class="var">conn</span>.<span class="fn">close</span>()
+
+<span class="cmt"># Usage</span>
+<span class="var">config</span> = {
+    <span class="str">'host'</span>: <span class="str">'localhost'</span>,
+    <span class="str">'database'</span>: <span class="str">'mydb'</span>,
+    <span class="str">'user'</span>: <span class="str">'postgres'</span>,
+    <span class="str">'password'</span>: <span class="str">'pass'</span>
+}
+
+<span class="var">db</span> = <span class="fn">Database</span>(<span class="var">config</span>)
+<span class="var">db</span>.<span class="fn">connect</span>()
+<span class="var">users</span> = <span class="var">db</span>.<span class="fn">execute_query</span>(<span class="str">"SELECT * FROM users"</span>)
+<span class="var">db</span>.<span class="fn">close</span>()</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="pgadmin" class="section">
+                <h2 class="section-title">pgAdmin - GUI Tool</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Getting Started with pgAdmin</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        pgAdmin is the most popular PostgreSQL GUI tool. Manage databases, run queries, and visualize data visually.
+                    </p>
+                    <div class="description">
+                        <strong>Key Features:</strong><br>
+                        • Visual database design and management<br>
+                        • Query tool with syntax highlighting<br>
+                        • Backup and restore databases<br>
+                        • User and permission management<br>
+                        • Real-time monitoring and statistics<br>
+                        • Import/Export data (CSV, JSON, etc.)
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Common pgAdmin Tasks</div>
+                    <div class="description">
+                        <strong>1. Creating a Database:</strong><br>
+                        Right-click "Databases" → Create → Database<br><br>
+                        
+                        <strong>2. Running Queries:</strong><br>
+                        Right-click database → Query Tool → Write SQL → Execute (F5)<br><br>
+                        
+                        <strong>3. Creating Tables:</strong><br>
+                        Expand database → Right-click "Tables" → Create → Table<br><br>
+                        
+                        <strong>4. Viewing Data:</strong><br>
+                        Right-click table → View/Edit Data → All Rows<br><br>
+                        
+                        <strong>5. Import CSV:</strong><br>
+                        Right-click table → Import/Export → Select file → Configure columns<br><br>
+                        
+                        <strong>6. Backup Database:</strong><br>
+                        Right-click database → Backup → Choose format (Custom/Tar) → Execute
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Useful SQL Queries in pgAdmin</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt">-- View all tables in current database</span>
+<span class="kw">SELECT</span> <span class="var">tablename</span> <span class="kw">FROM</span> <span class="var">pg_tables</span>
+<span class="kw">WHERE</span> <span class="var">schemaname</span> = <span class="str">'public'</span>;
+
+<span class="cmt">-- View table structure</span>
+<span class="kw">SELECT</span> <span class="var">column_name</span>, <span class="var">data_type</span>, <span class="var">is_nullable</span>
+<span class="kw">FROM</span> <span class="var">information_schema</span>.<span class="var">columns</span>
+<span class="kw">WHERE</span> <span class="var">table_name</span> = <span class="str">'users'</span>;
+
+<span class="cmt">-- Database size</span>
+<span class="kw">SELECT</span> <span class="fn">pg_size_pretty</span>(<span class="fn">pg_database_size</span>(<span class="str">'mydb'</span>));
+
+<span class="cmt">-- Table row count</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> <span class="var">users</span>;
+
+<span class="cmt">-- Active connections</span>
+<span class="kw">SELECT</span> <span class="var">pid</span>, <span class="var">usename</span>, <span class="var">application_name</span>, <span class="var">state</span>
+<span class="kw">FROM</span> <span class="var">pg_stat_activity</span>;</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="best" class="section">
+                <h2 class="section-title">Best Practices</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Security & Performance</div>
+                    <div class="description">
+                        <strong>1. Use Parameterized Queries (Prevent SQL Injection):</strong>
+                    </div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># BAD - SQL Injection risk</span>
+<span class="var">username</span> = <span class="str">"alice'; DROP TABLE users; --"</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">f"SELECT * FROM users WHERE username = '<span class="var">{username}</span>'"</span>)
+
+<span class="cmt"># GOOD - Parameterized query</span>
+<span class="var">cursor</span>.<span class="fn">execute</span>(<span class="str">"SELECT * FROM users WHERE username = %s"</span>, (<span class="var">username</span>,))</pre>
+                    </div>
+                    
+                    <div class="description">
+                        <strong>2. Use Connection Pooling:</strong><br>
+                        • Reuse connections instead of creating new ones<br>
+                        • Improves performance for web applications<br><br>
+                        
+                        <strong>3. Create Indexes:</strong>
+                    </div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt">-- Create index for faster queries</span>
+<span class="kw">CREATE INDEX</span> <span class="var">idx_username</span> <span class="kw">ON</span> <span class="var">users</span>(<span class="var">username</span>);
+
+<span class="cmt">-- Composite index</span>
+<span class="kw">CREATE INDEX</span> <span class="var">idx_user_email</span> <span class="kw">ON</span> <span class="var">users</span>(<span class="var">username</span>, <span class="var">email</span>);</pre>
+                    </div>
+                    
+                    <div class="description">
+                        <strong>4. Use Transactions for Related Operations:</strong><br>
+                        • Ensures data consistency<br>
+                        • All-or-nothing approach<br><br>
+                        
+                        <strong>5. Close Connections Properly:</strong><br>
+                        • Always use context managers or close connections<br>
+                        • Prevents connection leaks<br><br>
+                        
+                        <strong>6. Handle Exceptions:</strong><br>
+                        • Wrap database operations in try-except<br>
+                        • Rollback on errors<br>
+                        • Log errors for debugging
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Environment Variables for Credentials</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">os</span>
+<span class="kw">import</span> <span class="var">psycopg2</span>
+
+<span class="cmt"># Store credentials in environment variables</span>
+<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(
+    <span class="var">host</span>=<span class="var">os</span>.<span class="fn">getenv</span>(<span class="str">'DB_HOST'</span>),
+    <span class="var">database</span>=<span class="var">os</span>.<span class="fn">getenv</span>(<span class="str">'DB_NAME'</span>),
+    <span class="var">user</span>=<span class="var">os</span>.<span class="fn">getenv</span>(<span class="str">'DB_USER'</span>),
+    <span class="var">password</span>=<span class="var">os</span>.<span class="fn">getenv</span>(<span class="str">'DB_PASSWORD'</span>)
+)
+
+<span class="cmt"># Or use python-dotenv</span>
+<span class="cmt"># pip install python-dotenv</span>
+<span class="kw">from</span> <span class="var">dotenv</span> <span class="kw">import</span> <span class="var">load_dotenv</span>
+<span class="fn">load_dotenv</span>()
+
+<span class="var">conn</span> = <span class="var">psycopg2</span>.<span class="fn">connect</span>(
+    <span class="var">host</span>=<span class="var">os</span>.<span class="fn">getenv</span>(<span class="str">'DB_HOST'</span>),
+    <span class="var">database</span>=<span class="var">os</span>.<span class="fn">getenv</span>(<span class="str">'DB_NAME'</span>),
+    <span class="var">user</span>=<span class="var">os</span>.<span class="fn">getenv</span>(<span class="str">'DB_USER'</span>),
+    <span class="var">password</span>=<span class="var">os</span>.<span class="fn">getenv</span>(<span class="str">'DB_PASSWORD'</span>)
+)</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div class="tip-box">
+                <strong>🎉 Congratulations!</strong> You've completed the entire Python Tutorial Hub! You now have comprehensive guides for Python Basics, OOP, Functional Programming, Decorators, Iterators, File Handling, Modern Modules (SQLAlchemy, Pydantic, FastAPI, Pandas, Alembic), Plotly Visualization, and PostgreSQL/pgAdmin!
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+</html>

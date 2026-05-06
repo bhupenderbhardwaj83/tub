@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Decorators - Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .home-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .home-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .home-button::before {
+            content: '🏠';
+            font-size: 1.2em;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #0f172a;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            border: 1px solid #1e293b;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-links {
+            background: #1e293b;
+            padding: 15px 30px;
+            border-bottom: 2px solid #334155;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            background: #334155;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 45px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #1e293b;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 6px;
+            height: 32px;
+            background: #f59e0b;
+            margin-right: 15px;
+            border-radius: 3px;
+        }
+
+        .concept-box {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        .concept-box:hover {
+            border-color: #f59e0b;
+            box-shadow: 0 8px 20px rgba(245, 158, 11, 0.15);
+        }
+
+        .concept-header {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: #fcd34d;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .concept-header::before {
+            content: '▸';
+            color: #f59e0b;
+            font-size: 1.2em;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .label-what {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .label-example {
+            background: #10b981;
+            color: white;
+        }
+
+        .description {
+            color: #cbd5e1;
+            font-size: 1.05em;
+            margin-bottom: 18px;
+            line-height: 1.7;
+        }
+
+        .code-block {
+            background: #020817;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'PYTHON';
+            position: absolute;
+            top: 8px;
+            right: 80px;
+            font-size: 0.7em;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 15px;
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #fbbf24;
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .code-block pre {
+            margin: 0;
+            line-height: 1.8;
+            white-space: pre;
+            color: #e2e8f0;
+        }
+
+        .kw {
+            color: #f472b6;
+            font-weight: 600;
+        }
+
+        .fn {
+            color: #60a5fa;
+        }
+
+        .str {
+            color: #34d399;
+        }
+
+        .num {
+            color: #fbbf24;
+        }
+
+        .cmt {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .var {
+            color: #e2e8f0;
+        }
+
+        .back-to-top {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #f59e0b;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top:hover {
+            background: #fbbf24;
+            transform: translateY(-2px);
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e3a4f 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 18px 22px;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #fcd34d;
+        }
+
+        .real-world {
+            background: linear-gradient(135deg, #2e1f3a 0%, #3a1f2e 100%);
+            border: 2px solid #f59e0b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+        }
+
+        .real-world-title {
+            color: #fcd34d;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+        }
+
+        .real-world-title::before {
+            content: '💡 ';
+        }
+    </style>
+</head>
+
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Python Decorators</h1>
+            <p>Master Function & Class Decorators with Advanced Patterns</p>
+            <p class="shortcuts-hint">⌨️ <code>cmd+k or /</code> Search · <code>Esc</code> Clear · <code>⌘B</code> Back
+                to Hub</p>
+        </div>
+        <div class="nav-links">
+            <a href="#basic" class="nav-link">Basic Decorators</a>
+            <a href="#wraps" class="nav-link">functools.wraps</a>
+            <a href="#args" class="nav-link">Decorators with Args</a>
+            <a href="#builtin" class="nav-link">Built-in Decorators</a>
+            <a href="#class" class="nav-link">Class Decorators</a>
+        </div>
+        <div class="content">
+            <div id="basic" class="section">
+                <h2 class="section-title">Basic Function Decorators</h2>
+                <div class="concept-box">
+                    <div class="concept-header">What is a Decorator?</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Decorators are functions that modify the behavior of other functions. They "wrap" a function,
+                        adding functionality before or after it runs.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">log</span>(<span class="var">fn</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>):
+        <span class="fn">print</span>(<span class="str">f"Calling <span class="var">{fn.__name__}</span>"</span>)
+        <span class="var">result</span> = <span class="fn">fn</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>)
+        <span class="fn">print</span>(<span class="str">f"<span class="var">{fn.__name__}</span> returned <span class="var">{result}</span>"</span>)
+        <span class="kw">return</span> <span class="var">result</span>
+    <span class="kw">return</span> <span class="var">wrapper</span>
+
+<span class="kw">@log</span>
+<span class="kw">def</span> <span class="fn">add</span>(<span class="var">a</span>, <span class="var">b</span>):
+    <span class="kw">return</span> <span class="var">a</span> + <span class="var">b</span>
+
+<span class="fn">add</span>(<span class="num">3</span>, <span class="num">5</span>)
+<span class="cmt"># Output:</span>
+<span class="cmt"># Calling add</span>
+<span class="cmt"># add returned 8</span></pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Timer Decorator</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">time</span>
+
+<span class="kw">def</span> <span class="fn">timer</span>(<span class="var">fn</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>):
+        <span class="var">start</span> = <span class="var">time</span>.<span class="fn">time</span>()
+        <span class="var">result</span> = <span class="fn">fn</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>)
+        <span class="var">end</span> = <span class="var">time</span>.<span class="fn">time</span>()
+        <span class="fn">print</span>(<span class="str">f"<span class="var">{fn.__name__}</span> took <span class="var">{end - start:.4f}</span>s"</span>)
+        <span class="kw">return</span> <span class="var">result</span>
+    <span class="kw">return</span> <span class="var">wrapper</span>
+
+<span class="kw">@timer</span>
+<span class="kw">def</span> <span class="fn">slow_function</span>():
+    <span class="var">time</span>.<span class="fn">sleep</span>(<span class="num">1</span>)
+    <span class="kw">return</span> <span class="str">"Done"</span>
+
+<span class="fn">slow_function</span>()  <span class="cmt"># slow_function took 1.0001s</span></pre>
+                    </div>
+                </div>
+
+                <div class="real-world">
+                    <div class="real-world-title">Real-World Example: Authentication Decorator</div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">require_auth</span>(<span class="var">fn</span>):
+    <span class="kw">def</span> <span class="fn">wrapper</span>(<span class="var">user</span>, *<span class="var">args</span>, **<span class="var">kwargs</span>):
+        <span class="kw">if not</span> <span class="var">user</span>.<span class="fn">get</span>(<span class="str">'is_authenticated'</span>):
+            <span class="kw">return</span> <span class="str">"Access denied"</span>
+        <span class="kw">return</span> <span class="fn">fn</span>(<span class="var">user</span>, *<span class="var">args</span>, **<span class="var">kwargs</span>)
+    <span class="kw">return</span> <span class="var">wrapper</span>
+
+<span class="kw">@require_auth</span>
+<span class="kw">def</span> <span class="fn">view_dashboard</span>(<span class="var">user</span>):
+    <span class="kw">return</span> <span class="str">f"Welcome <span class="var">{user['name']}</span>"</span>
+
+<span class="var">user1</span> = {<span class="str">'name'</span>: <span class="str">'Alice'</span>, <span class="str">'is_authenticated'</span>: <span class="kw">True</span>}
+<span class="var">user2</span> = {<span class="str">'name'</span>: <span class="str">'Bob'</span>, <span class="str">'is_authenticated'</span>: <span class="kw">False</span>}
+
+<span class="fn">print</span>(<span class="fn">view_dashboard</span>(<span class="var">user1</span>))  <span class="cmt"># Welcome Alice</span>
+<span class="fn">print</span>(<span class="fn">view_dashboard</span>(<span class="var">user2</span>))  <span class="cmt"># Access denied</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="wraps" class="section">
+                <h2 class="section-title">functools.wraps</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Preserving Function Metadata</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        functools.wraps preserves the original function's name, docstring, and other metadata.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">functools</span> <span class="kw">import</span> <span class="var">wraps</span>
+
+<span class="kw">def</span> <span class="fn">log</span>(<span class="var">fn</span>):
+    <span class="kw">@wraps</span>(<span class="var">fn</span>)
+    <span class="kw">def</span> <span class="fn">wrapper</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>):
+        <span class="fn">print</span>(<span class="str">f"Calling <span class="var">{fn.__name__}</span>"</span>)
+        <span class="kw">return</span> <span class="fn">fn</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>)
+    <span class="kw">return</span> <span class="var">wrapper</span>
+
+<span class="kw">@log</span>
+<span class="kw">def</span> <span class="fn">greet</span>(<span class="var">name</span>):
+    <span class="str">"""Greet a person by name"""</span>
+    <span class="kw">return</span> <span class="str">f"Hello, <span class="var">{name}</span>"</span>
+
+<span class="fn">print</span>(<span class="var">greet</span>.<span class="var">__name__</span>)  <span class="cmt"># greet (not wrapper)</span>
+<span class="fn">print</span>(<span class="var">greet</span>.<span class="var">__doc__</span>)   <span class="cmt"># Greet a person by name</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="args" class="section">
+                <h2 class="section-title">Decorators with Arguments</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Parameterized Decorators</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Decorators can accept arguments to customize their behavior. Requires an extra layer of nesting.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">repeat</span>(<span class="var">times</span>):
+    <span class="kw">def</span> <span class="fn">decorator</span>(<span class="var">fn</span>):
+        <span class="kw">def</span> <span class="fn">wrapper</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>):
+            <span class="kw">for</span> <span class="var">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">times</span>):
+                <span class="var">result</span> = <span class="fn">fn</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>)
+            <span class="kw">return</span> <span class="var">result</span>
+        <span class="kw">return</span> <span class="var">wrapper</span>
+    <span class="kw">return</span> <span class="var">decorator</span>
+
+<span class="kw">@repeat</span>(<span class="num">3</span>)
+<span class="kw">def</span> <span class="fn">beep</span>():
+    <span class="fn">print</span>(<span class="str">"Beep!"</span>)
+
+<span class="fn">beep</span>()
+<span class="cmt"># Output:</span>
+<span class="cmt"># Beep!</span>
+<span class="cmt"># Beep!</span>
+<span class="cmt"># Beep!</span></pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Retry Decorator</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">retry</span>(<span class="var">max_attempts</span>=<span class="num">3</span>):
+    <span class="kw">def</span> <span class="fn">decorator</span>(<span class="var">fn</span>):
+        <span class="kw">def</span> <span class="fn">wrapper</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>):
+            <span class="kw">for</span> <span class="var">attempt</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">max_attempts</span>):
+                <span class="kw">try</span>:
+                    <span class="kw">return</span> <span class="fn">fn</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>)
+                <span class="kw">except</span> <span class="fn">Exception</span> <span class="kw">as</span> <span class="var">e</span>:
+                    <span class="fn">print</span>(<span class="str">f"Attempt <span class="var">{attempt + 1}</span> failed: <span class="var">{e}</span>"</span>)
+                    <span class="kw">if</span> <span class="var">attempt</span> == <span class="var">max_attempts</span> - <span class="num">1</span>:
+                        <span class="kw">raise</span>
+        <span class="kw">return</span> <span class="var">wrapper</span>
+    <span class="kw">return</span> <span class="var">decorator</span>
+
+<span class="kw">@retry</span>(<span class="var">max_attempts</span>=<span class="num">3</span>)
+<span class="kw">def</span> <span class="fn">unstable_api_call</span>():
+    <span class="kw">import</span> <span class="var">random</span>
+    <span class="kw">if</span> <span class="var">random</span>.<span class="fn">random</span>() < <span class="num">0.7</span>:
+        <span class="kw">raise</span> <span class="fn">Exception</span>(<span class="str">"API Error"</span>)
+    <span class="kw">return</span> <span class="str">"Success"</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="builtin" class="section">
+                <h2 class="section-title">Built-in Decorators</h2>
+                <div class="concept-box">
+                    <div class="concept-header">@property, @staticmethod, @classmethod</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">Circle</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">radius</span>):
+        <span class="var">self</span>.<span class="var">radius</span> = <span class="var">radius</span>
+    
+    <span class="cmt"># Property - access like attribute</span>
+    <span class="kw">@property</span>
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="num">3.14</span> * <span class="var">self</span>.<span class="var">radius</span> ** <span class="num">2</span>
+    
+    <span class="cmt"># Static method - doesn't use self</span>
+    <span class="kw">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">is_valid_radius</span>(<span class="var">r</span>):
+        <span class="kw">return</span> <span class="var">r</span> > <span class="num">0</span>
+    
+    <span class="cmt"># Class method - uses cls</span>
+    <span class="kw">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">from_diameter</span>(<span class="var">cls</span>, <span class="var">diameter</span>):
+        <span class="kw">return</span> <span class="fn">cls</span>(<span class="var">diameter</span> / <span class="num">2</span>)
+
+<span class="var">c</span> = <span class="fn">Circle</span>(<span class="num">5</span>)
+<span class="fn">print</span>(<span class="var">c</span>.<span class="var">area</span>)  <span class="cmt"># 78.5 (no parentheses)</span>
+<span class="fn">print</span>(<span class="fn">Circle</span>.<span class="fn">is_valid_radius</span>(<span class="num">10</span>))  <span class="cmt"># True</span>
+<span class="var">c2</span> = <span class="fn">Circle</span>.<span class="fn">from_diameter</span>(<span class="num">20</span>)  <span class="cmt"># radius = 10</span></pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">@lru_cache - Memoization</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">functools</span> <span class="kw">import</span> <span class="var">lru_cache</span>
+
+<span class="kw">@lru_cache</span>(<span class="var">maxsize</span>=<span class="num">128</span>)
+<span class="kw">def</span> <span class="fn">fibonacci</span>(<span class="var">n</span>):
+    <span class="kw">if</span> <span class="var">n</span> < <span class="num">2</span>:
+        <span class="kw">return</span> <span class="var">n</span>
+    <span class="kw">return</span> <span class="fn">fibonacci</span>(<span class="var">n</span>-<span class="num">1</span>) + <span class="fn">fibonacci</span>(<span class="var">n</span>-<span class="num">2</span>)
+
+<span class="fn">print</span>(<span class="fn">fibonacci</span>(<span class="num">100</span>))  <span class="cmt"># Fast due to caching!</span>
+<span class="fn">print</span>(<span class="fn">fibonacci</span>.<span class="fn">cache_info</span>())  <span class="cmt"># Cache statistics</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="class" class="section">
+                <h2 class="section-title">Class Decorators</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Class-Based Decorator</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">CountCalls</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">fn</span>):
+        <span class="var">self</span>.<span class="var">fn</span> = <span class="var">fn</span>
+        <span class="var">self</span>.<span class="var">count</span> = <span class="num">0</span>
+    
+    <span class="kw">def</span> <span class="fn">__call__</span>(<span class="var">self</span>, *<span class="var">args</span>, **<span class="var">kwargs</span>):
+        <span class="var">self</span>.<span class="var">count</span> += <span class="num">1</span>
+        <span class="fn">print</span>(<span class="str">f"Call <span class="var">{self.count}</span> of <span class="var">{self.fn.__name__}</span>"</span>)
+        <span class="kw">return</span> <span class="var">self</span>.<span class="fn">fn</span>(*<span class="var">args</span>, **<span class="var">kwargs</span>)
+
+<span class="kw">@CountCalls</span>
+<span class="kw">def</span> <span class="fn">say_hello</span>():
+    <span class="fn">print</span>(<span class="str">"Hello!"</span>)
+
+<span class="fn">say_hello</span>()  <span class="cmt"># Call 1 of say_hello</span>
+<span class="fn">say_hello</span>()  <span class="cmt"># Call 2 of say_hello</span></pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Decorating a Class</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">add_str_method</span>(<span class="var">cls</span>):
+    <span class="var">cls</span>.<span class="fn">__str__</span> = <span class="kw">lambda</span> <span class="var">self</span>: <span class="str">f"<span class="var">{cls.__name__}</span> instance"</span>
+    <span class="kw">return</span> <span class="var">cls</span>
+
+<span class="kw">@add_str_method</span>
+<span class="kw">class</span> <span class="fn">MyClass</span>:
+    <span class="kw">pass</span>
+
+<span class="var">obj</span> = <span class="fn">MyClass</span>()
+<span class="fn">print</span>(<span class="var">obj</span>)  <span class="cmt"># MyClass instance</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div class="tip-box">
+                <strong>Next Steps:</strong> Explore Iterators & Generators to understand yield and lazy evaluation!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+
+</html>

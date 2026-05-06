@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Plotly Visualization - Tutorial</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .home-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .home-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .home-button::before {
+            content: '🏠';
+            font-size: 1.2em;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            padding: 30px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: #0f172a;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            border: 1px solid #1e293b;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #14b8a6 0%, #2dd4bf 100%);
+            padding: 50px 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: rgba(255, 255, 255, 0.95);
+        }
+
+        .nav-links {
+            background: #1e293b;
+            padding: 15px 30px;
+            border-bottom: 2px solid #334155;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nav-link {
+            padding: 8px 16px;
+            background: #334155;
+            color: #94a3b8;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-link:hover {
+            background: #14b8a6;
+            color: white;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 45px;
+        }
+
+        .section-title {
+            font-size: 2em;
+            font-weight: 600;
+            color: #5eead4;
+            margin-bottom: 25px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #1e293b;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title::before {
+            content: '';
+            width: 6px;
+            height: 32px;
+            background: #14b8a6;
+            margin-right: 15px;
+            border-radius: 3px;
+        }
+
+        .concept-box {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+        }
+
+        .concept-box:hover {
+            border-color: #14b8a6;
+            box-shadow: 0 8px 20px rgba(20, 184, 166, 0.15);
+        }
+
+        .concept-header {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: #99f6e4;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .concept-header::before {
+            content: '▸';
+            color: #14b8a6;
+            font-size: 1.2em;
+        }
+
+        .label {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .label-what {
+            background: #14b8a6;
+            color: white;
+        }
+
+        .label-example {
+            background: #10b981;
+            color: white;
+        }
+
+        .description {
+            color: #cbd5e1;
+            font-size: 1.05em;
+            margin-bottom: 18px;
+            line-height: 1.7;
+        }
+
+        .code-block {
+            background: #020817;
+            border: 1px solid #1e293b;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95em;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: 'PYTHON';
+            position: absolute;
+            top: 8px;
+            right: 80px;
+            font-size: 0.7em;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 8px;
+            right: 15px;
+            background: #14b8a6;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover {
+            background: #2dd4bf;
+        }
+
+        .copy-btn.copied {
+            background: #10b981;
+        }
+
+        .code-block pre {
+            margin: 0;
+            line-height: 1.8;
+            white-space: pre;
+            color: #e2e8f0;
+        }
+
+        .kw {
+            color: #f472b6;
+            font-weight: 600;
+        }
+
+        .fn {
+            color: #60a5fa;
+        }
+
+        .str {
+            color: #34d399;
+        }
+
+        .num {
+            color: #fbbf24;
+        }
+
+        .cmt {
+            color: #64748b;
+            font-style: italic;
+        }
+
+        .var {
+            color: #e2e8f0;
+        }
+
+        .back-to-top {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #14b8a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-to-top:hover {
+            background: #2dd4bf;
+            transform: translateY(-2px);
+        }
+
+        .tip-box {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e3a4f 100%);
+            border-left: 4px solid #14b8a6;
+            padding: 18px 22px;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #99f6e4;
+        }
+
+        .real-world {
+            background: linear-gradient(135deg, #2e1f3a 0%, #3a1f2e 100%);
+            border: 2px solid #14b8a6;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+        }
+
+        .real-world-title {
+            color: #99f6e4;
+            font-weight: 600;
+            font-size: 1.1em;
+            margin-bottom: 12px;
+        }
+
+        .real-world-title::before {
+            content: '💡 ';
+        }
+    </style>
+</head>
+
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Plotly Visualization</h1>
+            <p>Create interactive, publication-quality charts</p>
+            <p class="shortcuts-hint">⌨️ <code>cmd+k or /</code> Search · <code>Esc</code> Clear · <code>⌘B</code> Back
+                to Hub</p>
+        </div>
+        <div class="nav-links">
+            <a href="#intro" class="nav-link">Getting Started</a>
+            <a href="#line" class="nav-link">Line Charts</a>
+            <a href="#bar" class="nav-link">Bar Charts</a>
+            <a href="#scatter" class="nav-link">Scatter Plots</a>
+            <a href="#advanced" class="nav-link">Advanced Features</a>
+        </div>
+        <div class="content">
+            <div id="intro" class="section">
+                <h2 class="section-title">Getting Started with Plotly</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Installation & Setup</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Plotly creates interactive, web-based visualizations. Works in Jupyter notebooks, web apps, and
+                        exports to HTML.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Install</span>
+<span class="cmt"># pip install plotly</span>
+
+<span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+<span class="kw">import</span> <span class="var">plotly</span>.<span class="var">graph_objects</span> <span class="kw">as</span> <span class="var">go</span>
+
+<span class="cmt"># Simple example</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">line</span>(<span class="var">x</span>=[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], <span class="var">y</span>=[<span class="num">2</span>, <span class="num">4</span>, <span class="num">6</span>], <span class="var">title</span>=<span class="str">'Simple Line'</span>)
+<span class="var">fig</span>.<span class="fn">show</span>()
+
+<span class="cmt"># Save as HTML</span>
+<span class="var">fig</span>.<span class="fn">write_html</span>(<span class="str">'chart.html'</span>)</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Plotly Express vs Graph Objects</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        <strong>Plotly Express (px)</strong> - Simple, concise API for quick charts<br>
+                        <strong>Graph Objects (go)</strong> - Full control, more customization
+                    </p>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="line" class="section">
+                <h2 class="section-title">Line Charts</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Basic Line Chart</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+<span class="kw">import</span> <span class="var">pandas</span> <span class="kw">as</span> <span class="var">pd</span>
+
+<span class="cmt"># Sample data</span>
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">DataFrame</span>({
+    <span class="str">'year'</span>: [<span class="num">2020</span>, <span class="num">2021</span>, <span class="num">2022</span>, <span class="num">2023</span>, <span class="num">2024</span>],
+    <span class="str">'revenue'</span>: [<span class="num">100</span>, <span class="num">150</span>, <span class="num">200</span>, <span class="num">280</span>, <span class="num">350</span>]
+})
+
+<span class="cmt"># Create line chart</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">line</span>(
+    <span class="var">df</span>,
+    <span class="var">x</span>=<span class="str">'year'</span>,
+    <span class="var">y</span>=<span class="str">'revenue'</span>,
+    <span class="var">title</span>=<span class="str">'Revenue Growth'</span>,
+    <span class="var">labels</span>={<span class="str">'revenue'</span>: <span class="str">'Revenue ($M)'</span>},
+    <span class="var">markers</span>=<span class="kw">True</span>
+)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Multiple Lines</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">DataFrame</span>({
+    <span class="str">'month'</span>: [<span class="str">'Jan'</span>, <span class="str">'Feb'</span>, <span class="str">'Mar'</span>, <span class="str">'Apr'</span>],
+    <span class="str">'Product A'</span>: [<span class="num">100</span>, <span class="num">120</span>, <span class="num">140</span>, <span class="num">160</span>],
+    <span class="str">'Product B'</span>: [<span class="num">90</span>, <span class="num">110</span>, <span class="num">130</span>, <span class="num">145</span>]
+})
+
+<span class="cmt"># Melt dataframe for multiple lines</span>
+<span class="var">df_melted</span> = <span class="var">df</span>.<span class="fn">melt</span>(<span class="var">id_vars</span>=<span class="str">'month'</span>, <span class="var">var_name</span>=<span class="str">'Product'</span>, <span class="var">value_name</span>=<span class="str">'Sales'</span>)
+
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">line</span>(
+    <span class="var">df_melted</span>,
+    <span class="var">x</span>=<span class="str">'month'</span>,
+    <span class="var">y</span>=<span class="str">'Sales'</span>,
+    <span class="var">color</span>=<span class="str">'Product'</span>,  <span class="cmt"># Creates separate line per product</span>
+    <span class="var">title</span>=<span class="str">'Sales Comparison'</span>
+)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="bar" class="section">
+                <h2 class="section-title">Bar Charts</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Basic Bar Chart</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">DataFrame</span>({
+    <span class="str">'category'</span>: [<span class="str">'A'</span>, <span class="str">'B'</span>, <span class="str">'C'</span>, <span class="str">'D'</span>],
+    <span class="str">'value'</span>: [<span class="num">25</span>, <span class="num">40</span>, <span class="num">30</span>, <span class="num">50</span>]
+})
+
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">bar</span>(
+    <span class="var">df</span>,
+    <span class="var">x</span>=<span class="str">'category'</span>,
+    <span class="var">y</span>=<span class="str">'value'</span>,
+    <span class="var">title</span>=<span class="str">'Sales by Category'</span>,
+    <span class="var">text</span>=<span class="str">'value'</span>,  <span class="cmt"># Show values on bars</span>
+    <span class="var">color</span>=<span class="str">'value'</span>,  <span class="cmt"># Color gradient</span>
+    <span class="var">color_continuous_scale</span>=<span class="str">'Blues'</span>
+)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Grouped & Stacked Bars</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">DataFrame</span>({
+    <span class="str">'region'</span>: [<span class="str">'North'</span>, <span class="str">'North'</span>, <span class="str">'South'</span>, <span class="str">'South'</span>],
+    <span class="str">'product'</span>: [<span class="str">'A'</span>, <span class="str">'B'</span>, <span class="str">'A'</span>, <span class="str">'B'</span>],
+    <span class="str">'sales'</span>: [<span class="num">100</span>, <span class="num">150</span>, <span class="num">120</span>, <span class="num">180</span>]
+})
+
+<span class="cmt"># Grouped bars</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">bar</span>(<span class="var">df</span>, <span class="var">x</span>=<span class="str">'region'</span>, <span class="var">y</span>=<span class="str">'sales'</span>, <span class="var">color</span>=<span class="str">'product'</span>,
+             <span class="var">barmode</span>=<span class="str">'group'</span>, <span class="var">title</span>=<span class="str">'Grouped Bars'</span>)
+
+<span class="cmt"># Stacked bars</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">bar</span>(<span class="var">df</span>, <span class="var">x</span>=<span class="str">'region'</span>, <span class="var">y</span>=<span class="str">'sales'</span>, <span class="var">color</span>=<span class="str">'product'</span>,
+             <span class="var">barmode</span>=<span class="str">'stack'</span>, <span class="var">title</span>=<span class="str">'Stacked Bars'</span>)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Horizontal Bar Chart</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="var">fig</span> = <span class="var">px</span>.<span class="fn">bar</span>(
+    <span class="var">df</span>,
+    <span class="var">y</span>=<span class="str">'category'</span>,  <span class="cmt"># Swap x and y</span>
+    <span class="var">x</span>=<span class="str">'value'</span>,
+    <span class="var">orientation</span>=<span class="str">'h'</span>,  <span class="cmt"># Horizontal</span>
+    <span class="var">title</span>=<span class="str">'Horizontal Bars'</span>
+)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="scatter" class="section">
+                <h2 class="section-title">Scatter Plots</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Basic Scatter Plot</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="var">df</span> = <span class="var">pd</span>.<span class="fn">DataFrame</span>({
+    <span class="str">'x'</span>: [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>],
+    <span class="str">'y'</span>: [<span class="num">2</span>, <span class="num">5</span>, <span class="num">4</span>, <span class="num">8</span>, <span class="num">7</span>],
+    <span class="str">'size'</span>: [<span class="num">20</span>, <span class="num">40</span>, <span class="num">30</span>, <span class="num">50</span>, <span class="num">45</span>],
+    <span class="str">'color'</span>: [<span class="str">'A'</span>, <span class="str">'B'</span>, <span class="str">'A'</span>, <span class="str">'B'</span>, <span class="str">'A'</span>]
+})
+
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">scatter</span>(
+    <span class="var">df</span>,
+    <span class="var">x</span>=<span class="str">'x'</span>,
+    <span class="var">y</span>=<span class="str">'y'</span>,
+    <span class="var">size</span>=<span class="str">'size'</span>,  <span class="cmt"># Point size</span>
+    <span class="var">color</span>=<span class="str">'color'</span>,  <span class="cmt"># Point color by category</span>
+    <span class="var">title</span>=<span class="str">'Scatter Plot'</span>,
+    <span class="var">hover_data</span>=[<span class="str">'x'</span>, <span class="str">'y'</span>, <span class="str">'size'</span>]
+)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Scatter with Trendline</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="var">df</span> = <span class="var">px</span>.<span class="var">data</span>.<span class="fn">tips</span>()  <span class="cmt"># Built-in dataset</span>
+
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">scatter</span>(
+    <span class="var">df</span>,
+    <span class="var">x</span>=<span class="str">'total_bill'</span>,
+    <span class="var">y</span>=<span class="str">'tip'</span>,
+    <span class="var">trendline</span>=<span class="str">'ols'</span>,  <span class="cmt"># Add trendline</span>
+    <span class="var">title</span>=<span class="str">'Tips vs Bill with Trendline'</span>
+)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="real-world">
+                    <div class="real-world-title">Real-World Example: Sales Dashboard</div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">graph_objects</span> <span class="kw">as</span> <span class="var">go</span>
+<span class="kw">from</span> <span class="var">plotly</span>.<span class="var">subplots</span> <span class="kw">import</span> <span class="var">make_subplots</span>
+
+<span class="cmt"># Create subplots</span>
+<span class="var">fig</span> = <span class="fn">make_subplots</span>(
+    <span class="var">rows</span>=<span class="num">2</span>, <span class="var">cols</span>=<span class="num">2</span>,
+    <span class="var">subplot_titles</span>=(<span class="str">'Revenue'</span>, <span class="str">'Users'</span>, <span class="str">'Growth'</span>, <span class="str">'Distribution'</span>)
+)
+
+<span class="cmt"># Add line chart</span>
+<span class="var">fig</span>.<span class="fn">add_trace</span>(
+    <span class="var">go</span>.<span class="fn">Scatter</span>(<span class="var">x</span>=[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], <span class="var">y</span>=[<span class="num">100</span>, <span class="num">150</span>, <span class="num">200</span>], <span class="var">name</span>=<span class="str">'Revenue'</span>),
+    <span class="var">row</span>=<span class="num">1</span>, <span class="var">col</span>=<span class="num">1</span>
+)
+
+<span class="cmt"># Add bar chart</span>
+<span class="var">fig</span>.<span class="fn">add_trace</span>(
+    <span class="var">go</span>.<span class="fn">Bar</span>(<span class="var">x</span>=[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], <span class="var">y</span>=[<span class="num">50</span>, <span class="num">75</span>, <span class="num">100</span>], <span class="var">name</span>=<span class="str">'Users'</span>),
+    <span class="var">row</span>=<span class="num">1</span>, <span class="var">col</span>=<span class="num">2</span>
+)
+
+<span class="var">fig</span>.<span class="fn">update_layout</span>(<span class="var">height</span>=<span class="num">600</span>, <span class="var">title_text</span>=<span class="str">'Sales Dashboard'</span>)
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div id="advanced" class="section">
+                <h2 class="section-title">Advanced Features</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Customization & Styling</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">line</span>(<span class="var">x</span>=[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], <span class="var">y</span>=[<span class="num">2</span>, <span class="num">4</span>, <span class="num">6</span>])
+
+<span class="cmt"># Update layout</span>
+<span class="var">fig</span>.<span class="fn">update_layout</span>(
+    <span class="var">title</span>=<span class="str">'Custom Styled Chart'</span>,
+    <span class="var">title_font_size</span>=<span class="num">24</span>,
+    <span class="var">xaxis_title</span>=<span class="str">'X Axis'</span>,
+    <span class="var">yaxis_title</span>=<span class="str">'Y Axis'</span>,
+    <span class="var">template</span>=<span class="str">'plotly_dark'</span>,  <span class="cmt"># Dark theme</span>
+    <span class="var">showlegend</span>=<span class="kw">True</span>,
+    <span class="var">hovermode</span>=<span class="str">'x unified'</span>
+)
+
+<span class="cmt"># Update traces</span>
+<span class="var">fig</span>.<span class="fn">update_traces</span>(
+    <span class="var">line_color</span>=<span class="str">'#FF6B6B'</span>,
+    <span class="var">line_width</span>=<span class="num">3</span>,
+    <span class="var">marker</span>=<span class="fn">dict</span>(<span class="var">size</span>=<span class="num">10</span>)
+)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Interactive Features</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="var">df</span> = <span class="var">px</span>.<span class="var">data</span>.<span class="fn">gapminder</span>()
+
+<span class="cmt"># Animation frame</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">scatter</span>(
+    <span class="var">df</span>,
+    <span class="var">x</span>=<span class="str">'gdpPercap'</span>,
+    <span class="var">y</span>=<span class="str">'lifeExp'</span>,
+    <span class="var">size</span>=<span class="str">'pop'</span>,
+    <span class="var">color</span>=<span class="str">'continent'</span>,
+    <span class="var">hover_name</span>=<span class="str">'country'</span>,
+    <span class="var">animation_frame</span>=<span class="str">'year'</span>,  <span class="cmt"># Animate by year</span>
+    <span class="var">animation_group</span>=<span class="str">'country'</span>,
+    <span class="var">log_x</span>=<span class="kw">True</span>,
+    <span class="var">range_y</span>=[<span class="num">25</span>, <span class="num">90</span>]
+)
+
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">Export & Save</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">line</span>(<span class="var">x</span>=[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], <span class="var">y</span>=[<span class="num">2</span>, <span class="num">4</span>, <span class="num">6</span>])
+
+<span class="cmt"># Save as HTML</span>
+<span class="var">fig</span>.<span class="fn">write_html</span>(<span class="str">'chart.html'</span>)
+
+<span class="cmt"># Save as static image (requires kaleido)</span>
+<span class="cmt"># pip install -U kaleido</span>
+<span class="var">fig</span>.<span class="fn">write_image</span>(<span class="str">'chart.png'</span>)
+<span class="var">fig</span>.<span class="fn">write_image</span>(<span class="str">'chart.pdf'</span>)
+
+<span class="cmt"># Show in browser</span>
+<span class="var">fig</span>.<span class="fn">show</span>()</pre>
+                    </div>
+                </div>
+
+                <div class="concept-box">
+                    <div class="concept-header">More Chart Types</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">import</span> <span class="var">plotly</span>.<span class="var">express</span> <span class="kw">as</span> <span class="var">px</span>
+
+<span class="cmt"># Pie chart</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">pie</span>(<span class="var">values</span>=[<span class="num">30</span>, <span class="num">20</span>, <span class="num">50</span>], <span class="var">names</span>=[<span class="str">'A'</span>, <span class="str">'B'</span>, <span class="str">'C'</span>])
+
+<span class="cmt"># Histogram</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">histogram</span>(<span class="var">df</span>, <span class="var">x</span>=<span class="str">'value'</span>, <span class="var">nbins</span>=<span class="num">20</span>)
+
+<span class="cmt"># Box plot</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">box</span>(<span class="var">df</span>, <span class="var">x</span>=<span class="str">'category'</span>, <span class="var">y</span>=<span class="str">'value'</span>)
+
+<span class="cmt"># Heatmap</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">imshow</span>([[<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], [<span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>]])
+
+<span class="cmt"># Sunburst chart</span>
+<span class="var">fig</span> = <span class="var">px</span>.<span class="fn">sunburst</span>(<span class="var">df</span>, <span class="var">path</span>=[<span class="str">'region'</span>, <span class="str">'category'</span>], <span class="var">values</span>=<span class="str">'sales'</span>)</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+
+            <div class="tip-box">
+                <strong>Next Steps:</strong> Explore PostgreSQL & pgAdmin for database management and integration with
+                your visualizations!
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+
+</html>

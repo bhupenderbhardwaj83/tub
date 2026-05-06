@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Functional Programming - Tutorial</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .home-button { position: fixed; top: 20px; left: 20px; z-index: 1000; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.95em; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .home-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .home-button::before { content: '🏠'; font-size: 1.2em; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; padding: 30px 20px; line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; background: #0f172a; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid #1e293b; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); padding: 50px 40px; text-align: center; }
+        .header h1 { font-size: 3em; font-weight: 700; color: white; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; color: rgba(255,255,255,0.95); }
+        .nav-links { background: #1e293b; padding: 15px 30px; border-bottom: 2px solid #334155; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        .nav-link { padding: 8px 16px; background: #334155; color: #94a3b8; text-decoration: none; border-radius: 8px; font-size: 0.9em; transition: all 0.3s ease; font-weight: 500; }
+        .nav-link:hover { background: #10b981; color: white; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 45px; }
+        .section-title { font-size: 2em; font-weight: 600; color: #34d399; margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid #1e293b; display: flex; align-items: center; }
+        .section-title::before { content: ''; width: 6px; height: 32px; background: #10b981; margin-right: 15px; border-radius: 3px; }
+        .concept-box { background: #1e293b; border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid #334155; }
+        .concept-header { font-size: 1.25em; font-weight: 600; color: #6ee7b7; margin-bottom: 15px; }
+        .label { display: inline-block; padding: 5px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; }
+        .label-what { background: #10b981; color: white; }
+        .label-example { background: #10b981; color: white; }
+        .description { color: #cbd5e1; font-size: 1.05em; margin-bottom: 18px; line-height: 1.7; }
+        .code-block { background: #020817; border: 1px solid #1e293b; border-radius: 10px; padding: 20px; margin: 15px 0; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.95em; position: relative; }
+        .code-block::before { content: 'PYTHON'; position: absolute; top: 8px; right: 80px; font-size: 0.7em; color: #475569; font-weight: 600; }
+        .copy-btn { position: absolute; top: 8px; right: 15px; background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75em; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .copy-btn:hover { background: #34d399; }
+        .copy-btn.copied { background: #10b981; }
+        .code-block pre { margin: 0; line-height: 1.8; white-space: pre; color: #e2e8f0; }
+        .kw { color: #f472b6; font-weight: 600; }
+        .fn { color: #60a5fa; }
+        .str { color: #34d399; }
+        .num { color: #fbbf24; }
+        .cmt { color: #64748b; font-style: italic; }
+        .var { color: #e2e8f0; }
+        .back-to-top { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #10b981; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .back-to-top:hover { background: #34d399; transform: translateY(-2px); }
+        .tip-box { background: linear-gradient(135deg, #1e3a5f 0%, #1e3a4f 100%); border-left: 4px solid #10b981; padding: 18px 22px; margin: 20px 0; border-radius: 8px; color: #6ee7b7; }
+    </style>
+</head>
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ Functional Programming</h1>
+            <p>Master map, filter, reduce, and functional patterns</p>
+        </div>
+        <div class="nav-links">
+            <a href="#core" class="nav-link">Core Concepts</a>
+            <a href="#builtin" class="nav-link">Built-in Tools</a>
+            <a href="#functools" class="nav-link">functools</a>
+            <a href="#comprehensions" class="nav-link">Comprehensions</a>
+        </div>
+        <div class="content">
+            <div id="core" class="section">
+                <h2 class="section-title">Core Concepts</h2>
+                <div class="concept-box">
+                    <div class="concept-header">First-Class Functions</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">Functions can be assigned to variables, passed as arguments, and returned from other functions.</p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Functions as values</span>
+<span class="kw">def</span> <span class="fn">add</span>(<span class="var">a</span>, <span class="var">b</span>):
+    <span class="kw">return</span> <span class="var">a</span> + <span class="var">b</span>
+
+<span class="var">ops</span> = [<span class="var">add</span>]  <span class="cmt"># Store in list</span>
+<span class="fn">print</span>(<span class="var">ops</span>[<span class="num">0</span>](<span class="num">2</span>, <span class="num">3</span>))  <span class="cmt"># 5</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Higher-Order Functions</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">Functions that take other functions as arguments or return functions.</p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">apply</span>(<span class="var">fn</span>, <span class="var">x</span>):
+    <span class="kw">return</span> <span class="fn">fn</span>(<span class="var">x</span>)
+
+<span class="kw">def</span> <span class="fn">square</span>(<span class="var">n</span>):
+    <span class="kw">return</span> <span class="var">n</span> * <span class="var">n</span>
+
+<span class="fn">print</span>(<span class="fn">apply</span>(<span class="var">square</span>, <span class="num">4</span>))  <span class="cmt"># 16</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Lambda Functions</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Anonymous function</span>
+<span class="var">square</span> = <span class="kw">lambda</span> <span class="var">x</span>: <span class="var">x</span> * <span class="var">x</span>
+<span class="fn">print</span>(<span class="fn">square</span>(<span class="num">5</span>))  <span class="cmt"># 25</span>
+
+<span class="cmt"># Multiple arguments</span>
+<span class="var">add</span> = <span class="kw">lambda</span> <span class="var">x</span>, <span class="var">y</span>: <span class="var">x</span> + <span class="var">y</span>
+<span class="fn">print</span>(<span class="fn">add</span>(<span class="num">3</span>, <span class="num">7</span>))  <span class="cmt"># 10</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="builtin" class="section">
+                <h2 class="section-title">Built-in Functional Tools</h2>
+                <div class="concept-box">
+                    <div class="concept-header">map() - Transform Each Element</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="var">nums</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+
+<span class="cmt"># Double each number</span>
+<span class="var">doubled</span> = <span class="fn">list</span>(<span class="fn">map</span>(<span class="kw">lambda</span> <span class="var">n</span>: <span class="var">n</span> * <span class="num">2</span>, <span class="var">nums</span>))
+<span class="fn">print</span>(<span class="var">doubled</span>)  <span class="cmt"># [2, 4, 6, 8, 10]</span>
+
+<span class="cmt"># With named function</span>
+<span class="kw">def</span> <span class="fn">square</span>(<span class="var">n</span>):
+    <span class="kw">return</span> <span class="var">n</span> ** <span class="num">2</span>
+
+<span class="var">squared</span> = <span class="fn">list</span>(<span class="fn">map</span>(<span class="var">square</span>, <span class="var">nums</span>))
+<span class="fn">print</span>(<span class="var">squared</span>)  <span class="cmt"># [1, 4, 9, 16, 25]</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">filter() - Keep Some Items</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="var">nums</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span>]
+
+<span class="cmt"># Keep only even numbers</span>
+<span class="var">evens</span> = <span class="fn">list</span>(<span class="fn">filter</span>(<span class="kw">lambda</span> <span class="var">n</span>: <span class="var">n</span> % <span class="num">2</span> == <span class="num">0</span>, <span class="var">nums</span>))
+<span class="fn">print</span>(<span class="var">evens</span>)  <span class="cmt"># [2, 4, 6]</span>
+
+<span class="cmt"># Keep numbers greater than 3</span>
+<span class="var">greater</span> = <span class="fn">list</span>(<span class="fn">filter</span>(<span class="kw">lambda</span> <span class="var">n</span>: <span class="var">n</span> > <span class="num">3</span>, <span class="var">nums</span>))
+<span class="fn">print</span>(<span class="var">greater</span>)  <span class="cmt"># [4, 5, 6]</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">reduce() - Fold to Single Value</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">functools</span> <span class="kw">import</span> <span class="var">reduce</span>
+
+<span class="var">nums</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+
+<span class="cmt"># Sum all numbers</span>
+<span class="var">total</span> = <span class="fn">reduce</span>(<span class="kw">lambda</span> <span class="var">a</span>, <span class="var">b</span>: <span class="var">a</span> + <span class="var">b</span>, <span class="var">nums</span>)
+<span class="fn">print</span>(<span class="var">total</span>)  <span class="cmt"># 15</span>
+
+<span class="cmt"># Product of all numbers</span>
+<span class="var">product</span> = <span class="fn">reduce</span>(<span class="kw">lambda</span> <span class="var">a</span>, <span class="var">b</span>: <span class="var">a</span> * <span class="var">b</span>, <span class="var">nums</span>)
+<span class="fn">print</span>(<span class="var">product</span>)  <span class="cmt"># 120</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">zip() - Combine Sequences</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="var">names</span> = [<span class="str">"Alice"</span>, <span class="str">"Bob"</span>, <span class="str">"Charlie"</span>]
+<span class="var">ages</span> = [<span class="num">25</span>, <span class="num">30</span>, <span class="num">35</span>]
+
+<span class="cmt"># Combine into pairs</span>
+<span class="var">paired</span> = <span class="fn">list</span>(<span class="fn">zip</span>(<span class="var">names</span>, <span class="var">ages</span>))
+<span class="fn">print</span>(<span class="var">paired</span>)
+<span class="cmt"># [('Alice', 25), ('Bob', 30), ('Charlie', 35)]</span>
+
+<span class="cmt"># Create dictionary</span>
+<span class="var">people</span> = <span class="fn">dict</span>(<span class="fn">zip</span>(<span class="var">names</span>, <span class="var">ages</span>))
+<span class="fn">print</span>(<span class="var">people</span>)
+<span class="cmt"># {'Alice': 25, 'Bob': 30, 'Charlie': 35}</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">any() / all() - Logical Checks</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="var">nums</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>]
+
+<span class="cmt"># Check if any number is greater than 4</span>
+<span class="fn">print</span>(<span class="fn">any</span>(<span class="var">n</span> > <span class="num">4</span> <span class="kw">for</span> <span class="var">n</span> <span class="kw">in</span> <span class="var">nums</span>))  <span class="cmt"># True</span>
+
+<span class="cmt"># Check if all numbers are positive</span>
+<span class="fn">print</span>(<span class="fn">all</span>(<span class="var">n</span> > <span class="num">0</span> <span class="kw">for</span> <span class="var">n</span> <span class="kw">in</span> <span class="var">nums</span>))  <span class="cmt"># True</span>
+
+<span class="cmt"># Check if all numbers are even</span>
+<span class="fn">print</span>(<span class="fn">all</span>(<span class="var">n</span> % <span class="num">2</span> == <span class="num">0</span> <span class="kw">for</span> <span class="var">n</span> <span class="kw">in</span> <span class="var">nums</span>))  <span class="cmt"># False</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="functools" class="section">
+                <h2 class="section-title">functools Module</h2>
+                <div class="concept-box">
+                    <div class="concept-header">partial() - Pre-fill Arguments</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">functools</span> <span class="kw">import</span> <span class="var">partial</span>
+
+<span class="kw">def</span> <span class="fn">power</span>(<span class="var">base</span>, <span class="var">exponent</span>):
+    <span class="kw">return</span> <span class="var">base</span> ** <span class="var">exponent</span>
+
+<span class="cmt"># Create square function (exponent=2)</span>
+<span class="var">square</span> = <span class="fn">partial</span>(<span class="var">power</span>, <span class="var">exponent</span>=<span class="num">2</span>)
+<span class="fn">print</span>(<span class="fn">square</span>(<span class="num">5</span>))  <span class="cmt"># 25</span>
+
+<span class="cmt"># Create cube function (exponent=3)</span>
+<span class="var">cube</span> = <span class="fn">partial</span>(<span class="var">power</span>, <span class="var">exponent</span>=<span class="num">3</span>)
+<span class="fn">print</span>(<span class="fn">cube</span>(<span class="num">3</span>))  <span class="cmt"># 27</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="comprehensions" class="section">
+                <h2 class="section-title">Functional-Style Comprehensions</h2>
+                <div class="concept-box">
+                    <div class="concept-header">List, Dict, Set Comprehensions</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># List comprehension</span>
+<span class="var">squares</span> = [<span class="var">x</span>**<span class="num">2</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>)]  <span class="cmt"># [0, 1, 4, 9, 16]</span>
+
+<span class="cmt"># Dict comprehension</span>
+<span class="var">square_dict</span> = {<span class="var">x</span>: <span class="var">x</span>**<span class="num">2</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">5</span>)}
+
+<span class="cmt"># Set comprehension</span>
+<span class="var">evens</span> = {<span class="var">x</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>) <span class="kw">if</span> <span class="var">x</span> % <span class="num">2</span> == <span class="num">0</span>}
+
+<span class="cmt"># Generator expression (lazy evaluation)</span>
+<span class="var">gen</span> = (<span class="var">x</span>**<span class="num">2</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1000000</span>))  <span class="cmt"># Memory efficient</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Next Steps:</strong> Explore Decorators and Iterators to master advanced Python patterns!
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+</html>

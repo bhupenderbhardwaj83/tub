@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python OOP & Classes - Tutorial</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        .home-button {
+            position: fixed; top: 20px; left: 20px; z-index: 1000;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; padding: 12px 24px; border-radius: 12px;
+            text-decoration: none; font-weight: 600; font-size: 0.95em;
+            display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease;
+        }
+        .home-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .home-button::before { content: '🏠'; font-size: 1.2em; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0; padding: 30px 20px; line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1400px; margin: 0 auto; background: #0f172a;
+            border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 1px solid #1e293b; overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+            padding: 50px 40px; text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 3em; font-weight: 700; color: white;
+            margin-bottom: 10px; position: relative; z-index: 1;
+        }
+        
+        .header p {
+            font-size: 1.2em; color: rgba(255,255,255,0.95);
+            position: relative; z-index: 1;
+        }
+        
+        .nav-links {
+            background: #1e293b; padding: 15px 30px;
+            border-bottom: 2px solid #334155; display: flex;
+            gap: 15px; flex-wrap: wrap; justify-content: center;
+        }
+        
+        .nav-link {
+            padding: 8px 16px; background: #334155;
+            color: #94a3b8; text-decoration: none;
+            border-radius: 8px; font-size: 0.9em;
+            transition: all 0.3s ease; font-weight: 500;
+        }
+        
+        .nav-link:hover {
+            background: #8b5cf6; color: white;
+        }
+        
+        .content { padding: 40px; }
+        
+        .section { margin-bottom: 45px; }
+        
+        .section-title {
+            font-size: 2em; font-weight: 600; color: #a78bfa;
+            margin-bottom: 25px; padding-bottom: 12px;
+            border-bottom: 2px solid #1e293b; display: flex; align-items: center;
+        }
+        
+        .section-title::before {
+            content: ''; width: 6px; height: 32px;
+            background: #8b5cf6; margin-right: 15px; border-radius: 3px;
+        }
+        
+        .subsection { margin-bottom: 35px; }
+        
+        .subsection-title {
+            font-size: 1.5em; font-weight: 600; color: #a78bfa;
+            margin-bottom: 18px; padding-left: 20px;
+            border-left: 4px solid #8b5cf6;
+        }
+        
+        .concept-box {
+            background: #1e293b; border-radius: 12px;
+            padding: 25px; margin-bottom: 25px;
+            border: 1px solid #334155; transition: all 0.3s ease;
+        }
+        
+        .concept-box:hover {
+            border-color: #8b5cf6;
+            box-shadow: 0 8px 20px rgba(139, 92, 246, 0.15);
+        }
+        
+        .concept-header {
+            font-size: 1.25em; font-weight: 600; color: #c084fc;
+            margin-bottom: 15px; display: flex; align-items: center; gap: 10px;
+        }
+        
+        .concept-header::before {
+            content: '▸'; color: #8b5cf6; font-size: 1.2em;
+        }
+        
+        .label {
+            display: inline-block; padding: 5px 12px;
+            border-radius: 6px; font-size: 0.85em;
+            font-weight: 700; margin-bottom: 12px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        
+        .label-what { background: #8b5cf6; color: white; }
+        .label-example { background: #10b981; color: white; }
+        
+        .description {
+            color: #cbd5e1; font-size: 1.05em;
+            margin-bottom: 18px; line-height: 1.7;
+        }
+        
+        .code-block {
+            background: #020817; border: 1px solid #1e293b;
+            border-radius: 10px; padding: 20px; margin: 15px 0;
+            overflow-x: auto; position: relative;
+            font-family: 'Consolas', 'Monaco', monospace; font-size: 0.95em;
+        }
+        
+        .code-block::before {
+            content: 'PYTHON'; position: absolute;
+            top: 8px; right: 80px; font-size: 0.7em;
+            color: #475569; font-weight: 600;
+        }
+        
+        .copy-btn {
+            position: absolute; top: 8px; right: 15px;
+            background: #8b5cf6; color: white;
+            border: none; padding: 6px 12px;
+            border-radius: 6px; font-size: 0.75em;
+            cursor: pointer; font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: #a78bfa;
+        }
+        
+        .copy-btn.copied {
+            background: #10b981;
+        }
+        
+        .code-block pre {
+            margin: 0; line-height: 1.8;
+            white-space: pre; color: #e2e8f0;
+        }
+        
+        .kw { color: #f472b6; font-weight: 600; }
+        .fn { color: #60a5fa; }
+        .str { color: #34d399; }
+        .num { color: #fbbf24; }
+        .cmt { color: #64748b; font-style: italic; }
+        .var { color: #e2e8f0; }
+        
+        .real-world {
+            background: linear-gradient(135deg, #2e1f3a 0%, #3a1f2e 100%);
+            border: 2px solid #8b5cf6; padding: 20px;
+            margin: 20px 0; border-radius: 12px;
+        }
+        
+        .real-world-title {
+            color: #c084fc; font-weight: 600;
+            font-size: 1.1em; margin-bottom: 12px;
+        }
+        
+        .real-world-title::before { content: '💡 '; }
+        
+        .back-to-top {
+            display: inline-block; margin-top: 20px;
+            padding: 10px 20px; background: #8b5cf6;
+            color: white; text-decoration: none;
+            border-radius: 8px; font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .back-to-top:hover {
+            background: #a78bfa; transform: translateY(-2px);
+        }
+        
+        .tip-box {
+            background: linear-gradient(135deg, #1e3a5f 0%, #1e3a4f 100%);
+            border-left: 4px solid #8b5cf6; padding: 18px 22px;
+            margin: 20px 0; border-radius: 8px; color: #c084fc;
+        }
+        
+        @media (max-width: 968px) {
+            .content { padding: 28px 22px; }
+            .header h1 { font-size: 2.2em; }
+        }
+    </style>
+</head>
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ Python OOP & Classes</h1>
+            <p>Master Object-Oriented Programming in Python</p>
+        </div>
+        
+        <div class="nav-links">
+            <a href="#classes" class="nav-link">Classes & Objects</a>
+            <a href="#inheritance" class="nav-link">Inheritance</a>
+            <a href="#polymorphism" class="nav-link">Polymorphism</a>
+            <a href="#encapsulation" class="nav-link">Encapsulation</a>
+            <a href="#methods" class="nav-link">Class Methods</a>
+            <a href="#magic" class="nav-link">Magic Methods</a>
+        </div>
+        
+        <div class="content">
+            <div id="classes" class="section">
+                <h2 class="section-title">Classes & Objects</h2>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Creating a Class</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Classes are blueprints for creating objects. Objects are instances of classes with their own data.
+                    </p>
+                    
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">Dog</span>:
+    <span class="cmt"># __init__ is the constructor</span>
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>, <span class="var">age</span>):
+        <span class="var">self</span>.<span class="var">name</span> = <span class="var">name</span>  <span class="cmt"># Instance variable</span>
+        <span class="var">self</span>.<span class="var">age</span> = <span class="var">age</span>
+    
+    <span class="cmt"># Instance method</span>
+    <span class="kw">def</span> <span class="fn">bark</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="str">f"<span class="var">{self.name}</span> says Woof!"</span>
+
+<span class="cmt"># Create objects</span>
+<span class="var">dog1</span> = <span class="fn">Dog</span>(<span class="str">"Buddy"</span>, <span class="num">3</span>)
+<span class="var">dog2</span> = <span class="fn">Dog</span>(<span class="str">"Max"</span>, <span class="num">5</span>)
+
+<span class="fn">print</span>(<span class="var">dog1</span>.<span class="fn">bark</span>())  <span class="cmt"># Buddy says Woof!</span>
+<span class="fn">print</span>(<span class="var">dog2</span>.<span class="var">age</span>)  <span class="cmt"># 5</span></pre>
+                    </div>
+                    
+                    <div class="real-world">
+                        <div class="real-world-title">Real-World Example: User Account System</div>
+                        <div class="code-block">
+                            <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                            <pre><span class="kw">class</span> <span class="fn">UserAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">username</span>, <span class="var">email</span>):
+        <span class="var">self</span>.<span class="var">username</span> = <span class="var">username</span>
+        <span class="var">self</span>.<span class="var">email</span> = <span class="var">email</span>
+        <span class="var">self</span>.<span class="var">is_active</span> = <span class="kw">True</span>
+    
+    <span class="kw">def</span> <span class="fn">deactivate</span>(<span class="var">self</span>):
+        <span class="var">self</span>.<span class="var">is_active</span> = <span class="kw">False</span>
+        <span class="kw">return</span> <span class="str">f"Account <span class="var">{self.username}</span> deactivated"</span>
+
+<span class="var">user</span> = <span class="fn">UserAccount</span>(<span class="str">"alice"</span>, <span class="str">"alice@email.com"</span>)
+<span class="fn">print</span>(<span class="var">user</span>.<span class="fn">deactivate</span>())</pre>
+                        </div>
+                    </div>
+                </div>
+                
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="inheritance" class="section">
+                <h2 class="section-title">Inheritance</h2>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Parent & Child Classes</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Inheritance allows a class to inherit attributes and methods from another class. Promotes code reuse.
+                    </p>
+                    
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Parent class</span>
+<span class="kw">class</span> <span class="fn">Animal</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>):
+        <span class="var">self</span>.<span class="var">name</span> = <span class="var">name</span>
+    
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="var">self</span>):
+        <span class="kw">pass</span>
+
+<span class="cmt"># Child classes</span>
+<span class="kw">class</span> <span class="fn">Dog</span>(<span class="fn">Animal</span>):
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="str">f"<span class="var">{self.name}</span> says Woof!"</span>
+
+<span class="kw">class</span> <span class="fn">Cat</span>(<span class="fn">Animal</span>):
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="str">f"<span class="var">{self.name}</span> says Meow!"</span>
+
+<span class="var">dog</span> = <span class="fn">Dog</span>(<span class="str">"Buddy"</span>)
+<span class="var">cat</span> = <span class="fn">Cat</span>(<span class="str">"Whiskers"</span>)
+
+<span class="fn">print</span>(<span class="var">dog</span>.<span class="fn">speak</span>())  <span class="cmt"># Buddy says Woof!</span>
+<span class="fn">print</span>(<span class="var">cat</span>.<span class="fn">speak</span>())  <span class="cmt"># Whiskers says Meow!</span></pre>
+                    </div>
+                </div>
+                
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="polymorphism" class="section">
+                <h2 class="section-title">Polymorphism</h2>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Same Method, Different Behavior</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">Shape</span>:
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>):
+        <span class="kw">pass</span>
+
+<span class="kw">class</span> <span class="fn">Rectangle</span>(<span class="fn">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">width</span>, <span class="var">height</span>):
+        <span class="var">self</span>.<span class="var">width</span> = <span class="var">width</span>
+        <span class="var">self</span>.<span class="var">height</span> = <span class="var">height</span>
+    
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="var">self</span>.<span class="var">width</span> * <span class="var">self</span>.<span class="var">height</span>
+
+<span class="kw">class</span> <span class="fn">Circle</span>(<span class="fn">Shape</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">radius</span>):
+        <span class="var">self</span>.<span class="var">radius</span> = <span class="var">radius</span>
+    
+    <span class="kw">def</span> <span class="fn">area</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="num">3.14</span> * <span class="var">self</span>.<span class="var">radius</span> ** <span class="num">2</span>
+
+<span class="cmt"># Polymorphism in action</span>
+<span class="var">shapes</span> = [<span class="fn">Rectangle</span>(<span class="num">5</span>, <span class="num">10</span>), <span class="fn">Circle</span>(<span class="num">7</span>)]
+<span class="kw">for</span> <span class="var">shape</span> <span class="kw">in</span> <span class="var">shapes</span>:
+    <span class="fn">print</span>(<span class="var">shape</span>.<span class="fn">area</span>())</pre>
+                    </div>
+                </div>
+                
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="encapsulation" class="section">
+                <h2 class="section-title">Encapsulation</h2>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Private Variables & Properties</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Encapsulation restricts direct access to some object components. Use double underscore __ for private variables.
+                    </p>
+                    
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">BankAccount</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">balance</span>):
+        <span class="var">self</span>.<span class="var">__balance</span> = <span class="var">balance</span>  <span class="cmt"># Private variable</span>
+    
+    <span class="cmt"># Property decorator (getter)</span>
+    <span class="kw">@property</span>
+    <span class="kw">def</span> <span class="fn">balance</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="var">self</span>.<span class="var">__balance</span>
+    
+    <span class="kw">def</span> <span class="fn">deposit</span>(<span class="var">self</span>, <span class="var">amount</span>):
+        <span class="kw">if</span> <span class="var">amount</span> > <span class="num">0</span>:
+            <span class="var">self</span>.<span class="var">__balance</span> += <span class="var">amount</span>
+    
+    <span class="kw">def</span> <span class="fn">withdraw</span>(<span class="var">self</span>, <span class="var">amount</span>):
+        <span class="kw">if</span> <span class="num">0</span> < <span class="var">amount</span> <= <span class="var">self</span>.<span class="var">__balance</span>:
+            <span class="var">self</span>.<span class="var">__balance</span> -= <span class="var">amount</span>
+
+<span class="var">account</span> = <span class="fn">BankAccount</span>(<span class="num">1000</span>)
+<span class="var">account</span>.<span class="fn">deposit</span>(<span class="num">500</span>)
+<span class="fn">print</span>(<span class="var">account</span>.<span class="var">balance</span>)  <span class="cmt"># 1500</span></pre>
+                    </div>
+                </div>
+                
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="methods" class="section">
+                <h2 class="section-title">Class Methods & Static Methods</h2>
+                
+                <div class="concept-box">
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">Employee</span>:
+    <span class="var">company</span> = <span class="str">"TechCorp"</span>  <span class="cmt"># Class variable</span>
+    
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">name</span>, <span class="var">salary</span>):
+        <span class="var">self</span>.<span class="var">name</span> = <span class="var">name</span>
+        <span class="var">self</span>.<span class="var">salary</span> = <span class="var">salary</span>
+    
+    <span class="cmt"># Class method - works with class variables</span>
+    <span class="kw">@classmethod</span>
+    <span class="kw">def</span> <span class="fn">change_company</span>(<span class="var">cls</span>, <span class="var">new_name</span>):
+        <span class="var">cls</span>.<span class="var">company</span> = <span class="var">new_name</span>
+    
+    <span class="cmt"># Static method - doesn't use class or instance</span>
+    <span class="kw">@staticmethod</span>
+    <span class="kw">def</span> <span class="fn">is_workday</span>(<span class="var">day</span>):
+        <span class="kw">return</span> <span class="var">day</span> <span class="kw">not in</span> [<span class="str">'Saturday'</span>, <span class="str">'Sunday'</span>]
+
+<span class="var">emp</span> = <span class="fn">Employee</span>(<span class="str">"Alice"</span>, <span class="num">50000</span>)
+<span class="fn">print</span>(<span class="fn">Employee</span>.<span class="fn">is_workday</span>(<span class="str">'Monday'</span>))  <span class="cmt"># True</span>
+<span class="fn">Employee</span>.<span class="fn">change_company</span>(<span class="str">"NewCorp"</span>)
+<span class="fn">print</span>(<span class="fn">Employee</span>.<span class="var">company</span>)  <span class="cmt"># NewCorp</span></pre>
+                    </div>
+                </div>
+                
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="magic" class="section">
+                <h2 class="section-title">Magic Methods (Dunder Methods)</h2>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Special Methods (__str__, __repr__, __len__, etc.)</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">Book</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">title</span>, <span class="var">author</span>, <span class="var">pages</span>):
+        <span class="var">self</span>.<span class="var">title</span> = <span class="var">title</span>
+        <span class="var">self</span>.<span class="var">author</span> = <span class="var">author</span>
+        <span class="var">self</span>.<span class="var">pages</span> = <span class="var">pages</span>
+    
+    <span class="kw">def</span> <span class="fn">__str__</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="str">f"<span class="var">{self.title}</span> by <span class="var">{self.author}</span>"</span>
+    
+    <span class="kw">def</span> <span class="fn">__len__</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="var">self</span>.<span class="var">pages</span>
+    
+    <span class="kw">def</span> <span class="fn">__eq__</span>(<span class="var">self</span>, <span class="var">other</span>):
+        <span class="kw">return</span> <span class="var">self</span>.<span class="var">title</span> == <span class="var">other</span>.<span class="var">title</span>
+
+<span class="var">book</span> = <span class="fn">Book</span>(<span class="str">"Python Guide"</span>, <span class="str">"John Doe"</span>, <span class="num">350</span>)
+<span class="fn">print</span>(<span class="var">book</span>)  <span class="cmt"># Python Guide by John Doe</span>
+<span class="fn">print</span>(<span class="fn">len</span>(<span class="var">book</span>))  <span class="cmt"># 350</span></pre>
+                    </div>
+                </div>
+                
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Next Steps:</strong> Explore Functional Programming, Decorators, and Iterators to expand your Python skills!
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+</html>

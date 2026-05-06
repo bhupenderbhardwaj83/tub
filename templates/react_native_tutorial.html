@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React Native Enterprise Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        react: {
+                            400: '#61dafb',
+                            500: '#282c34',
+                        },
+                        violet: {
+                            400: '#a78bfa',
+                            600: '#7c3aed',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* CustomScrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #61dafb;
+            border-radius: 4px 0 0 4px;
+        }
+
+        .nav-link.active {
+            background-color: rgba(97, 218, 251, 0.1);
+            color: #61dafb;
+            border-left: 2px solid #61dafb;
+        }
+    </style>
+</head>
+
+<body class="bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar"
+            class="fixed inset-y-0 left-0 z-40 w-72 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto flex flex-col">
+
+            <div class="p-6 sticky top-0 bg-white dark:bg-gray-900 z-10 border-b border-gray-100 dark:border-gray-800">
+                <div class="flex items-center gap-3 text-react-400 font-bold text-2xl">
+                    <!-- React Logo -->
+                    <svg class="w-8 h-8 animate-spin-slow" fill="currentColor" viewBox="0 0 24 24">
+                        <path
+                            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"
+                            opacity="0.5" />
+                        <circle cx="12" cy="12" r="2.5" />
+                        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(30 12 12)" fill="none"
+                            stroke="currentColor" stroke-width="1.5" />
+                        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-30 12 12)" fill="none"
+                            stroke="currentColor" stroke-width="1.5" />
+                        <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(90 12 12)" fill="none"
+                            stroke="currentColor" stroke-width="1.5" />
+                    </svg>
+                    React Native
+                </div>
+                <div class="mt-4 flex items-center justify-between">
+                    <span class="text-xs font-mono text-gray-500 uppercase tracking-widest">Enterprise Guide</span>
+                    <button id="theme-toggle"
+                        class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+                        <span class="dark:hidden">🌙</span>
+                        <span class="hidden dark:inline">☀️</span>
+                    </button>
+                </div>
+                <!-- Sidebar Search -->
+                <div class="mt-4 relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="sidebar-search"
+                        class="block w-full pl-9 pr-3 py-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-react-400 focus:border-transparent transition-all"
+                        placeholder="Search... (Cmd+K)">
+                </div>
+            </div>
+
+            <nav class="p-4 space-y-1 text-sm font-medium flex-1 overflow-y-auto">
+                <a href="#quick-start"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">🚀
+                    Quick Start</a>
+                <a href="#history"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">1.
+                    History & Foundations</a>
+                <a href="#architecture"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">2.
+                    Architecture</a>
+                <a href="#structure"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">3.
+                    Project Structure</a>
+                <a href="#components"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">4.
+                    Components & Styling</a>
+                <a href="#navigation"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">5.
+                    Navigation</a>
+                <a href="#state"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">6.
+                    State Management</a>
+                <a href="#async"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">7.
+                    Async & Data</a>
+                <a href="#platform-apis"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">8.
+                    Platform APIs</a>
+                <a href="#performance"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">9.
+                    Performance</a>
+                <a href="#animations"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">10.
+                    Animations</a>
+                <a href="#auth"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">11.
+                    Monitoring & Security</a>
+                <a href="#enterprise"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">12.
+                    Enterprise Arch</a>
+                <a href="#examples"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">13.
+                    Practical Examples</a>
+                <a href="#libraries"
+                    class="nav-link block p-3 rounded hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">14. Top
+                    100 Libraries</a>
+            </nav>
+
+            <div class="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex-shrink-0">
+                <a href="python_hub.html"
+                    class="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-react-400 font-semibold transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Hub
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="lg:ml-72 flex-1 p-6 lg:p-16 max-w-screen-2xl mx-auto space-y-24">
+
+            <!-- Hero -->
+            <section class="min-h-[40vh] flex flex-col justify-center">
+                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6">
+                    React Native <span class="text-react-400">Enterprise</span>
+                    <span class="block text-2xl lg:text-3xl text-gray-400 font-medium mt-4">For iOS and Android</span>
+                </h1>
+                <p class="text-xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-3xl mb-8">
+                    The definitive handbook for building scalable, production-grade mobile applications.
+                    Bridging the gap between React web concepts and native mobile performance.
+                </p>
+                <div class="flex gap-4">
+                    <a href="#quick-start"
+                        class="px-8 py-4 bg-react-400 hover:bg-react-400/90 text-gray-900 font-bold rounded-xl transition-all shadow-lg shadow-react-400/20">
+                        Start Building
+                    </a>
+                    <a href="#libraries"
+                        class="px-8 py-4 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 font-bold rounded-xl transition-all">
+                        View Libraries
+                    </a>
+                </div>
+            </section>
+
+            <!-- Quick Start -->
+            <section id="quick-start" class="scroll-mt-24 space-y-8">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl">🚀</span>
+                    <h2 class="text-3xl font-bold">Quick Start</h2>
+                </div>
+
+                <div class="prose dark:prose-invert max-w-none">
+                    <p class="text-gray-600 dark:text-gray-400">Initialize a production-ready Expo environment in
+                        minutes.</p>
+
+                    <h3 class="font-bold text-xl mt-6">1. Fix Permissions (Mac/Linux)</h3>
+                    <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                        <button
+                            class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded absolute top-2 right-2">Copy</button>
+                        <pre>sudo chown -R $(whoami) ~/.npm</pre>
+                    </div>
+
+                    <h3 class="font-bold text-xl mt-6">2. Initialize Project</h3>
+                    <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                        <button
+                            class="copy-btn bg-gray-700 text-white text-xs px-2 py-1 rounded absolute top-2 right-2">Copy</button>
+                        <pre>cd ~/Desktop
+npx create-expo-app@latest my-mobile-app --template blank-typescript
+cd my-mobile-app
+npx expo start</pre>
+                    </div>
+
+                    <h3 class="font-bold text-xl mt-6">3. Development Options</h3>
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-4">
+                        <div
+                            class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="font-bold text-lg mb-2">Prebuild (Expo Go)</div>
+                            <p class="text-sm text-gray-500">Scan QR Code. Easiest for beginners.</p>
+                            <code
+                                class="text-xs bg-gray-200 dark:bg-gray-900 p-1 rounded mt-2 block">npm run start</code>
+                        </div>
+                        <div
+                            class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="font-bold text-lg mb-2">iOS Simulator</div>
+                            <p class="text-sm text-gray-500">Requires Xcode (Mac only).</p>
+                            <code class="text-xs bg-gray-200 dark:bg-gray-900 p-1 rounded mt-2 block">Press 'i'</code>
+                        </div>
+                        <div
+                            class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="font-bold text-lg mb-2">Android Emulator</div>
+                            <p class="text-sm text-gray-500">Requires Android Studio.</p>
+                            <code class="text-xs bg-gray-200 dark:bg-gray-900 p-1 rounded mt-2 block">Press 'a'</code>
+                        </div>
+                        <div
+                            class="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                            <div class="font-bold text-lg mb-2">Hot Reload</div>
+                            <p class="text-sm text-gray-500">Fast Refresh enablement.</p>
+                            <code class="text-xs bg-gray-200 dark:bg-gray-900 p-1 rounded mt-2 block">Press 'r'</code>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1. History -->
+            <section id="history" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">01</span>
+                    <h2 class="text-3xl font-bold">History & Foundations</h2>
+                </div>
+                <div class="prose dark:prose-invert max-w-none">
+                    <p>React Native (2015) revolutionized mobile dev by allowing React developers to build native apps.
+                    </p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li><strong>The "Bridge" Era:</strong> JSON serialization between JS and Native threads. Slow
+                            but effective.</li>
+                        <li><strong>New Architecture (Fabric/TurboModules):</strong> JSI (C++) interface allowing
+                            synchronous communication. </li>
+                        <li><strong>Expo:</strong> The "Rails" for React Native. Now the standard entry point.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 2. Architecture -->
+            <section id="architecture" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">02</span>
+                    <h2 class="text-3xl font-bold">Underlying Architecture</h2>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6">
+                    <div class="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                        <h3 class="font-bold text-xl mb-2 text-react-400">Hermes Engine</h3>
+                        <p class="text-sm">An optimized JavaScript engine built by Facebook specifically for React
+                            Native. Reduces TTI (Time to Interaction) and APK size.</p>
+                    </div>
+                    <div class="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                        <h3 class="font-bold text-xl mb-2 text-react-400">Fabric Renderer</h3>
+                        <p class="text-sm">The new UI system. Moves logic from the "Bridge" to C++ core, allowing finer
+                            priority control for gestures and animations.</p>
+                    </div>
+                    <div class="p-6 bg-gray-50 dark:bg-gray-800 rounded-xl">
+                        <h3 class="font-bold text-xl mb-2 text-react-400">JSI</h3>
+                        <p class="text-sm">JavaScript Interface. Allows JS to call C++ (Native) functions directly by
+                            reference, removing the JSON serialization bottleneck.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Structure -->
+            <section id="structure" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">03</span>
+                    <h2 class="text-3xl font-bold">Project Structure</h2>
+                </div>
+                <p>A scalable enterprise structure for Expo/React Native apps.</p>
+                <div class="code-block bg-gray-900 rounded-lg p-6 text-sm text-gray-300 font-mono relative">
+                    <pre>
+mobile/
+├── 📄 app.json             # Expo Config
+├── 📄 package.json
+├── 📄 tsconfig.json
+│
+├── 📁 src/
+│   ├── 📁 api/             # Axios clients & endpoints (FastAPI connector)
+│   ├── 📁 components/      # Reusable UI (Buttons, Cards)
+│   ├── 📁 screens/         # Page Logic
+│   ├── 📁 navigation/      # React Navigation Setup
+│   ├── 📁 stores/          # Zustand / Global State
+│   ├── 📁 theme/           # Colors, Typography, Spacing
+│   ├── 📁 types/           # TypeScript Interfaces
+│   └── 📁 hooks/           # Custom Logic
+└── 📁 assets/              # Fonts, Images</pre>
+                </div>
+            </section>
+
+            <!-- 4. Components -->
+            <section id="components" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">04</span>
+                    <h2 class="text-3xl font-bold">Components & Styling</h2>
+                </div>
+                <p>Mobile styling uses <strong>Flexbox</strong> exclusively. No CSS Grids, no floats.</p>
+
+                <h3 class="font-bold text-xl mt-4">Core Primitives</h3>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="border border-gray-200 dark:border-gray-700 p-4 rounded bg-gray-50 dark:bg-gray-800">
+                        <code>&lt;View /&gt;</code> <span class="text-gray-500">→ div</span>
+                    </div>
+                    <div class="border border-gray-200 dark:border-gray-700 p-4 rounded bg-gray-50 dark:bg-gray-800">
+                        <code>&lt;Text /&gt;</code> <span class="text-gray-500">→ p, span, h1-h6</span>
+                    </div>
+                    <div class="border border-gray-200 dark:border-gray-700 p-4 rounded bg-gray-50 dark:bg-gray-800">
+                        <code>&lt;TouchableOpacity /&gt;</code> <span class="text-gray-500">→ button</span>
+                    </div>
+                    <div class="border border-gray-200 dark:border-gray-700 p-4 rounded bg-gray-50 dark:bg-gray-800">
+                        <code>&lt;FlatList /&gt;</code> <span class="text-gray-500">→ ul/li (Performance opt)</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. Navigation -->
+            <section id="navigation" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">05</span>
+                    <h2 class="text-3xl font-bold">Navigation</h2>
+                </div>
+                <p><strong>React Navigation 6+</strong> or <strong>Expo Router</strong> (File-based).</p>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-bold mb-2">Stack Navigator</h3>
+                        <p class="text-sm text-gray-500 mb-2">Pushing screens like cards (Standard iOS/Android feel).
+                        </p>
+                        <div class="bg-gray-900 p-4 rounded text-xs font-mono text-gray-300">
+                            &lt;Stack.Navigator&gt;<br>
+                            &nbsp;&nbsp;&lt;Stack.Screen name="Home" /&gt;<br>
+                            &nbsp;&nbsp;&lt;Stack.Screen name="Details" /&gt;<br>
+                            &lt;/Stack.Navigator&gt;
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-bold mb-2">Bottom Tabs</h3>
+                        <p class="text-sm text-gray-500 mb-2">Main app controller.</p>
+                        <div class="bg-gray-900 p-4 rounded text-xs font-mono text-gray-300">
+                            &lt;Tab.Navigator&gt;<br>
+                            &nbsp;&nbsp;&lt;Tab.Screen name="Feed" /&gt;<br>
+                            &nbsp;&nbsp;&lt;Tab.Screen name="Profile" /&gt;<br>
+                            &lt;/Tab.Navigator&gt;
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. State -->
+            <section id="state" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">06</span>
+                    <h2 class="text-3xl font-bold">State Management</h2>
+                </div>
+                <p>Use <strong>Zustand</strong> for client state (Sidebar, Theme, Auth Token) and <strong>TanStack
+                        Query</strong> for Server State.</p>
+                <div class="bg-blue-50 dark:bg-blue-900/20 p-4 rounded border-l-4 border-blue-500 text-sm">
+                    <strong>Note:</strong> Avoid Redux unless you have complex transaction logic. Zustand is 90% smaller
+                    and boilerplate-free.
+                </div>
+            </section>
+
+            <!-- 7. Async -->
+            <section id="async" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">07</span>
+                    <h2 class="text-3xl font-bold">Async & Data Handling</h2>
+                </div>
+                <!-- Example Block -->
+                <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                    <pre>const { data, isLoading, refetch } = useQuery({
+  queryKey: ['prompts'],
+  queryFn: async () => {
+     // Connect to Python FastAPI Backend
+     const res = await axios.get('https://api.myprompts.ai/v1/prompts');
+     return res.data;
+  }
+});
+
+if (isLoading) return &lt;ActivityIndicator /&gt;;
+</pre>
+                </div>
+            </section>
+
+            <!-- 8. Platform APIs -->
+            <section id="platform-apis" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">08</span>
+                    <h2 class="text-3xl font-bold">Platform APIs</h2>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded hover:scale-105 transition-transform">
+                        <div class="text-2xl mb-2">📸</div> Camera
+                    </div>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded hover:scale-105 transition-transform">
+                        <div class="text-2xl mb-2">📍</div> Location
+                    </div>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded hover:scale-105 transition-transform">
+                        <div class="text-2xl mb-2">💾</div> Secure Store
+                    </div>
+                    <div class="p-4 bg-gray-50 dark:bg-gray-800 rounded hover:scale-105 transition-transform">
+                        <div class="text-2xl mb-2">🔔</div> Notifications
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Performance -->
+            <section id="performance" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">09</span>
+                    <h2 class="text-3xl font-bold">Performance</h2>
+                </div>
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-4">
+                        <span class="font-mono text-red-500 font-bold">01</span>
+                        <div>
+                            <h4 class="font-bold">Use FlatList over ScrollView</h4>
+                            <p class="text-sm text-gray-500">FlatList virtualizes elements (only renders what is on
+                                screen). ScrollView renders everything at once.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="font-mono text-red-500 font-bold">02</span>
+                        <div>
+                            <h4 class="font-bold">Memoize Components</h4>
+                            <p class="text-sm text-gray-500">React.memo() and useCallback() prevent unnecessary
+                                re-renders in large lists.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="font-mono text-red-500 font-bold">03</span>
+                        <div>
+                            <h4 class="font-bold">Image Caching</h4>
+                            <p class="text-sm text-gray-500">Use <code>expo-image</code> instead of the default Image
+                                component for aggressive caching and improved performance.</p>
+                        </div>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- 10. Animations -->
+            <section id="animations" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">10</span>
+                    <h2 class="text-3xl font-bold">Animations & Gestures</h2>
+                </div>
+                <p>Use <strong>Reanimated 3</strong> for 60fps native-driven animations.</p>
+                <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                    <pre>const style = useAnimatedStyle(() => {
+    return {
+        opacity: withTiming(1, { duration: 500 }),
+        transform: [{ scale: withSpring(active ? 1.2 : 1) }]
+    };
+});
+</pre>
+                </div>
+            </section>
+
+            <!-- 11. Auth -->
+            <section id="auth" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">11</span>
+                    <h2 class="text-3xl font-bold">Auth & Security</h2>
+                </div>
+                <h3 class="text-lg font-bold mt-4">FastAPI Backend Integration</h3>
+                <p>Secure the app using JWTs.</p>
+                <ol class="list-decimal pl-5 space-y-2 text-sm">
+                    <li><strong>Login:</strong> Send credentials to Python FastAPI (<code>/token</code>).</li>
+                    <li><strong>Store:</strong> Save Access/Refresh tokens in <code>expo-secure-store</code> (NOT
+                        AsyncStorage).</li>
+                    <li><strong>Interceptor:</strong> Axios interceptor attaches Bearer token to every request.</li>
+                    <li><strong>Refresh:</strong> On 401, mostly silently refresh token using refresh token.</li>
+                </ol>
+            </section>
+
+            <!-- 12. Enterprise -->
+            <section id="enterprise" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">12</span>
+                    <h2 class="text-3xl font-bold">Enterprise Architecture</h2>
+                </div>
+                <p>Manage environments (Dev, Staging, Prod) using <code>app.config.ts</code>.</p>
+                <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                    <pre>export default ({ config }) => ({
+  ...config,
+  extra: {
+    apiUrl: process.env.API_URL || 'https://api.dev.example.com',
+    sentryDsn: process.env.SENTRY_DSN,
+  },
+});</pre>
+                </div>
+            </section>
+
+            <!-- 13. Examples -->
+            <section id="examples" class="scroll-mt-24 space-y-12">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-gray-200 dark:text-gray-600">13</span>
+                    <h2 class="text-3xl font-bold">Practical Examples</h2>
+                </div>
+
+                <!-- Ex 1: Login -->
+                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">1. Login Screen with FastAPI</h3>
+                    <p class="text-sm mb-4">A complete login form using React Hook Form and Zod validation.</p>
+                    <div
+                        class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative h-64 overflow-y-auto">
+                        <pre>const LoginScreen = () => {
+  const { control, handleSubmit } = useForm({
+    resolver: zodResolver(loginSchema)
+  });
+  const login = useAuthStore(s => s.login);
+
+  const onSubmit = async (data) => {
+    try {
+      await login(data.email, data.password);
+    } catch (err) {
+      Alert.alert('Error', 'Invalid credentials');
+    }
+  };
+
+  return (
+    &lt;SafeAreaView style={tw`flex-1 bg-white justify-center p-4`}&gt;
+       &lt;Controller
+         control={control}
+         name="email"
+         render={({ field: { onChange, value } }) => (
+           &lt;TextInput 
+             style={tw`border p-4 rounded mb-4`} 
+             placeholder="Email"
+             value={value}
+             onChangeText={onChange}
+           /&gt;
+         )}
+       /&gt;
+       &lt;TouchableOpacity 
+         onPress={handleSubmit(onSubmit)}
+         style={tw`bg-blue-600 p-4 rounded items-center`}
+       &gt;
+         &lt;Text style={tw`text-white font-bold`}&gt;Sign In&lt;/Text&gt;
+       &lt;/TouchableOpacity&gt;
+    &lt;/SafeAreaView&gt;
+  );
+};</pre>
+                    </div>
+                </div>
+
+                <!-- Ex 2: Dashboard -->
+                <div class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6">
+                    <h3 class="text-xl font-bold mb-4">2. Authenticated Dashboard</h3>
+                    <p class="text-sm mb-4">Fetching secure data passing the Bearer token.</p>
+                    <div class="code-block bg-gray-900 rounded-lg p-4 text-sm text-gray-300 font-mono relative">
+                        <pre>// api/client.ts
+client.interceptors.request.use(async (config) => {
+  const token = await SecureStore.getItemAsync('token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+// screens/Dashboard.tsx
+const { data } = useQuery({ 
+  queryKey: ['dashboard'], 
+  queryFn: () => client.get('/dashboard/stats').then(r => r.data) 
+});</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 14. Libraries -->
+            <section id="libraries" class="scroll-mt-24 space-y-8">
+                <div class="flex items-center gap-4 border-b border-gray-200 dark:border-gray-800 pb-4">
+                    <span class="text-4xl font-black text-violet-600 dark:text-violet-400">📦</span>
+                    <h2 class="text-3xl font-bold">Top 100 React Native Libraries</h2>
+                </div>
+                <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+                    <table class="w-full text-left bg-white dark:bg-gray-900 text-sm">
+                        <thead
+                            class="bg-gray-50 dark:bg-gray-800 font-bold uppercase text-xs text-violet-600 dark:text-violet-400">
+                            <tr>
+                                <th class="p-4">Library</th>
+                                <th class="p-4">Category</th>
+                                <th class="p-4">Use Case</th>
+                                <th class="p-4">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            <!-- Navigation -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                                    Navigation</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Navigation</td>
+                                <td class="p-4">Routing</td>
+                                <td class="p-4">Standard stack/tab/drawer routing</td>
+                                <td class="p-4 text-green-600">Industry Std</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Expo Router</td>
+                                <td class="p-4">Routing</td>
+                                <td class="p-4">File-system based routing (Next.js style)</td>
+                                <td class="p-4 text-blue-500">Modern Choice</td>
+                            </tr>
+
+                            <!-- UI -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                                    UI & Styling</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">NativeWind</td>
+                                <td class="p-4">Styling</td>
+                                <td class="p-4">Tailwind CSS for React Native</td>
+                                <td class="p-4 text-blue-500">Best DX</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Tamagui</td>
+                                <td class="p-4">UI Kit</td>
+                                <td class="p-4">Universal UI kit (Web + Native)</td>
+                                <td class="p-4">Performance</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Restyle (Shopify)</td>
+                                <td class="p-4">Styling</td>
+                                <td class="p-4">Type-safe styling system</td>
+                                <td class="p-4">Strict</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">React Native Paper</td>
+                                <td class="p-4">UI Kit</td>
+                                <td class="p-4">Material Design components</td>
+                                <td class="p-4">Solid</td>
+                            </tr>
+
+                            <!-- State -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                                    State & Data</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Zustand</td>
+                                <td class="p-4">State</td>
+                                <td class="p-4">Client state management</td>
+                                <td class="p-4 text-green-600">Recommended</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">TanStack Query</td>
+                                <td class="p-4">Async</td>
+                                <td class="p-4">API Caching & Lifecycle</td>
+                                <td class="p-4 text-green-600">Essential</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">MMKV</td>
+                                <td class="p-4">Storage</td>
+                                <td class="p-4">Fastest key-value storage</td>
+                                <td class="p-4">Replaces AsyncStor</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Realm (Atlas)</td>
+                                <td class="p-4">Database</td>
+                                <td class="p-4">Local database with sync</td>
+                                <td class="p-4">Complex Apps</td>
+                            </tr>
+
+                            <!-- Animation -->
+                            <tr class="bg-gray-50 dark:bg-gray-800/50">
+                                <td colspan="4"
+                                    class="p-2 pl-4 text-xs font-bold text-violet-600 dark:text-violet-400 uppercase tracking-widest">
+                                    Animation</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Reanimated 3</td>
+                                <td class="p-4">Animation</td>
+                                <td class="p-4">Native thread animations</td>
+                                <td class="p-4 text-green-600">Standard</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Lottie</td>
+                                <td class="p-4">Vector</td>
+                                <td class="p-4">After Effects animations</td>
+                                <td class="p-4">Delightful</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold">Moti</td>
+                                <td class="p-4">Animation</td>
+                                <td class="p-4">Universal animation library</td>
+                                <td class="p-4">Easy</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="h-40"></div>
+        </main>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="fixed inset-0 z-[100] hidden">
+        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" id="search-backdrop"></div>
+        <div class="relative w-full max-w-2xl mx-auto mt-32 p-4">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center border-b border-gray-100 dark:border-gray-700 p-4 gap-3">
+                    <input id="modal-search-input" type="text"
+                        class="flex-1 bg-transparent border-none outline-none text-lg text-gray-800 dark:text-gray-100 placeholder-gray-400"
+                        placeholder="Search...">
+                    <button id="close-search"
+                        class="text-xs border border-gray-200 dark:border-gray-700 px-2 py-1 rounded text-gray-500">ESC</button>
+                </div>
+                <div id="search-results" class="max-h-[60vh] overflow-y-auto p-2"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Theme Toggle ---
+        const themeBtn = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+        if (!('theme' in localStorage) || localStorage.theme === 'dark') { html.classList.add('dark'); }
+        else { html.classList.remove('dark'); }
+        themeBtn.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // --- Copy Btn ---
+        document.querySelectorAll('.copy-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const code = btn.nextElementSibling.innerText;
+                navigator.clipboard.writeText(code);
+                btn.innerText = 'Copied!';
+                setTimeout(() => btn.innerText = 'Copy', 2000);
+            });
+        });
+
+        // --- Search ---
+        const sidebarSearch = document.getElementById('sidebar-search');
+        const searchModal = document.getElementById('search-modal');
+        const modalInput = document.getElementById('modal-search-input');
+        const searchResults = document.getElementById('search-results');
+        const closeSearch = document.getElementById('close-search');
+        const backdrop = document.getElementById('search-backdrop');
+
+        // Build Index
+        let index = [];
+        document.querySelectorAll('section').forEach(section => {
+            const h2 = section.querySelector('h2');
+            if (h2) {
+                index.push({ id: section.id, title: h2.innerText, type: 'Section', el: section });
+            }
+        });
+
+        function openSearch() { searchModal.classList.remove('hidden'); modalInput.focus(); }
+        function closeSearchModal() { searchModal.classList.add('hidden'); }
+
+        sidebarSearch.addEventListener('focus', openSearch);
+        document.addEventListener('keydown', (e) => {
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') { e.preventDefault(); openSearch(); }
+            if (e.key === 'Escape') closeSearchModal();
+        });
+        closeSearch.addEventListener('click', closeSearchModal);
+        backdrop.addEventListener('click', closeSearchModal);
+
+        modalInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const results = index.filter(item => item.title.toLowerCase().includes(query));
+            searchResults.innerHTML = '';
+            results.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'p-3 hover:bg-gray-100 dark:hover:bg-gray-700 rounded cursor-pointer flex justify-between items-center';
+                div.innerHTML = `<div class="font-medium text-gray-800 dark:text-gray-200">${item.title}</div><span class="text-xs text-gray-500">Jump ↵</span>`;
+                div.addEventListener('click', () => {
+                    closeSearchModal();
+                    item.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+                searchResults.appendChild(div);
+            });
+        });
+    </script>
+</body>
+
+</html>

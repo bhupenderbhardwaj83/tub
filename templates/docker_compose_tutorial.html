@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Compose Mastery: Multi-Container Orchestration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        compose: {
+                            50: '#f5f3ff',
+                            100: '#ede9fe',
+                            500: '#8b5cf6',
+                            600: '#7c3aed',
+                            900: '#4c1d95',
+                        },
+                        slate: {
+                            850: '#151e2e',
+                            900: '#0f172a',
+                        }
+                    },
+                    fontFamily: {
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', "Liberation Mono", "Courier New", 'monospace'],
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont', "Segoe UI", 'Roboto', "Helvetica Neue", 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .dark ::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .dark ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .dark .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .code-block {
+            position: relative;
+            overflow-x: auto;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .code-block:hover .copy-btn {
+            opacity: 1;
+        }
+
+        /* Sidebar active state marker */
+        .nav-link.active {
+            border-left: 4px solid #8b5cf6;
+            background: rgba(139, 92, 246, 0.1);
+            color: #8b5cf6;
+        }
+
+        .dark .nav-link.active {
+            color: #a78bfa;
+        }
+
+        .accordion-content {
+            transition: max-height 0.3s ease-out;
+            max-height: 2000px;
+            overflow: hidden;
+        }
+
+        .accordion-content.collapsed {
+            max-height: 0;
+        }
+    </style>
+</head>
+
+<body
+    class="bg-slate-50 text-slate-900 dark:bg-slate-900 dark:text-slate-100 antialiased transition-colors duration-300">
+
+    <!-- Mobile Header -->
+    <header
+        class="lg:hidden fixed top-0 w-full z-50 bg-white/90 dark:bg-slate-900/90 backdrop-blur border-b border-slate-200 dark:border-slate-800 p-4 flex justify-between items-center">
+        <div class="flex items-center gap-2 text-compose-600 dark:text-compose-500 font-bold text-xl">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span>Docker Compose</span>
+        </div>
+        <button id="mobile-menu-btn" class="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+        </button>
+    </header>
+
+    <div class="flex min-h-screen">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar"
+            class="fixed inset-y-0 left-0 z-40 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 overflow-y-auto flex flex-col">
+
+            <!-- Sidebar Header -->
+            <div
+                class="p-6 sticky top-0 bg-white dark:bg-slate-900 z-10 border-b border-slate-100 dark:border-slate-800 flex-shrink-0">
+                <div class="flex items-center gap-3 text-compose-600 dark:text-compose-500 font-bold text-2xl">
+                    <!-- Docker Compose Logo (Simulated with SVG) -->
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                    </svg>
+                    Compose
+                </div>
+                <div class="mt-4 flex items-center justify-between">
+                    <span class="text-xs font-mono text-slate-500 uppercase tracking-widest">Tutorial</span>
+                    <button id="theme-toggle"
+                        class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                        <span class="dark:hidden">🌙</span>
+                        <span class="hidden dark:inline">☀️</span>
+                    </button>
+                </div>
+
+                <!-- Persistent Search Bar -->
+                <div class="mt-4 relative group">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" id="sidebar-search"
+                        class="block w-full pl-9 pr-3 py-2 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-compose-500 focus:border-transparent transition-all"
+                        placeholder="Search... (Cmd+K)">
+                    <div class="absolute inset-y-0 right-0 pr-2 flex items-center">
+                        <kbd
+                            class="hidden sm:inline-block border border-slate-300 dark:border-slate-600 rounded px-1 text-[10px] font-mono text-slate-400">⌘K</kbd>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable Nav -->
+            <nav class="p-4 space-y-1 text-sm font-medium flex-1 overflow-y-auto">
+                <a href="#intro"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">1.
+                    What is Compose?</a>
+                <a href="#concepts"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">2.
+                    Core Concepts</a>
+                <a href="#architecture"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">3.
+                    Architecture</a>
+                <a href="#install"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">4.
+                    Installation</a>
+                <a href="#yaml"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">5.
+                    docker-compose.yml</a>
+                <a href="#network"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">6.
+                    Networking</a>
+                <a href="#volumes"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">7.
+                    Volumes & Persistence</a>
+                <a href="#env"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">8.
+                    Variables & Config</a>
+                <a href="#scaling"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">9.
+                    Scaling Services</a>
+                <a href="#logging"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">10.
+                    Logging</a>
+                <a href="#security"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">11.
+                    Security</a>
+                <a href="#labs"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">12.
+                    Practical Labs</a>
+                <a href="#cheatsheet"
+                    class="nav-link block p-3 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">13.
+                    Cheat Sheet</a>
+            </nav>
+
+            <!-- Back to Hub Footer -->
+            <div
+                class="p-4 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 flex-shrink-0">
+                <a href="python_hub.html"
+                    class="flex items-center gap-2 text-slate-600 dark:text-slate-400 hover:text-compose-600 dark:hover:text-compose-400 font-semibold transition-colors">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Back to Hub
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="lg:ml-72 flex-1 p-6 lg:p-12 max-w-screen-2xl mx-auto space-y-20">
+
+            <!-- Hero Section -->
+            <section class="min-h-[50vh] flex flex-col justify-center animate-fade-in">
+                <div class="flex flex-col xl:flex-row items-center gap-12">
+                    <div class="flex-1 space-y-6">
+                        <h1
+                            class="text-5xl lg:text-7xl font-extrabold tracking-tight bg-gradient-to-r from-compose-500 to-indigo-600 bg-clip-text text-transparent">
+                            Master Docker Compose
+                        </h1>
+                        <p class="text-xl text-slate-600 dark:text-slate-400 leading-relaxed max-w-2xl">
+                            The definitive guide to orchestrating multi-container applications. Learn to define, run,
+                            and scale
+                            complex stacks with a single YAML file.
+                        </p>
+                        <div class="flex gap-4 pt-4">
+                            <a href="#intro"
+                                class="px-6 py-3 bg-compose-600 hover:bg-compose-500 text-white rounded-lg font-semibold transition-colors shadow-lg shadow-compose-500/20">Start
+                                Reading</a>
+                            <a href="#video-tutorial"
+                                class="hidden xl:inline-block px-6 py-3 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Watch
+                                Video</a>
+                        </div>
+                    </div>
+
+                    <!-- Featured Video -->
+                    <div id="video-tutorial" class="flex-1 w-full max-w-3xl">
+                        <div
+                            class="glass-panel p-2 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 transform hover:scale-[1.01] transition-transform duration-300">
+                            <div class="relative w-full pb-[56.25%] overflow-hidden rounded-xl bg-slate-900">
+                                <iframe class="absolute top-0 left-0 w-full h-full"
+                                    src="https://www.youtube.com/embed/SXwC9fSwct8" title="Docker Compose Tutorial"
+                                    frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 1. What is Compose? -->
+            <section id="intro" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">1</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">What is Docker Compose?</h2>
+                </div>
+
+                <div class="prose prose-slate dark:prose-invert max-w-none">
+                    <p class="text-lg">Docker Compose is a tool for defining and running multi-container Docker
+                        applications. With Compose, you use a YAML file to configure your application's services,
+                        networks, and volumes.</p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6 mt-6">
+                    <div class="glass-panel p-6 rounded-xl shadow-sm">
+                        <h3 class="text-xl font-semibold mb-3 text-compose-600 dark:text-compose-400">The Problem</h3>
+                        <p class="text-slate-600 dark:text-slate-300">
+                            Running `docker run` 10 times for a frontend, backend, database, cache, and proxy is tedious
+                            and error-prone. Connecting them manually via networks is even harder.
+                        </p>
+                    </div>
+                    <div class="glass-panel p-6 rounded-xl shadow-sm">
+                        <h3 class="text-xl font-semibold mb-3 text-compose-600 dark:text-compose-400">The Solution</h3>
+                        <p class="text-slate-600 dark:text-slate-300">
+                            Define the entire stack in one file (`docker-compose.yml`). Spin it all up with `docker
+                            compose up`. Tear it down with `docker compose down`.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Core Docker Concepts -->
+            <section id="concepts" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">2</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Core Concepts</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div
+                        class="bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <div class="text-2xl mb-2">📄</div>
+                        <h3 class="font-bold mb-1">YAML File</h3>
+                        <p class="text-xs text-slate-500">The blueprint of your application stack.</p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <div class="text-2xl mb-2">⚙️</div>
+                        <h3 class="font-bold mb-1">Services</h3>
+                        <p class="text-xs text-slate-500">A container in the context of your app (e.g., 'web', 'db').
+                        </p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <div class="text-2xl mb-2">🔌</div>
+                        <h3 class="font-bold mb-1">Networks</h3>
+                        <p class="text-xs text-slate-500">How services communicate. Usually created automatically.</p>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-800 p-6 rounded-lg border border-slate-200 dark:border-slate-700">
+                        <div class="text-2xl mb-2">💾</div>
+                        <h3 class="font-bold mb-1">Volumes</h3>
+                        <p class="text-xs text-slate-500">Persistent data storage shared or kept across restarts.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 3. Architecture -->
+            <section id="architecture" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">3</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Architecture</h2>
+                </div>
+
+                <div class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <h3 class="text-lg font-bold mb-4">How it works</h3>
+                    <ul class="space-y-4">
+                        <li class="flex gap-4">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-sm">
+                                1</div>
+                            <div>
+                                <strong class="block text-slate-900 dark:text-slate-100">Project Name</strong>
+                                <p class="text-sm text-slate-500">Compose isolates environments using a project name
+                                    (usually the directory name). This allows multiple instances of the same code to run
+                                    on one host.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-4">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-sm">
+                                2</div>
+                            <div>
+                                <strong class="block text-slate-900 dark:text-slate-100">Dependency Graph</strong>
+                                <p class="text-sm text-slate-500">Compose calculates which services depend on others
+                                    (using `depends_on`) to start them in the correct order.</p>
+                            </div>
+                        </li>
+                        <li class="flex gap-4">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center font-bold text-sm">
+                                3</div>
+                            <div>
+                                <strong class="block text-slate-900 dark:text-slate-100">Docker API</strong>
+                                <p class="text-sm text-slate-500">The Compose CLI converts YAML config into API calls to
+                                    the Docker Daemon, creating specific networks, volumes, and containers.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- 4. Installing Docker Compose -->
+            <section id="install" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">4</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Installation</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border-l-4 border-l-purple-500 shadow-sm">
+                        <h3 class="text-xl font-bold mb-4">Compose v2 (Recommended)</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mb-4">Rewritten in Go. It is now a Docker CLI
+                            plugin. Syntax is `docker compose (without dash)`.</p>
+                        <div class="bg-slate-900 text-slate-200 p-3 rounded font-mono text-xs">
+                            $ docker compose version<br>
+                            Docker Compose version v2.10.2
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border-l-4 border-l-slate-500 shadow-sm">
+                        <h3 class="text-xl font-bold mb-4">Compose v1 (Legacy)</h3>
+                        <p class="text-slate-600 dark:text-slate-400 mb-4">The old Python script. Syntax was
+                            `docker-compose (with dash)`. <strong>Deprecated.</strong></p>
+                        <div class="bg-slate-900 text-slate-200 p-3 rounded font-mono text-xs">
+                            $ docker-compose version<br>
+                            docker-compose version 1.29.2
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. docker-compose.yml Deep Dive -->
+            <section id="yaml" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">5</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">The Compose File</h2>
+                </div>
+
+                <div
+                    class="bg-slate-900 text-slate-200 p-6 rounded-xl overflow-x-auto text-sm font-mono shadow-2xl relative">
+                    <pre><code class="language-yaml"># 1. Version (Optional in v2)
+version: '3.8'
+
+# 2. Services Definition
+services:
+  web:                            # Service Name
+    image: nginx:latest           # Image to pull
+    restart: always               # Restart Policy
+    ports:
+      - "80:80"                   # Host:Container Mapping
+    depends_on:                   # Dependency
+      - api
+
+  api:
+    build: ./api                  # Build from Dockerfile
+    environment:                  # Env Vars
+      - DEBUG=true
+    volumes:                      # Volumes
+      - ./api:/app
+
+# 3. Named Volumes
+volumes:
+  db_data:
+
+# 4. Custom Networks
+networks:
+  frontend:</code></pre>
+                </div>
+
+                <div class="grid md:grid-cols-3 gap-6 mt-6">
+                    <div class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+                        <strong class="text-compose-600 dark:text-compose-400">build:</strong>
+                        <p class="text-sm mt-1 text-slate-600 dark:text-slate-400">Builds an image from a local
+                            Dockerfile instead of pulling.</p>
+                    </div>
+                    <div class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+                        <strong class="text-compose-600 dark:text-compose-400">depends_on:</strong>
+                        <p class="text-sm mt-1 text-slate-600 dark:text-slate-400">Control startup order. Note: Does not
+                            wait for service to be "ready", only "started".</p>
+                    </div>
+                    <div class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg">
+                        <strong class="text-compose-600 dark:text-compose-400">profiles:</strong>
+                        <p class="text-sm mt-1 text-slate-600 dark:text-slate-400">Start specific services only when
+                            requested (e.g., debug tools).</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. Networking -->
+            <section id="network" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">6</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Networking</h2>
+                </div>
+
+                <div class="glass-panel p-6 rounded-xl border-l-4 border-indigo-500">
+                    <h3 class="text-lg font-bold mb-2">Service Discovery (DNS)</h3>
+                    <p class="text-slate-600 dark:text-slate-400 mb-4">
+                        Compose automatically sets up a network for your app. Services can reach each other by using
+                        their <strong>service name</strong> as the hostname.
+                    </p>
+                    <div
+                        class="bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded text-sm text-indigo-900 dark:text-indigo-200 italic">
+                        Example: If your web service needs to talk to your database service named "db", the connection
+                        string is just <code>postgres://user:pass@db:5432</code>. No IPs needed!
+                    </div>
+                </div>
+            </section>
+
+            <!-- 7. Volumes & Persistence -->
+            <section id="volumes" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">7</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Volumes & Persistence</h2>
+                </div>
+
+                <div class="overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left text-sm">
+                        <thead
+                            class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold uppercase">
+                            <tr>
+                                <th class="p-4">Type</th>
+                                <th class="p-4">Syntax</th>
+                                <th class="p-4">Use Case</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-200 dark:divide-slate-700 bg-white dark:bg-slate-900/50">
+                            <tr>
+                                <td class="p-4 font-bold text-purple-600 dark:text-purple-400">Named Volume</td>
+                                <td class="p-4 font-mono text-xs">
+                                    services:<br>
+                                    &nbsp;&nbsp;db:<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;volumes:<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- pg_data:/var/lib/...
+                                </td>
+                                <td class="p-4">Databases. Data managed by Docker. Persists even if container is
+                                    removed.</td>
+                            </tr>
+                            <tr>
+                                <td class="p-4 font-bold text-blue-600 dark:text-blue-400">Bind Mount</td>
+                                <td class="p-4 font-mono text-xs">
+                                    services:<br>
+                                    &nbsp;&nbsp;web:<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;volumes:<br>
+                                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- ./src:/app/src
+                                </td>
+                                <td class="p-4">Development. Live code changes reflect instantly in container.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 8. Variables & Config -->
+            <section id="env" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">8</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Environment Variables</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div
+                        class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <h4 class="font-bold mb-3">1. .env File (Default)</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Compose automatically reads a
+                            <code>.env</code> file in the project root.
+                        </p>
+                        <pre class="bg-slate-900 text-slate-200 p-2 rounded text-xs">
+# .env
+POSTGRES_VERSION=13
+API_KEY=12345</pre>
+                        <p class="text-xs mt-2 text-slate-500">Usage in yaml:
+                            <code>image: postgres:${POSTGRES_VERSION}</code>
+                        </p>
+                    </div>
+                    <div
+                        class="p-6 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <h4 class="font-bold mb-3">2. Environment Block</h4>
+                        <p class="text-sm text-slate-600 dark:text-slate-400 mb-2">Inject vars directly into the
+                            container.</p>
+                        <pre class="bg-slate-900 text-slate-200 p-2 rounded text-xs">
+services:
+  app:
+    environment:
+      - NODE_ENV=production
+      - DB_PASS=${DB_PASS} # Pass-through</pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. Scaling -->
+            <section id="scaling" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">9</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Scaling & Dependencies</h2>
+                </div>
+
+                <div class="bg-slate-900 text-slate-200 p-6 rounded-xl font-mono text-sm shadow-xl mb-4">
+                    <span class="text-pink-400">$</span> docker compose up --scale worker=3 -d
+                </div>
+                <p class="text-slate-600 dark:text-slate-400">
+                    This spins up 3 replicas of the 'worker' service. <br>
+                    <span class="text-orange-600 dark:text-orange-400 font-bold">⚠️ Warning:</span> Do not bind host
+                    ports (e.g., 80:80) when scaling, or you'll get a "Port already allocated" error. Use a reverse
+                    proxy instead.
+                </p>
+            </section>
+
+            <!-- 10. Logging -->
+            <section id="logging" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">10</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Logging & Observability</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded shadow border-l-4 border-green-500">
+                        <strong class="block mb-2">View All Logs</strong>
+                        <code
+                            class="text-sm bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">docker compose logs -f</code>
+                        <p class="text-xs text-slate-500 mt-2">Aggregates output from all services into one stream.</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-6 rounded shadow border-l-4 border-blue-500">
+                        <strong class="block mb-2">Specific Service</strong>
+                        <code
+                            class="text-sm bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">docker compose logs -f web</code>
+                        <p class="text-xs text-slate-500 mt-2">Focus on just the 'web' container.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 11. Security -->
+            <section id="security" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">11</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Security Best Practices</h2>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="p-4 border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/10 rounded-lg">
+                        <h4 class="font-bold text-red-700 dark:text-red-400 flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                            Secrets Management
+                        </h4>
+                        <p class="text-sm mt-1 text-slate-700 dark:text-slate-300">
+                            Never commit <code>.env</code> files containing production API keys or passwords to Git. Add
+                            <code>.env</code> to your <code>.gitignore</code>. Use <strong>Docker Secrets</strong> for
+                            sensitive data in production.
+                        </p>
+                    </div>
+                    <div
+                        class="p-4 border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-900/10 rounded-lg">
+                        <h4 class="font-bold text-indigo-700 dark:text-indigo-400">Least Privilege</h4>
+                        <p class="text-sm mt-1 text-slate-700 dark:text-slate-300">
+                            Don't run containers as root. Use the <code>user: "1000:1000"</code> directive in common
+                            services like Node or Python.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 12. Practical Labs -->
+            <section id="labs" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">12</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Practical Labs</h2>
+                </div>
+
+                <!-- Lab 1: Local Dev -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 p-4 border-b border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer accordion-header">
+                        <h3 class="font-bold text-lg">Lab 1: Local Development (Node + Postgres)</h3>
+                        <svg class="w-6 h-6 chevron transition-transform" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="accordion-content collapsed p-6 space-y-4">
+                        <p class="text-slate-600 dark:text-slate-400">Typical Node.js API with a database. Uses host
+                            binding for easy access.</p>
+                        <pre class="bg-slate-900 text-slate-200 p-4 rounded text-sm overflow-x-auto"><code class="language-yaml">services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_URL=postgres://user:pass@db:5432/myapp
+    depends_on:
+      - db
+    volumes:
+      - ./src:/app/src  # Live Reload
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: myapp
+    ports:
+      - "5432:5432" # Access DB from host tools like DBeaver</code></pre>
+                    </div>
+                </div>
+
+                <!-- Lab 2: Full Stack -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 p-4 border-b border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer accordion-header">
+                        <h3 class="font-bold text-lg">Lab 2: Full Stack (React + Python + Redis)</h3>
+                        <svg class="w-6 h-6 chevron transition-transform" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="accordion-content collapsed p-6 space-y-4">
+                        <p class="text-slate-600 dark:text-slate-400">Complex stack with frontend, backend, and cache.
+                        </p>
+                        <pre class="bg-slate-900 text-slate-200 p-4 rounded text-sm overflow-x-auto"><code class="language-yaml">services:
+  frontend:
+    build: ./frontend
+    ports: ["80:80"] # Production build
+    depends_on: [backend]
+
+  backend:
+    build: ./backend
+    expose: ["8000"] # Only internal access
+    depends_on: [redis]
+
+  redis:
+    image: redis:alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:</code></pre>
+                    </div>
+                </div>
+
+                <!-- Lab 3: Reverse Proxy -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 p-4 border-b border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer accordion-header">
+                        <h3 class="font-bold text-lg">Lab 3: Reverse Proxy (NGINX)</h3>
+                        <svg class="w-6 h-6 chevron transition-transform" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="accordion-content collapsed p-6 space-y-4">
+                        <p class="text-slate-600 dark:text-slate-400">Route path requests /api to backend and / to
+                            frontend.</p>
+                        <pre class="bg-slate-900 text-slate-200 p-4 rounded text-sm overflow-x-auto"><code class="language-yaml">services:
+  proxy:
+    image: nginx:alpine
+    ports: ["80:80"]
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - web
+      - api
+
+  web:
+    image: my-web-app
+
+  api:
+    image: my-api-app</code></pre>
+                    </div>
+                </div>
+
+                <!-- Lab 4: Stateful DB -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 p-4 border-b border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer accordion-header">
+                        <h3 class="font-bold text-lg">Lab 4: Stateful MongoDB Cluster</h3>
+                        <svg class="w-6 h-6 chevron transition-transform" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="accordion-content collapsed p-6 space-y-4">
+                        <p class="text-slate-600 dark:text-slate-400">Running a database with persistent storage.</p>
+                        <pre class="bg-slate-900 text-slate-200 p-4 rounded text-sm overflow-x-auto"><code class="language-yaml">services:
+  mongo:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongo-data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    ports: ["8081:8081"]
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_SERVER: mongo
+
+volumes:
+  mongo-data:</code></pre>
+                    </div>
+                </div>
+
+                <!-- Lab 5: Profiles -->
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                    <div
+                        class="bg-slate-100 dark:bg-slate-700 p-4 border-b border-slate-200 dark:border-slate-600 flex justify-between items-center cursor-pointer accordion-header">
+                        <h3 class="font-bold text-lg">Lab 5: Multi-Env Profiles</h3>
+                        <svg class="w-6 h-6 chevron transition-transform" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </div>
+                    <div class="accordion-content collapsed p-6 space-y-4">
+                        <p class="text-slate-600 dark:text-slate-400">Run extra tools only when needed (e.g., debug).
+                        </p>
+                        <pre class="bg-slate-900 text-slate-200 p-4 rounded text-sm overflow-x-auto"><code class="language-yaml">services:
+  web:
+    image: myapp
+
+  # Only runs with --profile debug
+  # Command: docker compose --profile debug up
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    profiles: ["debug"]
+    depends_on: [db]
+
+  db:
+    image: mysql</code></pre>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 13. Cheatsheet -->
+            <section id="cheatsheet" class="scroll-mt-24 space-y-6">
+                <div class="flex items-center gap-4 mb-8">
+                    <span
+                        class="flex items-center justify-center w-12 h-12 rounded-full bg-compose-100 dark:bg-compose-900 text-compose-600 dark:text-compose-300 font-bold text-xl">13</span>
+                    <h2 class="text-3xl font-bold text-slate-900 dark:text-white">Compose Cheat Sheet</h2>
+                </div>
+
+                <div class="overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-700">
+                    <table class="w-full text-left text-sm whitespace-nowrap">
+                        <thead
+                            class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 uppercase font-bold text-xs">
+                            <tr>
+                                <th class="p-3">Category</th>
+                                <th class="p-3">Command</th>
+                                <th class="p-3">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody
+                            class="bg-white dark:bg-slate-900/50 divide-y divide-slate-200 dark:divide-slate-700 font-mono text-xs md:text-sm">
+                            <!-- Lifecycle -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose up</td>
+                                <td class="p-3">Create and start containers</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose up -d</td>
+                                <td class="p-3">Start in detached mode (background)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose down</td>
+                                <td class="p-3">Stop and remove containers, networks</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose down -v</td>
+                                <td class="p-3">Remove volumes as well (Dangerous!)</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose start</td>
+                                <td class="p-3">Start existing containers</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose stop</td>
+                                <td class="p-3">Stop active containers</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose restart</td>
+                                <td class="p-3">Restart containers</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose build</td>
+                                <td class="p-3">Build or rebuild services</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-green-500 font-bold">Lifecycle</td>
+                                <td class="p-3 font-bold">docker compose pull</td>
+                                <td class="p-3">Pull service images</td>
+                            </tr>
+
+                            <!-- Observability -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-blue-500 font-bold">Logs & Ops</td>
+                                <td class="p-3 font-bold">docker compose logs</td>
+                                <td class="p-3">View output from services</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-blue-500 font-bold">Logs & Ops</td>
+                                <td class="p-3 font-bold">docker compose logs -f</td>
+                                <td class="p-3">Follow log output</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-blue-500 font-bold">Logs & Ops</td>
+                                <td class="p-3 font-bold">docker compose ps</td>
+                                <td class="p-3">List containers</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-blue-500 font-bold">Logs & Ops</td>
+                                <td class="p-3 font-bold">docker compose top</td>
+                                <td class="p-3">Display the running processes</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-blue-500 font-bold">Logs & Ops</td>
+                                <td class="p-3 font-bold">docker compose images</td>
+                                <td class="p-3">List images used</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-blue-500 font-bold">Logs & Ops</td>
+                                <td class="p-3 font-bold">docker compose port</td>
+                                <td class="p-3">Print public port for a port binding</td>
+                            </tr>
+
+                            <!-- Execution -->
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-purple-500 font-bold">Execution</td>
+                                <td class="p-3 font-bold">docker compose exec</td>
+                                <td class="p-3">Execute a command in a running container</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-purple-500 font-bold">Execution</td>
+                                <td class="p-3 font-bold">docker compose run</td>
+                                <td class="p-3">Run a one-off command</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-purple-500 font-bold">Execution</td>
+                                <td class="p-3 font-bold">docker compose cp</td>
+                                <td class="p-3">Copy files/folders between service and local</td>
+                            </tr>
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                                <td class="p-3 font-sans text-purple-500 font-bold">Execution</td>
+                                <td class="p-3 font-bold">docker compose config</td>
+                                <td class="p-3">Validate and view the Compose file</td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Search Modal -->
+    <div id="search-modal" class="fixed inset-0 z-[100] hidden" role="dialog" aria-modal="true">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity" id="search-backdrop"></div>
+        <div class="relative w-full max-w-2xl mx-auto mt-20 sm:mt-32 p-4">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-xl shadow-2xl ring-1 ring-slate-200 dark:ring-slate-700 overflow-hidden flex flex-col max-h-[60vh]">
+                <div class="flex items-center border-b border-slate-100 dark:border-slate-700 p-4 gap-3">
+                    <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input id="search-input" type="text"
+                        class="flex-1 bg-transparent border-none outline-none text-slate-700 dark:text-slate-200 placeholder-slate-400 text-lg"
+                        placeholder="Search documentation... (Cmd+K)">
+                    <button id="search-clear-btn"
+                        class="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hidden">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                    <div class="hidden sm:flex gap-2 text-xs text-slate-400 font-mono">
+                        <span class="border border-slate-200 dark:border-slate-700 rounded px-1.5 py-0.5">ESC</span>
+                    </div>
+                </div>
+                <div id="search-results" class="flex-1 overflow-y-auto p-2 space-y-1">
+                    <div class="p-4 text-center text-sm text-slate-500">Type to search...</div>
+                </div>
+                <div
+                    class="bg-slate-50 dark:bg-slate-900/50 p-3 text-xs text-slate-500 border-t border-slate-100 dark:border-slate-700 flex justify-between items-center">
+                    <div class="flex gap-4">
+                        <span><kbd class="font-sans border border-slate-200 dark:border-slate-700 rounded px-1">↓</kbd>
+                            <kbd class="font-sans border border-slate-200 dark:border-slate-700 rounded px-1">↑</kbd> to
+                            navigate</span>
+                        <span><kbd class="font-sans border border-slate-200 dark:border-slate-700 rounded px-1">↵</kbd>
+                            to select</span>
+                    </div>
+                    <div>
+                        <kbd class="font-sans border border-slate-200 dark:border-slate-700 rounded px-1">Cmd+B</kbd>
+                        Back to Hub
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Start Script
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('mobile-menu-btn');
+        const sidebar = document.getElementById('sidebar');
+
+        menuBtn.addEventListener('click', () => {
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+            }
+        });
+
+        // Dark mode toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const html = document.documentElement;
+
+        // Check local storage or system preference
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            html.classList.add('dark');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark');
+            localStorage.theme = html.classList.contains('dark') ? 'dark' : 'light';
+        });
+
+        // Scroll spy
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 100) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').includes(current)) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Accordion functionality for later sections (if added)
+        document.querySelectorAll('.accordion-header').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                content.classList.toggle('collapsed');
+                button.querySelector('.chevron').classList.toggle('rotate-180');
+            });
+        });
+
+        // Copy to clipboard
+        function addCopyButtons() {
+            document.querySelectorAll('pre code').forEach((codeBlock) => {
+                const pre = codeBlock.parentElement;
+                // Check if button already exists
+                if (pre.querySelector('.copy-btn')) return;
+
+                const button = document.createElement('button');
+                button.className = 'copy-btn bg-slate-700 text-white text-xs px-2 py-1 rounded hover:bg-slate-600';
+                button.innerText = 'Copy';
+
+                button.addEventListener('click', () => {
+                    navigator.clipboard.writeText(codeBlock.innerText);
+                    button.innerText = 'Copied!';
+                    setTimeout(() => { button.innerText = 'Copy'; }, 2000);
+                });
+
+                pre.classList.add('code-block');
+                pre.appendChild(button);
+            });
+        }
+
+        // Auto-run copy buttons on load
+        addCopyButtons();
+
+        // --- SEARCH FUNCTIONALITY ---
+        const searchModal = document.getElementById('search-modal');
+        const searchInput = document.getElementById('search-input');
+        const searchResults = document.getElementById('search-results');
+        const searchClearBtn = document.getElementById('search-clear-btn');
+        const backdrop = document.getElementById('search-backdrop');
+        const sidebarSearch = document.getElementById('sidebar-search'); // New Sidebar Input
+
+        // Index Content
+        let siteIndex = [];
+
+        function buildIndex() {
+            siteIndex = [];
+            document.querySelectorAll('section').forEach(section => {
+                const sectionId = section.id;
+                if (!sectionId) return;
+
+                // Index Headings
+                section.querySelectorAll('h1, h2, h3').forEach(heading => {
+                    siteIndex.push({
+                        id: sectionId,
+                        title: heading.innerText,
+                        type: 'Heading',
+                        el: heading
+                    });
+                });
+
+                // Index Code Blocks (simplified)
+                section.querySelectorAll('pre code').forEach(code => {
+                    const text = code.innerText.slice(0, 50).replace(/\n/g, ' ') + '...';
+                    siteIndex.push({
+                        id: sectionId,
+                        title: text,
+                        type: 'Code',
+                        el: code
+                    });
+                });
+            });
+        }
+
+        // Search Logic
+        function toggleSearch(show) {
+            if (show) {
+                if (siteIndex.length === 0) buildIndex();
+                searchModal.classList.remove('hidden');
+                searchInput.focus();
+                document.body.style.overflow = 'hidden';
+            } else {
+                searchModal.classList.add('hidden');
+                document.body.style.overflow = '';
+                searchInput.value = '';
+                if (sidebarSearch) sidebarSearch.value = ''; // Clear sidebar input too
+                renderResults([]);
+            }
+        }
+
+        function renderResults(results) {
+            searchResults.innerHTML = '';
+
+            if (results.length === 0 && searchInput.value.trim() !== '') {
+                searchResults.innerHTML = `<div class="p-4 text-center text-sm text-slate-500">No results found for "${searchInput.value}"</div>`;
+                return;
+            }
+
+            if (searchInput.value.trim() === '') {
+                searchResults.innerHTML = `<div class="p-4 text-center text-sm text-slate-500">Type to search docs...</div>`;
+                return;
+            }
+
+            results.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-lg cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-700/50 flex items-center justify-between group ${index === 0 ? 'bg-slate-100 dark:bg-slate-700/50 selected-result' : ''}`;
+                div.dataset.index = index;
+
+                div.innerHTML = `
+                    <div>
+                        <div class="text-sm font-semibold text-slate-700 dark:text-slate-200">${item.title}</div>
+                        <div class="text-xs text-slate-500 uppercase font-mono mt-0.5">${item.type} • ${item.id}</div>
+                    </div>
+                    <div class="text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs">Jump →</div>
+                `;
+
+                div.addEventListener('click', () => {
+                    toggleSearch(false);
+                    // Scroll to element with offset
+                    const y = item.el.getBoundingClientRect().top + window.scrollY - 100;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                });
+
+                searchResults.appendChild(div);
+            });
+
+            // Show/Hide Clear Button
+            searchClearBtn.classList.toggle('hidden', searchInput.value === '');
+        }
+
+        function handleSearch(query) {
+            if (!query) {
+                renderResults([]);
+                return;
+            }
+            const q = query.toLowerCase();
+            const results = siteIndex.filter(item => item.title.toLowerCase().includes(q));
+            renderResults(results);
+        }
+
+        // Event Listeners
+        document.addEventListener('keydown', (e) => {
+            // Cmd+K to open
+            if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+                e.preventDefault();
+                toggleSearch(true);
+            }
+            // Cmd+B to back
+            if ((e.metaKey || e.ctrlKey) && e.key === 'b') {
+                e.preventDefault();
+                window.location.href = 'python_hub.html';
+            }
+            // Esc to close
+            if (e.key === 'Escape') {
+                if (!searchModal.classList.contains('hidden')) {
+                    e.preventDefault();
+                    if (searchInput.value !== '') {
+                        searchInput.value = '';
+                        renderResults([]);
+                        searchClearBtn.classList.add('hidden');
+                    } else {
+                        toggleSearch(false);
+                    }
+                }
+            }
+
+            // Navigation
+            if (!searchModal.classList.contains('hidden')) {
+                const items = searchResults.querySelectorAll('div[data-index]');
+                const current = searchResults.querySelector('.selected-result');
+                let currentIndex = current ? parseInt(current.dataset.index) : -1;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    let nextIndex = currentIndex + 1;
+                    if (nextIndex >= items.length) nextIndex = 0;
+                    updateSelection(items, nextIndex);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    let prevIndex = currentIndex - 1;
+                    if (prevIndex < 0) prevIndex = items.length - 1;
+                    updateSelection(items, prevIndex);
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (current) current.click();
+                }
+            }
+        });
+
+        function updateSelection(items, index) {
+            items.forEach(i => i.classList.remove('selected-result', 'bg-slate-100', 'dark:bg-slate-700/50'));
+            if (items[index]) {
+                items[index].classList.add('selected-result', 'bg-slate-100', 'dark:bg-slate-700/50');
+                items[index].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        searchInput.addEventListener('input', (e) => handleSearch(e.target.value));
+
+        searchClearBtn.addEventListener('click', () => {
+            searchInput.value = '';
+            searchInput.focus();
+            renderResults([]);
+        });
+
+        backdrop.addEventListener('click', () => toggleSearch(false));
+
+        // Connect Sidebar Search
+        if (sidebarSearch) {
+            sidebarSearch.addEventListener('focus', () => {
+                toggleSearch(true);
+            });
+            sidebarSearch.addEventListener('input', (e) => {
+                toggleSearch(true); // Ensure modal is open
+                searchInput.value = e.target.value; // Sync with modal input
+                handleSearch(e.target.value);
+            });
+        }
+
+    </script>
+</body>
+
+</html>

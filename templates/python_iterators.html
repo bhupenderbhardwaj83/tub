@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Iterators & Generators - Tutorial</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        .home-button { position: fixed; top: 20px; left: 20px; z-index: 1000; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 24px; border-radius: 12px; text-decoration: none; font-weight: 600; font-size: 0.95em; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s ease; }
+        .home-button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+        .home-button::before { content: '🏠'; font-size: 1.2em; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #e2e8f0; padding: 30px 20px; line-height: 1.6; }
+        .container { max-width: 1400px; margin: 0 auto; background: #0f172a; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); border: 1px solid #1e293b; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); padding: 50px 40px; text-align: center; }
+        .header h1 { font-size: 3em; font-weight: 700; color: white; margin-bottom: 10px; }
+        .header p { font-size: 1.2em; color: rgba(255,255,255,0.95); }
+        .nav-links { background: #1e293b; padding: 15px 30px; border-bottom: 2px solid #334155; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+        .nav-link { padding: 8px 16px; background: #334155; color: #94a3b8; text-decoration: none; border-radius: 8px; font-size: 0.9em; transition: all 0.3s ease; font-weight: 500; }
+        .nav-link:hover { background: #ec4899; color: white; }
+        .content { padding: 40px; }
+        .section { margin-bottom: 45px; }
+        .section-title { font-size: 2em; font-weight: 600; color: #f472b6; margin-bottom: 25px; padding-bottom: 12px; border-bottom: 2px solid #1e293b; display: flex; align-items: center; }
+        .section-title::before { content: ''; width: 6px; height: 32px; background: #ec4899; margin-right: 15px; border-radius: 3px; }
+        .concept-box { background: #1e293b; border-radius: 12px; padding: 25px; margin-bottom: 25px; border: 1px solid #334155; transition: all 0.3s ease; }
+        .concept-box:hover { border-color: #ec4899; box-shadow: 0 8px 20px rgba(236, 72, 153, 0.15); }
+        .concept-header { font-size: 1.25em; font-weight: 600; color: #fbcfe8; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        .concept-header::before { content: '▸'; color: #ec4899; font-size: 1.2em; }
+        .label { display: inline-block; padding: 5px 12px; border-radius: 6px; font-size: 0.85em; font-weight: 700; margin-bottom: 12px; text-transform: uppercase; }
+        .label-what { background: #ec4899; color: white; }
+        .label-example { background: #10b981; color: white; }
+        .description { color: #cbd5e1; font-size: 1.05em; margin-bottom: 18px; line-height: 1.7; }
+        .code-block { background: #020817; border: 1px solid #1e293b; border-radius: 10px; padding: 20px; margin: 15px 0; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 0.95em; position: relative; }
+        .code-block::before { content: 'PYTHON'; position: absolute; top: 8px; right: 80px; font-size: 0.7em; color: #475569; font-weight: 600; }
+        .copy-btn { position: absolute; top: 8px; right: 15px; background: #ec4899; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.75em; cursor: pointer; font-weight: 600; transition: all 0.3s ease; }
+        .copy-btn:hover { background: #f472b6; }
+        .copy-btn.copied { background: #10b981; }
+        .code-block pre { margin: 0; line-height: 1.8; white-space: pre; color: #e2e8f0; }
+        .kw { color: #f472b6; font-weight: 600; }
+        .fn { color: #60a5fa; }
+        .str { color: #34d399; }
+        .num { color: #fbbf24; }
+        .cmt { color: #64748b; font-style: italic; }
+        .var { color: #e2e8f0; }
+        .back-to-top { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #ec4899; color: white; text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease; }
+        .back-to-top:hover { background: #f472b6; transform: translateY(-2px); }
+        .tip-box { background: linear-gradient(135deg, #1e3a5f 0%, #1e3a4f 100%); border-left: 4px solid #ec4899; padding: 18px 22px; margin: 20px 0; border-radius: 8px; color: #fbcfe8; }
+        .real-world { background: linear-gradient(135deg, #2e1f3a 0%, #3a1f2e 100%); border: 2px solid #ec4899; padding: 20px; margin: 20px 0; border-radius: 12px; }
+        .real-world-title { color: #fbcfe8; font-weight: 600; font-size: 1.1em; margin-bottom: 12px; }
+        .real-world-title::before { content: '💡 '; }
+    </style>
+</head>
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 Iterators & Generators</h1>
+            <p>Master yield, lazy evaluation, and the iterator protocol</p>
+        </div>
+        <div class="nav-links">
+            <a href="#protocol" class="nav-link">Iterator Protocol</a>
+            <a href="#generators" class="nav-link">Generators</a>
+            <a href="#yield" class="nav-link">yield Keyword</a>
+            <a href="#itertools" class="nav-link">itertools Module</a>
+            <a href="#expressions" class="nav-link">Generator Expressions</a>
+        </div>
+        <div class="content">
+            <div id="protocol" class="section">
+                <h2 class="section-title">Iterator Protocol</h2>
+                <div class="concept-box">
+                    <div class="concept-header">What is an Iterator?</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        An iterator is an object that implements __iter__() and __next__() methods. It allows you to traverse through all elements one at a time.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># Any iterable (list, tuple, string)</span>
+<span class="var">nums</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>]
+<span class="var">iterator</span> = <span class="fn">iter</span>(<span class="var">nums</span>)  <span class="cmt"># Get iterator</span>
+
+<span class="fn">print</span>(<span class="fn">next</span>(<span class="var">iterator</span>))  <span class="cmt"># 1</span>
+<span class="fn">print</span>(<span class="fn">next</span>(<span class="var">iterator</span>))  <span class="cmt"># 2</span>
+<span class="fn">print</span>(<span class="fn">next</span>(<span class="var">iterator</span>))  <span class="cmt"># 3</span>
+<span class="cmt"># next(iterator)  # Raises StopIteration</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Custom Iterator Class</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">Counter</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">start</span>, <span class="var">end</span>):
+        <span class="var">self</span>.<span class="var">current</span> = <span class="var">start</span>
+        <span class="var">self</span>.<span class="var">end</span> = <span class="var">end</span>
+    
+    <span class="kw">def</span> <span class="fn">__iter__</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="var">self</span>
+    
+    <span class="kw">def</span> <span class="fn">__next__</span>(<span class="var">self</span>):
+        <span class="kw">if</span> <span class="var">self</span>.<span class="var">current</span> > <span class="var">self</span>.<span class="var">end</span>:
+            <span class="kw">raise</span> <span class="fn">StopIteration</span>
+        <span class="var">num</span> = <span class="var">self</span>.<span class="var">current</span>
+        <span class="var">self</span>.<span class="var">current</span> += <span class="num">1</span>
+        <span class="kw">return</span> <span class="var">num</span>
+
+<span class="cmt"># Usage</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">Counter</span>(<span class="num">1</span>, <span class="num">5</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)  <span class="cmt"># 1, 2, 3, 4, 5</span></pre>
+                    </div>
+                </div>
+                
+                <div class="real-world">
+                    <div class="real-world-title">Real-World Example: File Reader Iterator</div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">class</span> <span class="fn">FileReader</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="var">self</span>, <span class="var">filename</span>):
+        <span class="var">self</span>.<span class="var">file</span> = <span class="fn">open</span>(<span class="var">filename</span>, <span class="str">'r'</span>)
+    
+    <span class="kw">def</span> <span class="fn">__iter__</span>(<span class="var">self</span>):
+        <span class="kw">return</span> <span class="var">self</span>
+    
+    <span class="kw">def</span> <span class="fn">__next__</span>(<span class="var">self</span>):
+        <span class="var">line</span> = <span class="var">self</span>.<span class="var">file</span>.<span class="fn">readline</span>()
+        <span class="kw">if not</span> <span class="var">line</span>:
+            <span class="var">self</span>.<span class="var">file</span>.<span class="fn">close</span>()
+            <span class="kw">raise</span> <span class="fn">StopIteration</span>
+        <span class="kw">return</span> <span class="var">line</span>.<span class="fn">strip</span>()
+
+<span class="cmt"># Read file line by line without loading all into memory</span>
+<span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="fn">FileReader</span>(<span class="str">'data.txt'</span>):
+    <span class="fn">print</span>(<span class="var">line</span>)</pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="generators" class="section">
+                <h2 class="section-title">Generators</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Generator Functions</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Generators are functions that use yield instead of return. They produce values one at a time, saving memory.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">countdown</span>(<span class="var">n</span>):
+    <span class="kw">while</span> <span class="var">n</span> > <span class="num">0</span>:
+        <span class="kw">yield</span> <span class="var">n</span>
+        <span class="var">n</span> -= <span class="num">1</span>
+
+<span class="cmt"># Generator object (lazy)</span>
+<span class="var">gen</span> = <span class="fn">countdown</span>(<span class="num">5</span>)
+
+<span class="fn">print</span>(<span class="fn">next</span>(<span class="var">gen</span>))  <span class="cmt"># 5</span>
+<span class="fn">print</span>(<span class="fn">next</span>(<span class="var">gen</span>))  <span class="cmt"># 4</span>
+
+<span class="cmt"># Or use in loop</span>
+<span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">countdown</span>(<span class="num">3</span>):
+    <span class="fn">print</span>(<span class="var">i</span>)  <span class="cmt"># 3, 2, 1</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Fibonacci Generator</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">fibonacci</span>(<span class="var">n</span>):
+    <span class="var">a</span>, <span class="var">b</span> = <span class="num">0</span>, <span class="num">1</span>
+    <span class="kw">for</span> <span class="var">_</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">n</span>):
+        <span class="kw">yield</span> <span class="var">a</span>
+        <span class="var">a</span>, <span class="var">b</span> = <span class="var">b</span>, <span class="var">a</span> + <span class="var">b</span>
+
+<span class="cmt"># Get first 10 Fibonacci numbers</span>
+<span class="var">fib_nums</span> = <span class="fn">list</span>(<span class="fn">fibonacci</span>(<span class="num">10</span>))
+<span class="fn">print</span>(<span class="var">fib_nums</span>)
+<span class="cmt"># [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Infinite Generator</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">infinite_sequence</span>():
+    <span class="var">num</span> = <span class="num">0</span>
+    <span class="kw">while</span> <span class="kw">True</span>:
+        <span class="kw">yield</span> <span class="var">num</span>
+        <span class="var">num</span> += <span class="num">1</span>
+
+<span class="var">gen</span> = <span class="fn">infinite_sequence</span>()
+
+<span class="cmt"># Take only what you need</span>
+<span class="fn">print</span>(<span class="fn">next</span>(<span class="var">gen</span>))  <span class="cmt"># 0</span>
+<span class="fn">print</span>(<span class="fn">next</span>(<span class="var">gen</span>))  <span class="cmt"># 1</span>
+<span class="fn">print</span>(<span class="fn">next</span>(<span class="var">gen</span>))  <span class="cmt"># 2</span>
+
+<span class="cmt"># Or with islice</span>
+<span class="kw">from</span> <span class="var">itertools</span> <span class="kw">import</span> <span class="var">islice</span>
+<span class="var">first_10</span> = <span class="fn">list</span>(<span class="fn">islice</span>(<span class="fn">infinite_sequence</span>(), <span class="num">10</span>))
+<span class="fn">print</span>(<span class="var">first_10</span>)  <span class="cmt"># [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="yield" class="section">
+                <h2 class="section-title">yield Keyword</h2>
+                <div class="concept-box">
+                    <div class="concept-header">yield vs return</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        yield pauses the function and saves its state. return terminates the function completely.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># With return - creates entire list in memory</span>
+<span class="kw">def</span> <span class="fn">get_squares_return</span>(<span class="var">n</span>):
+    <span class="var">result</span> = []
+    <span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">n</span>):
+        <span class="var">result</span>.<span class="fn">append</span>(<span class="var">i</span> * <span class="var">i</span>)
+    <span class="kw">return</span> <span class="var">result</span>
+
+<span class="cmt"># With yield - generates values one at a time</span>
+<span class="kw">def</span> <span class="fn">get_squares_yield</span>(<span class="var">n</span>):
+    <span class="kw">for</span> <span class="var">i</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="var">n</span>):
+        <span class="kw">yield</span> <span class="var">i</span> * <span class="var">i</span>
+
+<span class="cmt"># Memory efficient for large datasets</span>
+<span class="kw">for</span> <span class="var">square</span> <span class="kw">in</span> <span class="fn">get_squares_yield</span>(<span class="num">1000000</span>):
+    <span class="kw">pass</span>  <span class="cmt"># Uses minimal memory</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">yield from (Delegation)</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">chain</span>(*<span class="var">iterables</span>):
+    <span class="kw">for</span> <span class="var">iterable</span> <span class="kw">in</span> <span class="var">iterables</span>:
+        <span class="kw">yield from</span> <span class="var">iterable</span>
+
+<span class="var">result</span> = <span class="fn">list</span>(<span class="fn">chain</span>([<span class="num">1</span>, <span class="num">2</span>], [<span class="num">3</span>, <span class="num">4</span>], [<span class="num">5</span>]))
+<span class="fn">print</span>(<span class="var">result</span>)  <span class="cmt"># [1, 2, 3, 4, 5]</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="itertools" class="section">
+                <h2 class="section-title">itertools Module</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Essential itertools Functions</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">itertools</span> <span class="kw">import</span> *
+
+<span class="cmt"># count() - infinite counter</span>
+<span class="var">counter</span> = <span class="fn">count</span>(<span class="num">10</span>, <span class="num">2</span>)  <span class="cmt"># Start at 10, step by 2</span>
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="fn">islice</span>(<span class="var">counter</span>, <span class="num">5</span>)))  <span class="cmt"># [10, 12, 14, 16, 18]</span>
+
+<span class="cmt"># cycle() - repeat indefinitely</span>
+<span class="var">colors</span> = <span class="fn">cycle</span>([<span class="str">'red'</span>, <span class="str">'green'</span>, <span class="str">'blue'</span>])
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="fn">islice</span>(<span class="var">colors</span>, <span class="num">7</span>)))
+<span class="cmt"># ['red', 'green', 'blue', 'red', 'green', 'blue', 'red']</span>
+
+<span class="cmt"># repeat() - repeat value n times</span>
+<span class="var">repeated</span> = <span class="fn">repeat</span>(<span class="str">'A'</span>, <span class="num">3</span>)
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="var">repeated</span>))  <span class="cmt"># ['A', 'A', 'A']</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Combinatoric Functions</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">itertools</span> <span class="kw">import</span> <span class="var">permutations</span>, <span class="var">combinations</span>, <span class="var">product</span>
+
+<span class="cmt"># permutations() - all orderings</span>
+<span class="var">perms</span> = <span class="fn">permutations</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], <span class="num">2</span>)
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="var">perms</span>))
+<span class="cmt"># [(1, 2), (1, 3), (2, 1), (2, 3), (3, 1), (3, 2)]</span>
+
+<span class="cmt"># combinations() - unique sets</span>
+<span class="var">combs</span> = <span class="fn">combinations</span>([<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>], <span class="num">2</span>)
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="var">combs</span>))  <span class="cmt"># [(1, 2), (1, 3), (2, 3)]</span>
+
+<span class="cmt"># product() - cartesian product</span>
+<span class="var">prod</span> = <span class="fn">product</span>([<span class="num">1</span>, <span class="num">2</span>], [<span class="str">'a'</span>, <span class="str">'b'</span>])
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="var">prod</span>))
+<span class="cmt"># [(1, 'a'), (1, 'b'), (2, 'a'), (2, 'b')]</span></pre>
+                    </div>
+                </div>
+                
+                <div class="concept-box">
+                    <div class="concept-header">Grouping & Filtering</div>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">from</span> <span class="var">itertools</span> <span class="kw">import</span> <span class="var">groupby</span>, <span class="var">dropwhile</span>, <span class="var">takewhile</span>
+
+<span class="cmt"># groupby() - group consecutive items</span>
+<span class="var">data</span> = [<span class="str">'A'</span>, <span class="str">'A'</span>, <span class="str">'B'</span>, <span class="str">'B'</span>, <span class="str">'B'</span>, <span class="str">'C'</span>]
+<span class="kw">for</span> <span class="var">key</span>, <span class="var">group</span> <span class="kw">in</span> <span class="fn">groupby</span>(<span class="var">data</span>):
+    <span class="fn">print</span>(<span class="str">f"<span class="var">{key}</span>: <span class="var">{list(group)}</span>"</span>)
+<span class="cmt"># A: ['A', 'A']</span>
+<span class="cmt"># B: ['B', 'B', 'B']</span>
+<span class="cmt"># C: ['C']</span>
+
+<span class="cmt"># takewhile() - take until condition fails</span>
+<span class="var">nums</span> = [<span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">1</span>, <span class="num">2</span>]
+<span class="var">result</span> = <span class="fn">takewhile</span>(<span class="kw">lambda</span> <span class="var">x</span>: <span class="var">x</span> < <span class="num">4</span>, <span class="var">nums</span>)
+<span class="fn">print</span>(<span class="fn">list</span>(<span class="var">result</span>))  <span class="cmt"># [1, 2, 3]</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div id="expressions" class="section">
+                <h2 class="section-title">Generator Expressions</h2>
+                <div class="concept-box">
+                    <div class="concept-header">Generator vs List Comprehension</div>
+                    <span class="label label-what">WHAT IT DOES</span>
+                    <p class="description">
+                        Generator expressions use () instead of []. They're memory efficient for large datasets.
+                    </p>
+                    <span class="label label-example">EXAMPLE</span>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="cmt"># List comprehension - creates entire list</span>
+<span class="var">squares_list</span> = [<span class="var">x</span>**<span class="num">2</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1000000</span>)]
+
+<span class="cmt"># Generator expression - lazy evaluation</span>
+<span class="var">squares_gen</span> = (<span class="var">x</span>**<span class="num">2</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">1000000</span>))
+
+<span class="cmt"># Memory efficient</span>
+<span class="kw">import</span> <span class="var">sys</span>
+<span class="fn">print</span>(<span class="var">sys</span>.<span class="fn">getsizeof</span>(<span class="var">squares_list</span>))  <span class="cmt"># Large size</span>
+<span class="fn">print</span>(<span class="var">sys</span>.<span class="fn">getsizeof</span>(<span class="var">squares_gen</span>))   <span class="cmt"># Small size</span>
+
+<span class="cmt"># Use in functions that accept iterables</span>
+<span class="fn">print</span>(<span class="fn">sum</span>(<span class="var">x</span>**<span class="num">2</span> <span class="kw">for</span> <span class="var">x</span> <span class="kw">in</span> <span class="fn">range</span>(<span class="num">10</span>)))  <span class="cmt"># 285</span></pre>
+                    </div>
+                </div>
+                
+                <div class="real-world">
+                    <div class="real-world-title">Real-World Example: Log File Processing</div>
+                    <div class="code-block">
+                        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+                        <pre><span class="kw">def</span> <span class="fn">process_large_log</span>(<span class="var">filename</span>):
+    <span class="cmt"># Generator to read file line by line</span>
+    <span class="kw">with</span> <span class="fn">open</span>(<span class="var">filename</span>) <span class="kw">as</span> <span class="var">f</span>:
+        <span class="kw">for</span> <span class="var">line</span> <span class="kw">in</span> <span class="var">f</span>:
+            <span class="kw">if</span> <span class="str">'ERROR'</span> <span class="kw">in</span> <span class="var">line</span>:
+                <span class="kw">yield</span> <span class="var">line</span>.<span class="fn">strip</span>()
+
+<span class="cmt"># Process only errors without loading entire file</span>
+<span class="kw">for</span> <span class="var">error</span> <span class="kw">in</span> <span class="fn">process_large_log</span>(<span class="str">'app.log'</span>):
+    <span class="fn">print</span>(<span class="var">error</span>)  <span class="cmt"># Memory efficient!</span></pre>
+                    </div>
+                </div>
+                <a href="#" class="back-to-top">↑ Back to Top</a>
+            </div>
+            
+            <div class="tip-box">
+                <strong>Next Steps:</strong> Explore File Handling to work with different file formats and context managers!
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function copyCode(button) {
+            const codeBlock = button.nextElementSibling;
+            const code = codeBlock.textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                setTimeout(() => {
+                    button.textContent = 'Copy';
+                    button.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+    </script>
+</body>
+</html>

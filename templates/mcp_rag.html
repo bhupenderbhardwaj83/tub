@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP & RAG - The Future of Context-Aware AI</title>
+    <link rel="stylesheet" href="/default.css">
+    <style>
+        /* 
+         * Theme Configuration
+         */
+        :root {
+            /* Cyan/Teal Theme for AI/Tech vibe */
+            --primary: #06b6d4;
+            --primary-hover: #22d3ee;
+            --secondary: #3b82f6;
+            --accent: #8b5cf6;
+
+            --bg-body-grad: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --text-accent: #22d3ee;
+            --grad-primary: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+        }
+
+        /* Essential Layout Styles matching template */
+        .label {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .code-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            /* Compact gap */
+            margin: 15px 0;
+            /* Compact margin */
+        }
+
+        .code-grid .code-block {
+            margin: 0;
+            height: 100%;
+        }
+
+        .method-card {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            /* Compact gap */
+        }
+
+        .method-header {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            /* Compact gap */
+            padding-bottom: 8px;
+            /* Compact padding */
+            border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+        }
+
+        .method-header .fn {
+            font-size: 1.05em;
+            /* Slightly smaller */
+            background: transparent;
+            padding: 0;
+            color: var(--primary-hover);
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .method-def {
+            font-size: 0.85em;
+            color: #94a3b8;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.4;
+            font-weight: 400;
+        }
+
+        .code-example {
+            position: relative;
+            background: #0b1120;
+            border-radius: 8px;
+            padding: 12px;
+            /* Compact padding */
+            border: 1px solid #1e293b;
+            font-size: 0.9em;
+            /* Slightly smaller text */
+        }
+
+        .code-example pre {
+            margin: 0;
+            white-space: pre-wrap;
+        }
+
+        /* Visualization Box for Diagrams */
+        .viz-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 15px;
+            /* Compact padding */
+            margin: 15px 0;
+            /* Compact margin */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .viz-diagram {
+            font-family: monospace;
+            white-space: pre;
+            line-height: 1.2;
+            color: #e2e8f0;
+            background: #0f172a;
+            padding: 15px;
+            /* Compact padding */
+            border-radius: 8px;
+            border: 1px dashed #475569;
+            overflow-x: auto;
+            width: 100%;
+            text-align: left;
+        }
+
+        .highlight-text {
+            color: var(--text-accent);
+            font-weight: 600;
+        }
+
+        /* Specific styles for method cards copy button */
+        .method-card .copy-btn {
+            top: 8px;
+            right: 8px;
+            padding: 4px 8px;
+            font-size: 0.7em;
+            background: #1e293b;
+            border: 1px solid #334155;
+            opacity: 0.8;
+            color: #ccc;
+            cursor: pointer;
+            border-radius: 4px;
+            position: absolute;
+        }
+
+        .method-card .copy-btn:hover {
+            opacity: 1;
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+        }
+
+        /* Expander Styles */
+        .mcp-details {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid #334155;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            /* Compact margin */
+            overflow: hidden;
+        }
+
+        .mcp-summary {
+            padding: 10px 14px;
+            /* Compact padding */
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15, 23, 42, 0.8);
+            color: #e2e8f0;
+            list-style: none;
+            font-size: 0.95em;
+        }
+
+        .mcp-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .mcp-summary::after {
+            content: '+';
+            font-size: 1.2em;
+            font-weight: bold;
+            color: var(--primary);
+            transition: transform 0.2s;
+        }
+
+        details[open] .mcp-summary::after {
+            transform: rotate(45deg);
+        }
+
+        .mcp-content {
+            padding: 12px;
+            /* Compact padding */
+            border-top: 1px solid #334155;
+            background: rgba(15, 23, 42, 0.4);
+            font-size: 0.9em;
+            color: #cbd5e1;
+        }
+
+        .json-key {
+            color: #f472b6;
+        }
+
+        .json-string {
+            color: #a5b4fc;
+        }
+
+        .json-num {
+            color: #fdba74;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 15px;
+            /* Compact gap */
+            margin-bottom: 15px;
+            /* Compact margin */
+        }
+
+        .img-fluid-shadow {
+            max-width: 60%;
+            /* Reduced to 60% as requested */
+            border-radius: 12px;
+            margin: 15px 0;
+            /* Compact margin */
+            border: 1px solid #334155;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Workflow Step Styles */
+        .workflow-box {
+            background: rgba(30, 41, 59, 0.3);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            /* Compact padding */
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            /* Compact gap */
+            margin-top: 15px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            /* Compact gap */
+            background: rgba(15, 23, 42, 0.6);
+            padding: 10px 15px;
+            /* Compact padding */
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .step-num {
+            background: var(--primary);
+            color: #000;
+            font-weight: bold;
+            width: 22px;
+            /* Smaller */
+            height: 22px;
+            /* Smaller */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8em;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            font-size: 0.9em;
+            color: #e2e8f0;
+        }
+
+        .step-highlight {
+            color: var(--primary-hover);
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Course Video Section Styles */
+        .course-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            align-items: start;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%;
+            /* 16:9 Aspect Ratio */
+            height: 0;
+            width: 100%;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .chapters-list {
+            height: 100%;
+            max-height: 620px;
+            /* Match approximate video height */
+            overflow-y: auto;
+            background: rgba(30, 41, 59, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #334155;
+        }
+
+        .chapters-list h3 {
+            margin: 0 0 15px 0;
+            font-size: 1.1em;
+            color: var(--primary);
+            border-bottom: 1px solid #334155;
+            padding-bottom: 10px;
+        }
+
+        .chapter-group {
+            margin-bottom: 15px;
+        }
+
+        .chapter-group-title {
+            font-size: 0.85em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .chapter-item {
+            display: flex;
+            gap: 10px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85em;
+            color: #cbd5e1;
+            transition: color 0.2s;
+        }
+
+        .chapter-item:hover {
+            color: var(--primary-hover);
+        }
+
+        .timestamp {
+            font-family: monospace;
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 900px) {
+            .course-container {
+                grid-template-columns: 1fr;
+            }
+
+            .chapters-list {
+                max-height: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="python_hub.html" class="home-button">Back to Hub</a>
+    <button class="mobile-menu-toggle">☰</button>
+
+    <div class="tutorial-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-title">🤖 MCP & RAG</div>
+
+            <div class="search-container">
+                <div style="position: relative;">
+                    <input type="text" class="search-input" id="sidebarSearch" placeholder="Search topics...">
+                    <button id="searchClear" class="search-clear-btn" aria-label="Clear search">&times;</button>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Course: Building MCP</div>
+                    <a href="#mod-0-orientation" class="sidebar-link" tabindex="0">0. Orientation & Mental Model</a>
+                    <a href="#mod-1-arch" class="sidebar-link" tabindex="0">1. Architecture & Concepts</a>
+                    <a href="#mod-2-skeleton" class="sidebar-link" tabindex="0">2. Server Skeleton (FastMCP)</a>
+                    <a href="#mod-3-resources" class="sidebar-link" tabindex="0">3. Resources (Knowledge)</a>
+                    <a href="#mod-4-tools" class="sidebar-link" tabindex="0">4. Tools (Action Layer)</a>
+                    <a href="#mod-5-prompts" class="sidebar-link" tabindex="0">5. Prompts (Intelligence)</a>
+                    <a href="#mod-6-clients" class="sidebar-link" tabindex="0">6. Client Fundamentals</a>
+                    <a href="#mod-7-sampling" class="sidebar-link" tabindex="0">7. Sampling (LLM Loop)</a>
+                    <a href="#mod-8-elicitation" class="sidebar-link" tabindex="0">8. Elicitation (Human Loop)</a>
+                    <a href="#mod-9-roots" class="sidebar-link" tabindex="0">9. Roots, Context & Progress</a>
+                    <a href="#mod-10-security" class="sidebar-link" tabindex="0">10. Security & Trust</a>
+                    <a href="#mod-11-inspector" class="sidebar-link" tabindex="0">11. Inspector & Observability</a>
+                    <a href="#mod-12-deploy" class="sidebar-link" tabindex="0">12. Deployment Patterns</a>
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Capstone & Extras</div>
+                    <a href="#capstone-project" class="sidebar-link" tabindex="0">Final Capstone Project</a>
+                    <a href="#bonus-rag" class="sidebar-link" tabindex="0">Bonus: RAG & Unified Stack</a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="main-header">
+                <h1 class="main-title">🤖 Model Context Protocol (MCP) & RAG</h1>
+                <p class="main-subtitle">The Complete Guide to Building Context-Aware AI Agents</p>
+                <p class="shortcuts-hint">⌨️ <code>cmd+k or /</code> Search · <code>Esc</code> Clear · <code>⌘B</code>
+                    Back to Hub</p>
+            </div>
+
+            <div class="content-wrapper">
+
+                <!-- VIDEO SECTION -->
+                <!-- VIDEO SECTION -->
+                <div class="section" style="margin-bottom: 30px;">
+                    <div class="course-container">
+                        <div class="video-wrapper">
+                            <iframe src="https://www.youtube.com/embed/I7_WXKhyGms" title="MCP and RAG Explained"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                allowfullscreen>
+                            </iframe>
+                        </div>
+                        <div class="chapters-list">
+                            <h3>🎓 Course Index</h3>
+
+                            <div class="chapter-group">
+                                <div class="chapter-group-title">Part 1: Retrieval Augmented Generation (RAG)</div>
+                                <div class="chapter-item"><span class="timestamp">0:00:00</span> Course Overview</div>
+                                <div class="chapter-item"><span class="timestamp">0:00:52</span> The Simplest
+                                    Explanation of RAG</div>
+                                <div class="chapter-item"><span class="timestamp">0:01:50</span> Real-world Use Case:
+                                    Internal Policy Chatbot</div>
+                                <div class="chapter-item"><span class="timestamp">0:02:41</span> Understanding
+                                    Retrieval, Augmenting, and Generation</div>
+                                <div class="chapter-item"><span class="timestamp">0:04:12</span> When to use Prompt
+                                    Engineering, Fine-Tuning, or RAG</div>
+                                <div class="chapter-item"><span class="timestamp">0:06:40</span> Solving Voice and Style
+                                    with Fine-Tuning</div>
+                                <div class="chapter-item"><span class="timestamp">0:08:15</span> Why RAG is Best for
+                                    Dynamic Factual Information</div>
+                                <div class="chapter-item"><span class="timestamp">0:09:36</span> Keyword Search
+                                    Techniques: TF-IDF and BM25</div>
+                                <div class="chapter-item"><span class="timestamp">0:13:12</span> Hands-on Lab 1: Basic
+                                    Search and Keyword Limitations</div>
+                                <div class="chapter-item"><span class="timestamp">0:16:10</span> Introduction to
+                                    Semantic Search and Meaning</div>
+                                <div class="chapter-item"><span class="timestamp">0:18:01</span> Embedding Models:
+                                    Parameter Size and Local vs. API Models</div>
+                                <div class="chapter-item"><span class="timestamp">0:20:04</span> How Embeddings Convert
+                                    Text into Mathematical Vectors</div>
+                                <div class="chapter-item"><span class="timestamp">0:22:00</span> Vector Similarity and
+                                    the Dot Product</div>
+                                <div class="chapter-item"><span class="timestamp">0:27:08</span> Hands-on Lab 2:
+                                    Implementing Semantic Search with Embedding Models</div>
+                                <div class="chapter-item"><span class="timestamp">0:30:54</span> Scaling with Vector
+                                    Databases: Chroma and Pinecone</div>
+                                <div class="chapter-item"><span class="timestamp">0:32:15</span> Indexing Algorithms:
+                                    HNSW, IVF, and LSH</div>
+                                <div class="chapter-item"><span class="timestamp">0:35:53</span> Hands-on Lab 3:
+                                    Initializing and Querying a Vector Database</div>
+                                <div class="chapter-item"><span class="timestamp">0:39:21</span> The Precision Problem:
+                                    Why Document Chunking is Essential</div>
+                                <div class="chapter-item"><span class="timestamp">0:41:40</span> Chunking Strategies:
+                                    Fixed-size, Overlap, and Boundary Rules</div>
+                                <div class="chapter-item"><span class="timestamp">0:44:28</span> Hands-on Lab 4:
+                                    Document Chunking and Optimized Retrieval</div>
+                                <div class="chapter-item"><span class="timestamp">0:48:49</span> Bringing it All
+                                    Together: The RAG Pipeline</div>
+                                <div class="chapter-item"><span class="timestamp">0:50:40</span> Hands-on Lab 5:
+                                    Building a Complete End-to-End RAG Pipeline</div>
+                                <div class="chapter-item"><span class="timestamp">0:52:54</span> Production Concerns:
+                                    Caching, Monitoring, and Error Handling</div>
+                                <div class="chapter-item"><span class="timestamp">0:54:00</span> Implementation
+                                    Strategies for Query, Embedding, and LLM Caching</div>
+                                <div class="chapter-item"><span class="timestamp">0:56:51</span> Essential Metrics for
+                                    Tracking RAG Performance</div>
+                                <div class="chapter-item"><span class="timestamp">0:57:39</span> Production
+                                    Architecture: Microservices on Kubernetes</div>
+                            </div>
+
+                            <div class="chapter-group">
+                                <div class="chapter-group-title">Part 2: Model Context Protocol (MCP)</div>
+                                <div class="chapter-item"><span class="timestamp">0:59:40</span> Introduction to Model
+                                    Context Protocol (MCP)</div>
+                                <div class="chapter-item"><span class="timestamp">1:00:59</span> The Role of AI Agents
+                                    in Action-Oriented Systems</div>
+                                <div class="chapter-item"><span class="timestamp">1:06:15</span> Why We Need
+                                    Standardized Tools for Third-Party Interactions</div>
+                                <div class="chapter-item"><span class="timestamp">1:08:00</span> MCP Architecture:
+                                    Clients, Servers, and Local vs. Remote Hosting</div>
+                                <div class="chapter-item"><span class="timestamp">1:10:12</span> Hands-on Lab 6: Setting
+                                    up the AI Assistant Environment</div>
+                                <div class="chapter-item"><span class="timestamp">1:12:40</span> Core MCP Components:
+                                    Resources, Tools, and Prompts</div>
+                                <div class="chapter-item"><span class="timestamp">1:14:13</span> Understanding the MCP
+                                    Specification and JSON-RPC Protocol</div>
+                                <div class="chapter-item"><span class="timestamp">1:22:55</span> Hands-on Lab 7:
+                                    Connecting to and Using an Existing MCP Server</div>
+                                <div class="chapter-item"><span class="timestamp">1:26:22</span> Building a Custom MCP
+                                    Server with the Python SDK</div>
+                                <div class="chapter-item"><span class="timestamp">1:29:12</span> Testing with the MCP
+                                    Inspector</div>
+                                <div class="chapter-item"><span class="timestamp">1:29:45</span> Hands-on Lab 8:
+                                    Developing Resources, Tools, and Prompts for MCP</div>
+                                <div class="chapter-item"><span class="timestamp">1:35:29</span> Building an MCP Client:
+                                    Roots, Sampling, and Elicitation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADDITIONAL VIDEO RESOURCES -->
+                <div class="section" style="margin-bottom: 30px;">
+                    <h2 class="section-title">📺 Additional Learning Resources</h2>
+
+                    <div class="feature-grid">
+                        <!-- RAG From Scratch Video -->
+                        <div class="method-card"
+                            style="background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; padding: 15px; border-radius: 12px;">
+                            <h3 style="margin-top: 0; color: var(--primary);">🧠 RAG From Scratch</h3>
+                            <div class="video-wrapper" style="margin-bottom: 15px;">
+                                <iframe src="https://www.youtube.com/embed/vzGkSn59rDU" title="RAG From Scratch"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                            <p style="font-size: 0.9em; color: #cbd5e1; margin: 0;">Deep dive into building Retrieval
+                                Augmented Generation systems from the ground up.</p>
+                        </div>
+
+                        <!-- Full Playlist -->
+                        <div class="method-card"
+                            style="background: rgba(15, 23, 42, 0.6); border: 1px solid #334155; padding: 15px; border-radius: 12px;">
+                            <h3 style="margin-top: 0; color: var(--primary);">📚 Complete Series</h3>
+                            <div class="video-wrapper" style="margin-bottom: 15px;">
+                                <iframe
+                                    src="https://www.youtube.com/embed/videoseries?list=PLMVV8yyL2GN_bCpeCPYG40rs7ySxu3gna"
+                                    title="MCP & RAG Playlist"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen>
+                                </iframe>
+                            </div>
+                            <p style="font-size: 0.9em; color: #cbd5e1; margin: 0;">Access the full collection of
+                                tutorials covering basic to advanced topics.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULE 0: ORIENTATION -->
+                <div class="section" id="mod-0-orientation">
+                    <h2 class="section-title">Module 0: Orientation & Mental Model</h2>
+                    <div class="question-box" style="margin-bottom: 25px; border-left: 4px solid var(--accent);">
+                        <strong>🎯 Goal: Lock the correct MCP worldview.</strong>
+                        <ul style="margin-top:10px; padding-left:20px; color:#cbd5e1;">
+                            <li>What MCP is vs what it is not</li>
+                            <li>Brain–Body–World model</li>
+                            <li>Why MCP replaces plugins</li>
+                        </ul>
+                    </div>
+
+                    <div class="questions-grid">
+                        <div class="question-box" style="grid-column: span 2;">
+                            <h3 style="color: var(--primary); margin-top:0;">🔌 What is MCP?</h3>
+                            <p>MCP (Model Context Protocol) is the open standard for connecting AI models to their data
+                                environment. It is not an LLM itself; it is the <strong>infrastructure</strong> that
+                                connects models to the real world.</p>
+                            <p>Think of it as <strong>USB-C for AI</strong>. Before USB-C, every device had a custom
+                                cable. Before MCP, every tool had a custom API connector. MCP standardizes this.</p>
+                        </div>
+                    </div>
+
+                    <div class="viz-box" style="margin-top: 25px;">
+                        <img src="../static/mcp_img/MCP-server-components.png" alt="MCP Mental Model"
+                            class="img-fluid-shadow">
+                        <div style="margin-top:15px; text-align:center;">
+                            <strong>The Mental Model:</strong><br>
+                            <span style="color:#94a3b8;">Brain (LLM) ↔ Nervous System (Client) ↔ Body (Server) ↔ World
+                                (Data)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MODULE 1: ARCHITECTURE -->
+                <div class="section" id="mod-1-arch">
+                    <h2 class="section-title">Module 1: Architecture & Core Concepts</h2>
+                    <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                        <strong>🎯 Goal: Understand the primitives.</strong>
+                    </div>
+
+                    <div class="feature-grid">
+                        <div class="code-block method-card">
+                            <div class="method-header">
+                                <div class="fn">JSON-RPC 2.0</div>
+                            </div>
+                            <p style="padding:15px; font-size: 0.9em; color:#cbd5e1;">
+                                The wire protocol. MCP is <strong>stateless</strong>.<br><br>
+                                Client: <code>call_tool("list_files", path=".")</code><br>
+                                Server: <code>result: ["file1.txt"]</code>
+                            </p>
+                        </div>
+                        <div class="code-block method-card">
+                            <div class="method-header">
+                                <div class="fn">Transports</div>
+                            </div>
+                            <p style="padding:15px; font-size: 0.9em; color:#cbd5e1;">
+                                <strong>Stdio:</strong> Process-based (coding agents).<br>
+                                <strong>SSE (HTTP):</strong> Network-based (enterprise apps).
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="viz-box" style="margin-top:20px;">
+                        <img src="../static/mcp_img/MCP-Client.png" alt="MCP Architecture" class="img-fluid-shadow"
+                            style="margin-bottom: 15px;">
+                        <img src="../static/mcp_img/MCP-server-MCP Client-features.png" alt="Client Features"
+                            class="img-fluid-shadow">
+                    </div>
+                </div>
+
+                <!-- MODULE 2: SKELETON -->
+                <div class="section" id="mod-2-skeleton">
+                    <h2 class="section-title">Module 2: MCP Server Skeleton (FastMCP)</h2>
+                    <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                        <strong>🎯 Goal: Build a minimal but correct MCP server.</strong>
+                    </div>
+
+                    <p>We use the <code>FastMCP</code> Python SDK to handle the lifecycle and protocol details
+                        automatically.</p>
+
+                    <div class="code-example">
+                        <button class="copy-btn">Copy</button>
+                        <pre><span class="kw">from</span> mcp.server.fastmcp <span class="kw">import</span> FastMCP
+
+<span class="cmt"># 1. Initialize Server</span>
+mcp = FastMCP(<span class="str">"My First Server"</span>)
+
+<span class="cmt"># 2. Keep it running</span>
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    mcp.run(transport=<span class="str">"stdio"</span>)</pre>
+                    </div>
+                </div>
+
+                <!-- MODULE 3: RESOURCES -->
+                <div class="section" id="mod-3-resources">
+                    <h2 class="section-title">Module 3: Resources (Read-Only Knowledge)</h2>
+                    <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                        <strong>🎯 Goal: Expose data safely.</strong>
+                    </div>
+
+                    <div class="viz-box">
+                        <img src="../static/mcp_img/MCP-server-Resources.png" alt="Resources Diagram"
+                            class="img-fluid-shadow" style="max-width: 80%;">
+                    </div>
+
+                    <p>Resources are <strong>passive data sources</strong> explicitly exposed to the LLM. Think of them
+                        as "File Reads" via a URI.</p>
+
+                    <div class="code-example">
+                        <button class="copy-btn">Copy</button>
+                        <pre><span class="cmt"># Exposing a dynamic resource</span>
+<span class="fn">@mcp.resource(<span class="str">"system://logs/{service}"</span>)</span>
+<span class="kw">def</span> <span class="fn">get_logs</span>(service: str) -> str:
+    <span class="str">"""Read logs for a specific service."""</span>
+    <span class="kw">return</span> open(<span class="str">f"/var/log/{service}.log"</span>).read()</pre>
+                    </div>
+                </div>
+
+                <!-- MODULE 4: TOOLS -->
+                <div class="section" id="mod-4-tools">
+                    <h2 class="section-title">Module 4: Tools (Action Layer)</h2>
+                    <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                        <strong>🎯 Goal: Execute controlled actions.</strong>
+                    </div>
+
+                    <div class="viz-box">
+                        <img src="../static/mcp_img/MCP-server-Tools.png" alt="Tools Diagram" class="img-fluid-shadow"
+                            style="max-width: 80%;">
+                    </div>
+
+                    <p>Tools are <strong>active functions</strong> that the model can call. They should be atomic and
+                        safe.</p>
+
+                    <div class="code-example">
+                        <button class="copy-btn">Copy</button>
+                        <pre><span class="fn">@mcp.tool()</span>
+<span class="kw">def</span> <span class="fn">list_directory</span>(path: str) -> str:
+    <span class="str">"""Safe listing of directory contents."""</span>
+    <span class="kw">if</span> <span class="kw">not</span> path.startswith(<span class="str">"/safe/root"</span>):
+        <span class="kw">raise</span> ValueError(<span class="str">"Access Denied"</span>)
+    <span class="kw">return</span> str(os.listdir(path))</pre>
+                    </div>
+                </div>
+
+                <!-- MODULE 5: PROMPTS -->
+                <div class="section" id="mod-5-prompts">
+                    <h2 class="section-title">Module 5: Prompts (Reusable Intelligence)</h2>
+                    <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                        <strong>🎯 Goal: Encode behaviour, not just logic.</strong>
+                    </div>
+
+                    <div class="viz-box">
+                        <img src="../static/mcp_img/MCP-server-Prompts.png" alt="Prompts Diagram"
+                            class="img-fluid-shadow" style="max-width: 80%;">
+                    </div>
+
+                    <p>Prompts allow servers to dictate the <strong>persona</strong> and <strong>context</strong> the
+                        client should use.</p>
+
+                    <div class="code-block method-card">
+                        <div class="method-header">
+                            <div class="fn">Example: The DevOps Guardrail</div>
+                        </div>
+                        <pre style="white-space: pre-wrap; color: #a5b4fc; font-family: monospace; font-size: 0.85em;">
+    You are a DevOps assistant.
+    RULES:
+    1. NEVER run delete commands without confirmation.
+    2. Always use `list_directory` before `cat`.
+    3. Be concise.</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 6: CLIENTS -->
+            <div class="section" id="mod-6-clients">
+                <h2 class="section-title">Module 6: MCP Client Fundamentals</h2>
+                <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                    <strong>🎯 Goal: Understand how clients really work.</strong>
+                </div>
+
+                <p>The <strong>Client</strong> (Coordinator) is responsible for maintaining the connection with the
+                    Server (Worker) and the LLM (Brain).</p>
+
+                <div class="workflow-box">
+                    <h4 style="margin:0;">Client Runtime Loop</h4>
+                    <ol style="margin-top:10px; padding-left:20px; color:#cbd5e1; line-height:1.6;">
+                        <li><strong>Connect:</strong> Spawn server process (stdio) or connect socket (SSE).</li>
+                        <li><strong>Handshake:</strong> Exchange capabilities (prompts, resources, tools).</li>
+                        <li><strong>Loop:</strong>
+                            <ul>
+                                <li>User Input + Tool Definitions → LLM</li>
+                                <li>LLM decides to call tool → Client executes <code>call_tool</code></li>
+                                <li>Client feeds result back to LLM → LLM summarizes</li>
+                            </ul>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- MODULE 7: SAMPLING -->
+            <div class="section" id="mod-7-sampling">
+                <h2 class="section-title">Module 7: Sampling (LLM-in-the-Loop)</h2>
+                <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                    <strong>🎯 Goal: Correctly integrate LLM calls.</strong>
+                </div>
+
+                <div class="viz-box">
+                    <img src="../static/mcp_img/MCP-Client-sampling-2.png" alt="Sampling Diagram"
+                        class="img-fluid-shadow" style="max-width: 80%;">
+                </div>
+
+                <p>Servers are "headless"—they don't have an LLM. When a server needs "intelligence" (e.g., to summarize
+                    a file it just read), it uses **Sampling** to ask the Client's LLM to do it.</p>
+            </div>
+
+            <!-- MODULE 8: ELICITATION -->
+            <div class="section" id="mod-8-elicitation">
+                <h2 class="section-title">Module 8: Elicitation (Human-in-the-Loop)</h2>
+                <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                    <strong>🎯 Goal: Gather structured user input safely.</strong>
+                </div>
+
+                <div class="viz-box">
+                    <img src="../static/mcp_img/MCP-Client-elicitation-2.png" alt="Elicitation Diagram"
+                        class="img-fluid-shadow" style="max-width: 80%;">
+                </div>
+
+                <p>Never guess. If a tool needs a parameter (e.g., "GitHub Token"), use **Elicitation** to ask the user
+                    via the Client UI, rather than hallucinating a fake token.</p>
+            </div>
+
+            <!-- MODULE 9: ROOTS & PROGRESS -->
+            <div class="section" id="mod-9-roots">
+                <h2 class="section-title">Module 9: Roots, Context & Progress</h2>
+                <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                    <strong>🎯 Goal: Build long-running workflows.</strong>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="question-box">
+                        <strong>Roots</strong>
+                        <p>Defines the "filesystem scope". A server should only see what the client explicitly allows
+                            (e.g., <code>/User/project</code>).</p>
+                    </div>
+                    <div class="question-box">
+                        <strong>Progress</strong>
+                        <p>For long tasks (converting video), servers send progress tokens so the Client calls display a
+                            loading bar.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 10: SECURITY -->
+            <div class="section" id="mod-10-security">
+                <h2 class="section-title">Module 10: Security, Auth & Trust Boundaries</h2>
+                <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                    <strong>🎯 Goal: Prevent "LLM with sudo".</strong>
+                </div>
+
+                <div class="questions-grid">
+                    <div class="question-box">
+                        <strong>1. Path Sandboxing</strong>
+                        <p>Use <code>os.path.commonpath</code> to ensure no tool escapes the <code>SAFE_ROOT</code>.</p>
+                    </div>
+                    <div class="question-box">
+                        <strong>2. Human Approval</strong>
+                        <p>Sensitive tools (<code>delete_file</code>, <code>make_payment</code>) should require explicit
+                            user confirmation flags configured in the Client.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODULE 11: INSPECTOR -->
+            <div class="section" id="mod-11-inspector">
+                <h2 class="section-title">Module 11: MCP Inspector & Observability</h2>
+                <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                    <strong>🎯 Goal: Debug like a professional.</strong>
+                </div>
+
+                <div class="viz-box">
+                    <img src="../static/mcp_img/MCP-server-Inspector-library-1.png" alt="Inspector UI"
+                        class="img-fluid-shadow" style="border: 1px solid #334155;">
+                </div>
+
+                <p>Don't guess why your tool failed. Use the <strong>MCP Inspector</strong> to test tools manually
+                    before hooking them up to an LLM.</p>
+                <pre
+                    style="background:#1e293b; padding:10px; border-radius:6px; color:#a5b4fc;">npx @modelcontextprotocol/inspector python my_server.py</pre>
+            </div>
+
+            <!-- MODULE 12: DEPLOYMENT -->
+            <div class="section" id="mod-12-deploy">
+                <h2 class="section-title">Module 12: Deployment Patterns</h2>
+                <div class="question-box" style="margin-bottom: 20px; border-left: 4px solid var(--accent);">
+                    <strong>🎯 Goal: Ship it.</strong>
+                </div>
+
+                <ul style="padding:15px; color:#cbd5e1; line-height:1.6;">
+                    <li><strong>Local Desktop Agents:</strong> Run via Stdio (Claude Desktop). Zero latency, high
+                        security.</li>
+                    <li><strong>Remote Sidecars:</strong> Run as a Docker container next to your app. Connect via SSE.
+                    </li>
+                    <li><strong>Central Hubs:</strong> Enterprise gateway managing hundreds of tools.</li>
+                </ul>
+            </div>
+
+            <!-- CAPSTONE -->
+            <div class="section" id="capstone-project">
+                <h2 class="section-title">Final Capstone Project</h2>
+                <div class="viz-box">
+                    <h3 style="color:var(--primary);">Host OS Manager</h3>
+                    <p>A full-featured server combining everything: Sandboxing, Tools, Resources, and System/psutil
+                        integration.</p>
+                </div>
+
+                <div class="code-example" style="max-height: 500px; overflow-y: auto;">
+                    <button class="copy-btn">Copy</button>
+                    <pre><span class="kw">import</span> os
+<span class="kw">import</span> glob
+<span class="kw">import</span> psutil
+<span class="kw">from</span> mcp.server.fastmcp <span class="kw">import</span> FastMCP
+
+<span class="cmt"># Initialize</span>
+mcp = FastMCP(<span class="str">"macOS-Manager"</span>)
+SAFE_ROOT = os.path.expanduser(<span class="str">"~/Desktop"</span>)
+
+<span class="kw">def</span> <span class="fn">validate_path</span>(path: str) -> str:
+    abs_path = os.path.abspath(os.path.join(SAFE_ROOT, path))
+    <span class="kw">if not</span> abs_path.startswith(SAFE_ROOT):
+        <span class="kw">raise</span> PermissionError(<span class="str">"Access denied"</span>)
+    <span class="kw">return</span> abs_path
+
+<span class="fn">@mcp.tool()</span>
+<span class="kw">def</span> <span class="fn">list_directory</span>(path: str = <span class="str">"."</span>) -> str:
+    target = validate_path(path)
+    <span class="kw">return</span> str(os.listdir(target))
+
+<span class="fn">@mcp.resource(<span class="str">"system://stats"</span>)</span>
+<span class="kw">def</span> <span class="fn">get_stats</span>() -> str:
+    <span class="kw">return</span> <span class="str">f"CPU: {psutil.cpu_percent()}%"</span>
+
+<span class="kw">if</span> __name__ == <span class="str">"__main__"</span>:
+    mcp.run()</pre>
+                </div>
+            </div>
+
+            <!-- BONUS: RAG & UNIFIED STACK -->
+            <div class="section" id="bonus-rag">
+                <h2 class="section-title">Bonus: RAG & Unified Stack</h2>
+                <div class="question-box" style="margin-bottom:20px; background: rgba(59, 130, 246, 0.1);">
+                    <strong>📚 Supplementary Module</strong>
+                    <p>While MCP handles <strong>Actions</strong>, RAG handles <strong>Knowledge Retrieval</strong>.
+                        Modern agents use both.</p>
+                </div>
+
+                <div class="viz-box">
+                    <img src="../static/mcp_orchestration.png" alt="Unified Stack" class="img-fluid-shadow">
+                </div>
+
+                <div class="questions-grid">
+                    <div class="question-box">
+                        <strong>Why RAG?</strong>
+                        <p>RAG gives the LLM an "Open Book Exam" capability. It fetches PDFs, docs, and wikis before
+                            answering.</p>
+                    </div>
+                    <div class="question-box">
+                        <strong>Why MCP?</strong>
+                        <p>MCP acts as the "Arms and Legs", allowing the LLM to execute code, query databases, and
+                            manage files.</p>
+                    </div>
+                </div>
+
+                <div id="rag-scenarios" class="subsection" style="margin-top: 30px;">
+                    <h3 class="subsection-title">Real-World Examples</h3>
+                    <div class="code-grid">
+                        <div class="code-block method-card">
+                            <div class="method-header">
+                                <div class="fn">Example 1: Sales Analyst Agent</div>
+                                <div class="method-def">Pure MCP</div>
+                            </div>
+                            <p style="padding: 15px; color: #cbd5e1; font-size: 0.9em;">
+                                An agent connects to a <strong>Salesforce MCP Server</strong>. The user asks:
+                                "How were Q3 sales?".<br><br>
+                                1. Agent calls `get_sales_data(start="2023-07-01", end="2023-09-30")`.<br>
+                                2. Agent receives JSON data.<br>
+                                3. Agent computes growth % using its internal math.<br>
+                                4. Agent calls `send_email` tool to report to manager.
+                            </p>
+                        </div>
+
+                        <div class="code-block method-card">
+                            <div class="method-header">
+                                <div class="fn">Example 2: Legal Assistant</div>
+                                <div class="method-def">Pure RAG</div>
+                            </div>
+                            <p style="padding: 15px; color: #cbd5e1; font-size: 0.9em;">
+                                A lawyer uploads 5,000 case files. They ask: "What is the precedent for digital
+                                copyright in 2024?"<br><br>
+                                1. System embeds query.<br>
+                                2. Retrieves top 5 paragraphs from 5,000 files.<br>
+                                3. LLM summarizes the retrieved text into a concise argument citing the specific
+                                case files.
+                            </p>
+                        </div>
+
+                        <div class="code-block method-card">
+                            <div class="method-header">
+                                <div class="fn">Example 3: Tech Support Bot</div>
+                                <div class="method-def">Combined RAG + MCP</div>
+                            </div>
+                            <p style="padding: 15px; color: #cbd5e1; font-size: 0.9em;">
+                                User: "My internet is down."<br><br>
+                                1. <strong>RAG:</strong> Bot searches manuals. Finds "Check router status
+                                lights."<br>
+                                2. Bot asks user to check lights.<br>
+                                3. User says "Red light."<br>
+                                4. <strong>MCP:</strong> Bot calls `check_connection_status(user_id)` tool via
+                                ISP API.<br>
+                                5. <strong>MCP:</strong> API returns "Service Outage in Area."<br>
+                                6. Bot informs user no action needed.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="tip-box" style="margin: 50px 0;">
+        <strong>🚀 Note:</strong> MCP is still an evolving standard. Stay updated with the official Model
+        Context Protocol documentation as new servers and client capabilities launch.
+    </div>
+    </main>
+    </div>
+
+    <script src="/default.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('.section, .subsection');
+            const navLinks = document.querySelectorAll('.sidebar-link');
+            const searchInput = document.getElementById('sidebarSearch');
+            const searchClear = document.getElementById('searchClear');
+            const homeButton = document.querySelector('.home-button');
+
+            // --- Scroll Spy Logic ---
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (scrollY >= sectionTop - 150) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active');
+                    }
+                });
+            });
+
+            // --- Enhanced Keyboard Shortcuts ---
+
+            // Global Shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Cmd+K / Ctrl+K / '/' -> Focus Search
+                if (((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') || e.key === '/') {
+                    e.preventDefault();
+                    if (searchInput) searchInput.focus();
+                }
+
+                // Cmd+B / Ctrl+B -> Back to Hub
+                if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'b') {
+                    e.preventDefault();
+                    if (homeButton) homeButton.click();
+                }
+            });
+
+            // Search Input Navigation
+            if (searchInput) {
+                searchInput.addEventListener('keydown', (e) => {
+                    const visibleLinks = Array.from(document.querySelectorAll('.sidebar-link:not(.hidden)'));
+
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        searchInput.value = '';
+                        searchInput.blur();
+                        // Trigger input event to reset filter via default.js or custom logic
+                        searchInput.dispatchEvent(new Event('input'));
+                    } else if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (visibleLinks.length > 0) visibleLinks[0].focus();
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (visibleLinks.length > 0) visibleLinks[visibleLinks.length - 1].focus();
+                    } else if (e.key === 'Enter') {
+                        e.preventDefault();
+                        if (visibleLinks.length > 0) visibleLinks[0].click();
+                    }
+                });
+
+                // Clear Button Logic reinforcement
+                if (searchClear) {
+                    searchClear.addEventListener('click', () => {
+                        searchInput.value = '';
+                        searchInput.focus();
+                        searchInput.dispatchEvent(new Event('input'));
+                    });
+                }
+            }
+
+            // Sidebar Link Navigation (Circular)
+            navLinks.forEach(link => {
+                link.addEventListener('keydown', (e) => {
+                    const visibleLinks = Array.from(document.querySelectorAll('.sidebar-link:not(.hidden)'));
+                    const index = visibleLinks.indexOf(link);
+
+                    if (e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        if (index < visibleLinks.length - 1) {
+                            visibleLinks[index + 1].focus();
+                        } else {
+                            searchInput.focus(); // Cycle back to top
+                        }
+                    } else if (e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        if (index > 0) {
+                            visibleLinks[index - 1].focus();
+                        } else {
+                            searchInput.focus(); // Back to search
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
